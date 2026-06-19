@@ -1,1 +1,0 @@
-CREATE DATABASE ehr_lab_portal;
