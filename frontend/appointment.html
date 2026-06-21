@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appointment Booking</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="navbar">
+    <h2>Hospital System</h2>
+    <div class="nav-links">
+      <a href="appointment.html">Appointment</a>
+      <a href="appointment-history.html">History</a>
+      <a href="reports.html">Reports</a>
+      <a href="analytics.html">Analytics</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Appointment Booking</h1>
+
+    <form id="appointmentForm" class="appointment-form">
+      <label>Patient Name</label>
+      <input type="text" id="patientName" placeholder="Enter patient name" required />
+
+      <label>Email</label>
+      <input type="email" id="email" placeholder="Enter email" required />
+
+      <label>Phone Number</label>
+      <input type="text" id="phone" placeholder="Enter phone number" required />
+
+      <label>Select Doctor</label>
+      <select id="doctor" required>
+        <option value="">Choose Doctor</option>
+        <option value="Dr. Priya">Dr. Priya</option>
+        <option value="Dr. Ramesh">Dr. Ramesh</option>
+        <option value="Dr. Anjali">Dr. Anjali</option>
+        <option value="Dr. Kumar">Dr. Kumar</option>
+      </select>
+
+      <label>Department</label>
+      <select id="department" required>
+        <option value="">Choose Department</option>
+        <option value="Neurology">Neurology</option>
+        <option value="Cardiology">Cardiology</option>
+        <option value="Orthopedics">Orthopedics</option>
+        <option value="Dermatology">Dermatology</option>
+      </select>
+
+      <label>Appointment Date</label>
+      <input type="date" id="date" required />
+
+      <label>Time Slot</label>
+      <select id="time" required>
+        <option value="">Choose Time</option>
+        <option value="10:00 AM">10:00 AM</option>
+        <option value="11:00 AM">11:00 AM</option>
+        <option value="12:00 PM">12:00 PM</option>
+        <option value="2:00 PM">2:00 PM</option>
+        <option value="4:00 PM">4:00 PM</option>
+      </select>
+
+      <button type="submit">Book Appointment</button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

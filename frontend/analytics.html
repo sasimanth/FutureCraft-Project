@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <nav class="navbar">
+  <h2 class="logo">Hospital System</h2>
+
+  <ul class="nav-links">
+    <li><a href="appointment.html">Appointment</a></li>
+    <li><a href="appointment-history.html">History</a></li>
+    <li><a href="reports.html">Reports</a></li>
+    <li><a href="analytics.html">Analytics</a></li>
+  </ul>
+</nav>
+  <div class="container">
+    <h1>Analytics Dashboard</h1>
+
+    <div class="report-cards">
+      <div class="card">
+        <h2>Total Appointments</h2>
+        <p id="analyticsTotal">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Booked</h2>
+        <p id="analyticsBooked">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Completed</h2>
+        <p id="analyticsCompleted">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Cancelled</h2>
+        <p id="analyticsCancelled">0</p>
+      </div>
+    </div>
+
+    <h2 class="section-title">Department-wise Appointments</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Department</th>
+            <th>Number of Appointments</th>
+          </tr>
+        </thead>
+        <tbody id="departmentAnalyticsBody"></tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">Doctor-wise Appointments</h2>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Doctor</th>
+            <th>Number of Appointments</th>
+          </tr>
+        </thead>
+        <tbody id="doctorAnalyticsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
