@@ -40,6 +40,18 @@
                         <span>Patient Directory</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-schedule">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>Schedules & Calendars</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-doctor-reports">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
             </ul>
 
             <div class="sidebar-footer">
@@ -273,31 +285,112 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                <tbody id="doctor-patients-list">
                                     <!-- Populated dynamically via local storage -->
-                                    <tr>
-                                        <td><strong>pat-1</strong></td>
-                                        <td>John Doe</td>
-                                        <td>Male</td>
-                                        <td>O+</td>
-                                        <td>+1 (555) 019-2834</td>
-                                        <td><span class="badge bg-danger">Penicillin, Shellfish</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-hc-primary" onclick="startConsultation('pat-1')">Consult</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>pat-2</strong></td>
-                                        <td>Emma Watson</td>
-                                        <td>Female</td>
-                                        <td>A-</td>
-                                        <td>+1 (555) 014-9988</td>
-                                        <td><span class="badge bg-danger">Peanuts</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-hc-primary" onclick="startConsultation('pat-2')">Consult</button>
-                                        </td>
-                                    </tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 4: SCHEDULE & CALENDAR -->
+                <section class="dashboard-panel" id="panel-schedule">
+                    <div class="hc-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-calendar-days text-primary me-2"></i>Clinician Schedule & Appointments Calendar</h5>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-secondary active">Month</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary">Week</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary">Day</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive Calendar Grid -->
+                        <div class="calendar-wrapper">
+                            <div class="calendar-header-actions">
+                                <h4 class="fw-bold text-dark mb-0" id="doctor-calendar-month">June 2026</h4>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="prev-month-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="next-month-btn"><i class="fa-solid fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            
+                            <div class="calendar-grid mb-2">
+                                <!-- Day labels -->
+                                <div class="calendar-day-label">Mon</div>
+                                <div class="calendar-day-label">Tue</div>
+                                <div class="calendar-day-label">Wed</div>
+                                <div class="calendar-day-label">Thu</div>
+                                <div class="calendar-day-label">Fri</div>
+                                <div class="calendar-day-label">Sat</div>
+                                <div class="calendar-day-label">Sun</div>
+                            </div>
+                            <div class="calendar-grid" id="doctor-calendar-grid">
+                                <!-- Monthly cells populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 5: DOCTOR REPORTS & ANALYTICS -->
+                <section class="dashboard-panel" id="panel-doctor-reports">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Total Consultations</p>
+                                    <h3 class="stat-value" id="doc-stat-total-consults">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-stethoscope"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Unique Patients Seen</p>
+                                    <h3 class="stat-value" id="doc-stat-unique-patients">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-green mb-0"><i class="fa-solid fa-user-injured"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Average Time / Consult</p>
+                                    <h3 class="stat-value">18 mins</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-clock"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Consultations Graph -->
+                        <div class="col-lg-8">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-line text-primary me-2"></i>Consultations & Patient Volume</h5>
+                                <div class="analytics-chart-container">
+                                    <canvas id="doctorConsultsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Referrals and specialty shares -->
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-notes-medical text-success me-2"></i>Case Distributions</h5>
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">PRIMARY CASE SPECIALTY</span>
+                                    <span class="fw-bold text-dark fs-6" id="doc-primary-specialty">General Medicine</span>
+                                </div>
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">LAB REQUESTS ORDERED</span>
+                                    <span class="fw-bold text-warning fs-6" id="doc-labs-ordered">--</span>
+                                </div>
+                                <div class="p-3 bg-light rounded border">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">PRESCRIPTION CONVERSION</span>
+                                    <span class="fw-bold text-success fs-6">94.2%</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -306,8 +399,102 @@
         </main>
     </div>
 
+    <!-- Patient EHR History Modal -->
+    <div class="modal fade" id="ehrHistoryModal" tabindex="-1" aria-labelledby="ehrHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 bg-light">
+                    <h5 class="modal-title fw-bold text-primary" id="ehrHistoryModalLabel"><i class="fa-solid fa-id-card-clip me-2"></i>Patient Electronic Health Record (EHR)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4 mb-4">
+                        <!-- Demographics & Allergies -->
+                        <div class="col-lg-4">
+                            <div class="p-3 bg-light rounded border h-100">
+                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-circle-user me-1 text-primary"></i>Demographics</h6>
+                                <p class="mb-1 font-size-sm"><strong>Name:</strong> <span id="ehr-p-name">--</span></p>
+                                <p class="mb-1 font-size-sm"><strong>DOB:</strong> <span id="ehr-p-dob">--</span></p>
+                                <p class="mb-1 font-size-sm"><strong>Gender:</strong> <span id="ehr-p-gender">--</span></p>
+                                <p class="mb-1 font-size-sm"><strong>Blood Group:</strong> <span id="ehr-p-blood">--</span></p>
+                                <p class="mb-1 font-size-sm"><strong>Phone:</strong> <span id="ehr-p-phone">--</span></p>
+                                <div class="p-2 bg-danger-light border border-danger rounded mt-3 text-danger font-size-xs">
+                                    <i class="fa-solid fa-triangle-exclamation me-1"></i><strong>Allergies:</strong> <span id="ehr-p-allergies">--</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Vitals trend -->
+                        <div class="col-lg-8">
+                            <div class="p-3 bg-light rounded border h-100">
+                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-heart-pulse me-1 text-danger"></i>Vitals Trend History</h6>
+                                <div style="position: relative; height: 180px; width: 100%">
+                                    <canvas id="doctorPatientVitalsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-4">
+                        <!-- Diagnosis Timeline -->
+                        <div class="col-lg-6">
+                            <div class="p-3 bg-light rounded border h-100">
+                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-timeline me-1 text-success"></i>Diagnoses & Medical Timeline</h6>
+                                <div class="history-timeline" id="doctor-p-timeline" style="max-height: 250px; overflow-y: auto; padding-top: 10px;">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Prescriptions and Reports -->
+                        <div class="col-lg-6">
+                            <div class="p-3 bg-light rounded border mb-3">
+                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-prescription me-1 text-warning"></i>Issued Prescriptions</h6>
+                                <div class="table-responsive" style="max-height: 120px; overflow-y: auto;">
+                                    <table class="table table-sm font-size-xs mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Medicine Name</th>
+                                                <th>Dosage</th>
+                                                <th>Duration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="doctor-p-rx-list">
+                                            <!-- Populated dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-light rounded border">
+                                <h6 class="fw-bold mb-3"><i class="fa-solid fa-flask me-1 text-info"></i>Laboratory Diagnostic Reports</h6>
+                                <div class="table-responsive" style="max-height: 120px; overflow-y: auto;">
+                                    <table class="table table-sm font-size-xs mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Request Date</th>
+                                                <th>Test Name</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="doctor-p-labs-list">
+                                            <!-- Populated dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom JS Controller -->
     <script src="js/app.js"></script>
 </body>
