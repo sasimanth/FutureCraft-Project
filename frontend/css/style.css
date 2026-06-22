@@ -854,3 +854,243 @@ body {
         display: none;
     }
 }
+
+/* ==========================================
+ * ADDED CUSTOM EXTENSIONS FOR PORTAL MODULES
+ * ========================================== */
+
+/* --- Drag and Drop File Uploader --- */
+.hc-upload-dropzone {
+    border: 2px dashed var(--hc-border);
+    border-radius: var(--hc-radius);
+    padding: 32px;
+    text-align: center;
+    background-color: var(--hc-bg-main);
+    transition: var(--hc-transition);
+    cursor: pointer;
+}
+.hc-upload-dropzone:hover, .hc-upload-dropzone.dragover {
+    border-color: var(--hc-primary);
+    background-color: var(--hc-primary-light);
+}
+.hc-upload-dropzone i {
+    font-size: 2.5rem;
+    color: var(--hc-primary);
+    margin-bottom: 12px;
+}
+.hc-file-preview-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border: 1px solid var(--hc-border);
+    border-radius: 8px;
+    background-color: #ffffff;
+    margin-top: 8px;
+}
+.hc-file-preview-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.hc-file-preview-icon {
+    font-size: 1.5rem;
+    color: var(--hc-danger);
+}
+
+/* --- Calendar Component --- */
+.calendar-wrapper {
+    background-color: #ffffff;
+    border: 1px solid var(--hc-border);
+    border-radius: var(--hc-radius);
+    padding: 20px;
+    box-shadow: var(--hc-shadow-sm);
+}
+.calendar-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+}
+.calendar-day-label {
+    font-weight: 700;
+    color: var(--hc-text-secondary);
+    padding: 10px 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--hc-border);
+}
+.calendar-cell {
+    min-height: 100px;
+    border: 1px solid var(--hc-border);
+    border-radius: 6px;
+    padding: 6px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #ffffff;
+    transition: var(--hc-transition);
+}
+.calendar-cell:hover {
+    background-color: var(--hc-bg-main);
+}
+.calendar-cell.other-month {
+    background-color: #f1f5f9;
+    color: #cbd5e1;
+}
+.calendar-cell.today {
+    border-color: var(--hc-primary);
+    background-color: var(--hc-primary-light);
+}
+.calendar-date-number {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+.calendar-events-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+.calendar-event-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 4px;
+    color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.event-checkup { background-color: var(--hc-primary) !important; }
+.event-lab { background-color: var(--hc-secondary) !important; }
+.event-emergency { background-color: var(--hc-danger) !important; }
+
+/* --- LaboraX Specific Layout --- */
+.laborax-stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.laborax-stat-card {
+    background-color: #ffffff;
+    border: 1px solid var(--hc-border);
+    border-radius: var(--hc-radius);
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.laborax-stat-val {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+.laborax-change-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+.laborax-change-badge.positive { background-color: var(--hc-secondary-light); color: var(--hc-secondary-dark); }
+.laborax-change-badge.negative { background-color: var(--hc-danger-light); color: var(--hc-danger); }
+
+.badge-critical { background-color: #7f1d1d !important; color: #fef2f2 !important; }
+.badge-high { background-color: var(--hc-danger-light) !important; color: var(--hc-danger) !important; }
+.badge-medium { background-color: var(--hc-accent-light) !important; color: #b45309 !important; }
+.badge-low { background-color: var(--hc-primary-light) !important; color: var(--hc-primary) !important; }
+
+/* --- Billing & Smart Hospital Widgets --- */
+.billing-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+.billing-card {
+    border-radius: 8px;
+    padding: 16px;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--hc-shadow-sm);
+    transition: var(--hc-transition);
+}
+.billing-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--hc-shadow-md);
+}
+.billing-card-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; }
+.billing-card-blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important; }
+.billing-card-purple { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important; }
+.billing-card-red { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important; }
+.billing-card-orange { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important; }
+
+.billing-card h6 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.9;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+.billing-card h4 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+/* --- Toast Notifications --- */
+.hc-toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1060;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.hc-toast {
+    background-color: var(--hc-sidebar-bg);
+    color: #ffffff;
+    border-radius: var(--hc-radius);
+    padding: 16px 20px;
+    min-width: 300px;
+    box-shadow: var(--hc-shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.hc-toast-close {
+    background: none;
+    border: none;
+    color: var(--hc-sidebar-text);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    margin-left: 12px;
+}
+.hc-toast-close:hover {
+    color: #ffffff;
+}
+
+/* --- Vitals Graph & Analytics --- */
+.analytics-chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
+}
+
