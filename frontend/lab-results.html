@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lab Results</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary">
+<div class="container">
+<a class="navbar-brand" href="lab-test.html">Lab Test</a>
+<a class="navbar-brand" href="lab-results.html">Results</a>
+<a class="navbar-brand" href="report-upload.html">Upload</a>
+<a class="navbar-brand" href="lab-reports.html">Reports</a>
+</div>
+</nav>
+<div class="mb-3">
+<label>Test Category</label>
+<select class="form-select">
+    <option>Blood Test</option>
+    <option>Urine Test</option>
+    <option>X-Ray</option>
+    <option>CT Scan</option>
+</select>
+</div>
+
+<div class="mb-3">
+<label>Clinical Notes</label>
+<textarea class="form-control"></textarea>
+</div>
+<div class="container mt-5">
+
+<div class="card p-4">
+
+<h2 class="text-success">
+Test Result Entry
+</h2>
+
+<form>
+
+<div class="mb-3">
+<label>Request ID</label>
+<input class="form-control">
+</div>
+
+<div class="mb-3">
+<label>Patient Name</label>
+<input class="form-control">
+</div>
+
+<div class="mb-3">
+<label>Result Value</label>
+<textarea class="form-control"></textarea>
+</div>
+
+<div class="mb-3">
+<label>Reference Range</label>
+<input class="form-control">
+</div>
+
+<div class="mb-3">
+<label>Status</label>
+<select class="form-select">
+<option>Normal</option>
+<option>Abnormal</option>
+</select>
+</div>
+
+<button class="btn btn-success">
+Save Result
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+</body>
+</html>
