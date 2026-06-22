@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doctor Consultation | EHR Portal</title>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Shared Style Sheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fa-solid fa-square-h"></i>
+        <span class="brand-name">SmartEHR</span>
+      </div>
+      
+      <ul class="nav-menu">
+        <li class="nav-item active">
+          <a href="doctor-consultation.html">
+            <i class="fa-solid fa-clipboard-user"></i>
+            <span>Consultation</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="diagnosis.html">
+            <i class="fa-solid fa-stethoscope"></i>
+            <span>Diagnosis</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="prescription.html">
+            <i class="fa-solid fa-file-prescription"></i>
+            <span>Create Rx</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="prescription-history.html">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Rx History</span>
+          </a>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80" alt="Doctor" class="doctor-profile-pic">
+        <div class="doctor-info-mini">
+          <h5>Dr. Dina Elijah</h5>
+          <p>Cardiologist</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="page-title">
+          <h1>Doctor Consultation Management</h1>
+          <p>Module 3: Record patient symptoms, vitals, and consultation details</p>
+        </div>
+        
+        <div class="topbar-actions">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search patients or EHR...">
+          </div>
+          <button class="icon-button" title="Alerts">
+            <i class="fa-regular fa-bell"></i>
+            <span class="badge"></span>
+          </button>
+          <button class="icon-button" title="Messages">
+            <i class="fa-regular fa-envelope"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Body -->
+      <div class="content-body animate-fade-in">
+        
+        <!-- Grid layout for Consultation Input -->
+        <div class="grid-container" style="grid-template-columns: 1.4fr 1fr;">
+          
+          <!-- Consultation Entry Card -->
+          <div class="card">
+            <div class="card-title">
+              <span><i class="fa-solid fa-notes-medical" style="margin-right: 8px;"></i>New Consultation Record</span>
+              <span style="font-size: 12px; color: var(--text-muted);">ID: #CON-2026-9812</span>
+            </div>
+            
+            <form id="consultation-form">
+              <!-- Row 1: Patient Info -->
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="patient-select">Select Patient *</label>
+                  <select id="patient-select" required>
+                    <option value="">-- Choose Active Patient --</option>
+                    <option value="Jacob Lechner" data-age="34" data-gender="Male" data-bg="O+">Jacob Lechner (ID: #PT-1020)</option>
+                    <option value="Kaylynn Bergson" data-age="29" data-gender="Female" data-bg="A-">Kaylynn Bergson (ID: #PT-1021)</option>
+                    <option value="Zaire Gouse" data-age="45" data-gender="Male" data-bg="B+">Zaire Gouse (ID: #PT-1022)</option>
+                    <option value="Alfredo Dias" data-age="52" data-gender="Male" data-bg="AB+">Alfredo Dias (ID: #PT-1023)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="consultation-date">Consultation Date *</label>
+                  <input type="date" id="consultation-date" required>
+                </div>
+              </div>
+
+              <!-- Row 2: Vitals Header -->
+              <h3 style="font-size: 14px; font-weight: 700; margin: 20px 0 10px 0; color: var(--secondary); border-bottom: 1.5px solid var(--border-color); padding-bottom: 4px;">
+                Patient Vitals
+              </h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vital-bp">Blood Pressure</label>
+                  <div class="vitals-input-wrapper">
+                    <input type="text" id="vital-bp" placeholder="120/80">
+                    <span class="unit">mmHg</span>
+                  </div>
+                  <small id="bp-feedback" style="font-size: 11px; margin-top: 4px; display: block;"></small>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vital-pulse">Pulse / Heart Rate</label>
+                  <div class="vitals-input-wrapper">
+                    <input type="number" id="vital-pulse" placeholder="72">
+                    <span class="unit">bpm</span>
+                  </div>
+                  <small id="pulse-feedback" style="font-size: 11px; margin-top: 4px; display: block;"></small>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vital-temp">Body Temperature</label>
+                  <div class="vitals-input-wrapper">
+                    <input type="number" step="0.1" id="vital-temp" placeholder="98.6">
+                    <span class="unit">°F</span>
+                  </div>
+                  <small id="temp-feedback" style="font-size: 11px; margin-top: 4px; display: block;"></small>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vital-spo2">Oxygen Saturation</label>
+                  <div class="vitals-input-wrapper">
+                    <input type="number" id="vital-spo2" placeholder="98">
+                    <span class="unit">% SpO2</span>
+                  </div>
+                  <small id="spo2-feedback" style="font-size: 11px; margin-top: 4px; display: block;"></small>
+                </div>
+              </div>
+
+              <!-- Row 3: Symptoms -->
+              <h3 style="font-size: 14px; font-weight: 700; margin: 20px 0 10px 0; color: var(--secondary); border-bottom: 1.5px solid var(--border-color); padding-bottom: 4px;">
+                Symptoms & Clinical Notes
+              </h3>
+
+              <div class="form-group">
+                <label>Common Symptoms (Select all that apply)</label>
+                <div class="symptoms-tags" id="symptoms-container">
+                  <span class="symptom-tag" data-value="Fever"><i class="fa-solid fa-plus"></i> Fever</span>
+                  <span class="symptom-tag" data-value="Cough"><i class="fa-solid fa-plus"></i> Cough</span>
+                  <span class="symptom-tag" data-value="Shortness of Breath"><i class="fa-solid fa-plus"></i> Shortness of Breath</span>
+                  <span class="symptom-tag" data-value="Chest Pain"><i class="fa-solid fa-plus"></i> Chest Pain</span>
+                  <span class="symptom-tag" data-value="Headache"><i class="fa-solid fa-plus"></i> Headache</span>
+                  <span class="symptom-tag" data-value="Fatigue"><i class="fa-solid fa-plus"></i> Fatigue</span>
+                  <span class="symptom-tag" data-value="Nausea"><i class="fa-solid fa-plus"></i> Nausea</span>
+                  <span class="symptom-tag" data-value="Dizziness"><i class="fa-solid fa-plus"></i> Dizziness</span>
+                </div>
+                <input type="hidden" id="selected-symptoms" name="selected-symptoms">
+              </div>
+
+              <div class="form-group">
+                <label for="custom-symptoms">Other Symptoms / Detailed Description</label>
+                <textarea id="custom-symptoms" placeholder="Describe symptoms or presentation..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="recommendations">Initial Recommendations & Advice</label>
+                <textarea id="recommendations" placeholder="Enter instructions, advice, dietary changes..." required></textarea>
+              </div>
+
+              <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                <button type="reset" class="btn btn-outline">Clear Form</button>
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Consultation</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Quick Info Panel / Patient Card Summary -->
+          <div style="display: flex; flex-direction: column; gap: 24px;">
+            <!-- Selected Patient Summary -->
+            <div class="card" id="patient-card" style="display: none;">
+              <div class="card-title">
+                <span><i class="fa-solid fa-user-injured" style="margin-right: 8px;"></i>Patient Summary</span>
+                <span class="badge-status badge-mild" id="patient-status">Active</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div style="width: 50px; height: 50px; border-radius: 50%; background-color: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700;">
+                    <span id="patient-initials">JL</span>
+                  </div>
+                  <div>
+                    <h4 id="patient-display-name" style="font-size: 16px; font-weight: 700;">Jacob Lechner</h4>
+                    <p style="font-size: 12px; color: var(--text-muted);">Age: <span id="patient-age">34</span> | Gender: <span id="patient-gender">Male</span></p>
+                  </div>
+                </div>
+                <div style="border-top: 1px solid var(--border-color); padding-top: 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 12px;">
+                  <div>
+                    <span style="color: var(--text-muted); display: block;">Blood Group</span>
+                    <strong id="patient-blood-group">O+</strong>
+                  </div>
+                  <div>
+                    <span style="color: var(--text-muted); display: block;">Last Visit</span>
+                    <strong>May 12, 2026</strong>
+                  </div>
+                  <div>
+                    <span style="color: var(--text-muted); display: block;">Allergies</span>
+                    <strong style="color: var(--danger);">Penicillin</strong>
+                  </div>
+                  <div>
+                    <span style="color: var(--text-muted); display: block;">Chronic Conditions</span>
+                    <strong>Hypertension</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Doctor Reference / Actions checklist -->
+            <div class="card">
+              <div class="card-title">
+                <span><i class="fa-solid fa-list-check" style="margin-right: 8px;"></i>Consultation Flow Checklist</span>
+              </div>
+              <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-regular fa-square-check" style="color: var(--success); font-size: 16px;"></i>
+                  <span>Verify patient identity & registration card</span>
+                </li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-regular fa-square-check" style="color: var(--success); font-size: 16px;"></i>
+                  <span>Record vitals & check for severe red flags</span>
+                </li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-regular fa-square" style="color: var(--text-muted); font-size: 16px;"></i>
+                  <span>Log presenting symptoms & duration</span>
+                </li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-regular fa-square" style="color: var(--text-muted); font-size: 16px;"></i>
+                  <span>Submit diagnosis form & ICD-10 codification</span>
+                </li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <i class="fa-regular fa-square" style="color: var(--text-muted); font-size: 16px;"></i>
+                  <span>Issue digital prescriptions and laboratory tests</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Consultations Table -->
+        <div class="card" style="margin-top: 12px;">
+          <div class="card-title">
+            <span><i class="fa-solid fa-list" style="margin-right: 8px;"></i>Recent Consultations (Today)</span>
+            <span class="badge-status badge-mild" style="background-color: var(--primary-light); color: var(--primary);">Synced with EHR</span>
+          </div>
+          
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Patient Name</th>
+                  <th>Consultation Date</th>
+                  <th>Recorded Symptoms</th>
+                  <th>Primary Vitals</th>
+                  <th>Recommendations</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recent-consultations-body">
+                <tr>
+                  <td><strong>Jacob Lechner</strong></td>
+                  <td>2026-06-22</td>
+                  <td>Fever, Headache</td>
+                  <td>BP: 138/88 | Pulse: 78 bpm</td>
+                  <td>Prescribed Bed Rest and Paracetamol. Referred to Pathology.</td>
+                  <td>
+                    <button class="btn btn-outline btn-sm" onclick="alert('Loading details in EHR reader...')">View EHR</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Kaylynn Bergson</strong></td>
+                  <td>2026-06-22</td>
+                  <td>Cough, Fatigue</td>
+                  <td>BP: 118/76 | Pulse: 68 bpm</td>
+                  <td>Drink fluids, steam inhalation. Postpone heavy workouts.</td>
+                  <td>
+                    <button class="btn btn-outline btn-sm" onclick="alert('Loading details in EHR reader...')">View EHR</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Dynamic Logic -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Set today's date automatically
+      const dateInput = document.getElementById("consultation-date");
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+
+      // Handle Patient Select & Summary Display
+      const patientSelect = document.getElementById("patient-select");
+      const patientCard = document.getElementById("patient-card");
+      
+      patientSelect.addEventListener("change", () => {
+        const selectedOption = patientSelect.options[patientSelect.selectedIndex];
+        if (selectedOption.value === "") {
+          patientCard.style.display = "none";
+          return;
+        }
+        
+        // Populate Summary Card
+        const name = selectedOption.value;
+        const age = selectedOption.getAttribute("data-age");
+        const gender = selectedOption.getAttribute("data-gender");
+        const bg = selectedOption.getAttribute("data-bg");
+        
+        document.getElementById("patient-display-name").innerText = name;
+        document.getElementById("patient-age").innerText = age;
+        document.getElementById("patient-gender").innerText = gender;
+        document.getElementById("patient-blood-group").innerText = bg;
+        document.getElementById("patient-initials").innerText = name.split(" ").map(n => n[0]).join("");
+        
+        patientCard.style.display = "block";
+      });
+
+      // Handle Symptom Tag Selection
+      const symptomTags = document.querySelectorAll(".symptom-tag");
+      const symptomsHiddenInput = document.getElementById("selected-symptoms");
+      let activeSymptoms = [];
+
+      symptomTags.forEach(tag => {
+        tag.addEventListener("click", () => {
+          const value = tag.getAttribute("data-value");
+          
+          if (tag.classList.contains("active")) {
+            tag.classList.remove("active");
+            tag.querySelector("i").className = "fa-solid fa-plus";
+            activeSymptoms = activeSymptoms.filter(s => s !== value);
+          } else {
+            tag.classList.add("active");
+            tag.querySelector("i").className = "fa-solid fa-check";
+            activeSymptoms.push(value);
+          }
+          
+          symptomsHiddenInput.value = activeSymptoms.join(", ");
+        });
+      });
+
+      // Vitals validation styling triggers on input blur
+      const bpInput = document.getElementById("vital-bp");
+      const pulseInput = document.getElementById("vital-pulse");
+      const tempInput = document.getElementById("vital-temp");
+      const spo2Input = document.getElementById("vital-spo2");
+
+      bpInput.addEventListener("blur", () => {
+        const val = bpInput.value.trim();
+        const feedback = document.getElementById("bp-feedback");
+        if (!val) {
+          feedback.innerText = "";
+          bpInput.style.borderColor = "";
+          return;
+        }
+        // Match standard format
+        const match = val.match(/^(\d+)\/(\d+)$/);
+        if (match) {
+          const sys = parseInt(match[1]);
+          const dia = parseInt(match[2]);
+          if (sys >= 140 || dia >= 90) {
+            feedback.innerText = "⚠️ High Blood Pressure (Stage 1 or 2)";
+            feedback.style.color = "var(--danger)";
+            bpInput.style.borderColor = "var(--danger)";
+          } else if (sys < 90 || dia < 60) {
+            feedback.innerText = "⚠️ Low Blood Pressure (Hypotension)";
+            feedback.style.color = "var(--warning)";
+            bpInput.style.borderColor = "var(--warning)";
+          } else {
+            feedback.innerText = "✓ Normal Blood Pressure";
+            feedback.style.color = "var(--success)";
+            bpInput.style.borderColor = "var(--success)";
+          }
+        } else {
+          feedback.innerText = "Please enter in format systolic/diastolic (e.g. 120/80)";
+          feedback.style.color = "var(--danger)";
+        }
+      });
+
+      pulseInput.addEventListener("blur", () => {
+        const val = parseInt(pulseInput.value);
+        const feedback = document.getElementById("pulse-feedback");
+        if (isNaN(val)) { feedback.innerText = ""; pulseInput.style.borderColor = ""; return; }
+
+        if (val > 100 || val < 60) {
+          feedback.innerText = "⚠️ Abnormal Pulse (Tachycardia / Bradycardia)";
+          feedback.style.color = "var(--danger)";
+          pulseInput.style.borderColor = "var(--danger)";
+        } else {
+          feedback.innerText = "✓ Normal resting pulse";
+          feedback.style.color = "var(--success)";
+          pulseInput.style.borderColor = "var(--success)";
+        }
+      });
+
+      tempInput.addEventListener("blur", () => {
+        const val = parseFloat(tempInput.value);
+        const feedback = document.getElementById("temp-feedback");
+        if (isNaN(val)) { feedback.innerText = ""; tempInput.style.borderColor = ""; return; }
+
+        if (val > 100.4) {
+          feedback.innerText = "⚠️ Pyrexia (Fever detected)";
+          feedback.style.color = "var(--danger)";
+          tempInput.style.borderColor = "var(--danger)";
+        } else if (val < 95.0) {
+          feedback.innerText = "⚠️ Hypothermia warning";
+          feedback.style.color = "var(--warning)";
+          tempInput.style.borderColor = "var(--warning)";
+        } else {
+          feedback.innerText = "✓ Normal body temperature";
+          feedback.style.color = "var(--success)";
+          tempInput.style.borderColor = "var(--success)";
+        }
+      });
+
+      spo2Input.addEventListener("blur", () => {
+        const val = parseInt(spo2Input.value);
+        const feedback = document.getElementById("spo2-feedback");
+        if (isNaN(val)) { feedback.innerText = ""; spo2Input.style.borderColor = ""; return; }
+
+        if (val < 95) {
+          feedback.innerText = "⚠️ Low Oxygen Saturation (Hypoxia warning)";
+          feedback.style.color = "var(--danger)";
+          spo2Input.style.borderColor = "var(--danger)";
+        } else {
+          feedback.innerText = "✓ Normal oxygenation";
+          feedback.style.color = "var(--success)";
+          spo2Input.style.borderColor = "var(--success)";
+        }
+      });
+
+      // Submit Form Handler (Adds Consultation to Table dynamically)
+      const form = document.getElementById("consultation-form");
+      const tableBody = document.getElementById("recent-consultations-body");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        
+        const patientName = patientSelect.value;
+        const date = dateInput.value;
+        const symptomsList = symptomsHiddenInput.value || document.getElementById("custom-symptoms").value || "None logged";
+        const bp = bpInput.value || "Not checked";
+        const pulse = pulseInput.value ? pulseInput.value + " bpm" : "Not checked";
+        const recommendations = document.getElementById("recommendations").value;
+
+        // Build new table row
+        const tr = document.createElement("tr");
+        tr.className = "animate-fade-in";
+        tr.innerHTML = `
+          <td><strong>${patientName}</strong></td>
+          <td>${date}</td>
+          <td>${symptomsList}</td>
+          <td>BP: ${bp} | Pulse: ${pulse}</td>
+          <td>${recommendations}</td>
+          <td>
+            <button class="btn btn-outline btn-sm" onclick="alert('Loading details in EHR reader...')">View EHR</button>
+          </td>
+        `;
+        
+        // Prepend to show immediately
+        tableBody.insertBefore(tr, tableBody.firstChild);
+        
+        // Reset form & states
+        form.reset();
+        activeSymptoms = [];
+        symptomTags.forEach(tag => {
+          tag.classList.remove("active");
+          tag.querySelector("i").className = "fa-solid fa-plus";
+        });
+        document.querySelectorAll("small[id$='-feedback']").forEach(el => el.innerText = "");
+        document.querySelectorAll("input[id^='vital-']").forEach(el => el.style.borderColor = "");
+        patientCard.style.display = "none";
+        dateInput.value = today;
+
+        alert("Consultation recorded successfully and linked to Digital EHR system.");
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Prescription Creation | EHR Portal</title>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Shared Style Sheet -->
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Styling specific to prescription item grid and builder items */
+    .medication-builder {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      background-color: #f8fafc;
+      margin-bottom: 20px;
+    }
+    
+    .medication-builder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <i class="fa-solid fa-square-h"></i>
+        <span class="brand-name">SmartEHR</span>
+      </div>
+      
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="doctor-consultation.html">
+            <i class="fa-solid fa-clipboard-user"></i>
+            <span>Consultation</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="diagnosis.html">
+            <i class="fa-solid fa-stethoscope"></i>
+            <span>Diagnosis</span>
+          </a>
+        </li>
+        <li class="nav-item active">
+          <a href="prescription.html">
+            <i class="fa-solid fa-file-prescription"></i>
+            <span>Create Rx</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="prescription-history.html">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>Rx History</span>
+          </a>
+        </li>
+      </ul>
+      
+      <div class="sidebar-footer">
+        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=150&q=80" alt="Doctor" class="doctor-profile-pic">
+        <div class="doctor-info-mini">
+          <h5>Dr. Dina Elijah</h5>
+          <p>Cardiologist</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="page-title">
+          <h1>Digital Prescription Creation</h1>
+          <p>Module 4: Build digital Rx formulations, set dosages, and link with Patient EHR record</p>
+        </div>
+        
+        <div class="topbar-actions">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search drug formulas...">
+          </div>
+          <button class="icon-button" title="Alerts">
+            <i class="fa-regular fa-bell"></i>
+            <span class="badge"></span>
+          </button>
+          <button class="icon-button" title="Messages">
+            <i class="fa-regular fa-envelope"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Body -->
+      <div class="content-body animate-fade-in">
+        
+        <div class="grid-container" style="grid-template-columns: 1fr 1.2fr;">
+          
+          <!-- LEFT CARD: Patient Info & Medication Builder -->
+          <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="card-title">
+              <span><i class="fa-solid fa-file-invoice" style="margin-right: 8px;"></i>Rx Header details</span>
+              <span style="font-size: 11px; font-weight: bold; color: var(--secondary);">E-PRESCRIBING INTERFACE</span>
+            </div>
+
+            <!-- Patient and Diagnosis Selector -->
+            <div class="form-group">
+              <label for="rx-patient-select">Patient Name *</label>
+              <select id="rx-patient-select" required>
+                <option value="">-- Choose Patient --</option>
+                <option value="Jacob Lechner" data-age="34" data-gender="Male" data-diag="I10 - Essential Hypertension">Jacob Lechner (Age: 34, Diag: Hypertension)</option>
+                <option value="Kaylynn Bergson" data-age="29" data-gender="Female" data-diag="J06.9 - Common Cold">Kaylynn Bergson (Age: 29, Diag: Common Cold)</option>
+                <option value="Zaire Gouse" data-age="45" data-gender="Male" data-diag="E11.9 - Type 2 Diabetes">Zaire Gouse (Age: 45, Diag: Type 2 Diabetes)</option>
+                <option value="Alfredo Dias" data-age="52" data-gender="Male" data-diag="I10 - Essential Hypertension">Alfredo Dias (Age: 52, Diag: Hypertension)</option>
+              </select>
+            </div>
+
+            <div id="rx-patient-meta" style="display: none; background-color: var(--bg-main); padding: 12px; border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 8px;">
+              <p><strong>Active Diagnosis:</strong> <span id="rx-diag-text" style="color: var(--primary); font-weight: 600;">None</span></p>
+              <p style="margin-top: 6px; color: var(--danger); font-weight: 500;">⚠️ Patient Allergy warning: <span style="font-weight:bold;">Penicillin, Sulfa Drugs</span></p>
+            </div>
+
+            <!-- Medicine Builder Card -->
+            <div class="medication-builder">
+              <h4 style="font-size: 13px; font-weight: 700; margin-bottom: 12px; color: var(--secondary); display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-pills"></i> Add Medication Form
+              </h4>
+              
+              <div class="form-group">
+                <label for="med-name">Medicine Name *</label>
+                <select id="med-name">
+                  <option value="">-- Select Drug Formulation --</option>
+                  <option value="Lisinopril">Lisinopril (5mg / 10mg / 20mg Tab)</option>
+                  <option value="Metformin">Metformin HCl (500mg / 1000mg Tab)</option>
+                  <option value="Paracetamol">Paracetamol (500mg / 650mg Tab)</option>
+                  <option value="Atorvastatin">Atorvastatin Calcium (10mg / 20mg Tab)</option>
+                  <option value="Amoxicillin">Amoxicillin (250mg / 500mg Cap) [WARNING: Allergy Risk]</option>
+                  <option value="Omeprazole">Omeprazole delayed-release (20mg Cap)</option>
+                  <option value="Albuterol Inhaler">Albuterol HFA Inhaler (90mcg/actuation)</option>
+                </select>
+              </div>
+
+              <div class="medication-builder-grid">
+                <div class="form-group">
+                  <label for="med-dosage">Dosage *</label>
+                  <input type="text" id="med-dosage" placeholder="e.g. 10mg, 1 cap">
+                </div>
+                <div class="form-group">
+                  <label for="med-frequency">Frequency *</label>
+                  <select id="med-frequency">
+                    <option value="1-0-1">1-0-1 (Twice a day)</option>
+                    <option value="1-0-0">1-0-0 (Morning only)</option>
+                    <option value="0-0-1">0-0-1 (Night only)</option>
+                    <option value="1-1-1">1-1-1 (Thrice a day)</option>
+                    <option value="PRN">PRN (As needed / SOS)</option>
+                    <option value="QDS">Every 6 Hours</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="medication-builder-grid">
+                <div class="form-group">
+                  <label for="med-duration">Duration *</label>
+                  <input type="text" id="med-duration" placeholder="e.g. 5 days, 30 days">
+                </div>
+                <div class="form-group">
+                  <label for="med-instructions">Special Instructions</label>
+                  <select id="med-instructions">
+                    <option value="After Food">After Food</option>
+                    <option value="Before Food">Before Food</option>
+                    <option value="With plenty of water">With plenty of water</option>
+                    <option value="Avoid heavy machinery">Avoid heavy machinery</option>
+                    <option value="At bedtime">At bedtime</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="button" id="add-med-btn" class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 10px;">
+                <i class="fa-solid fa-plus-circle"></i> Add to Prescription List
+              </button>
+            </div>
+          </div>
+
+          <!-- RIGHT CARD: Interactive Prescription Table and Signature -->
+          <div class="card" style="display: flex; flex-direction: column;">
+            <div class="card-title">
+              <span><i class="fa-solid fa-prescription" style="margin-right: 8px; font-size: 20px;"></i>Active Formulation List</span>
+              <span id="rx-list-count" class="badge-status badge-mild" style="background-color: var(--primary-light); color: var(--primary);">0 Medicines</span>
+            </div>
+
+            <!-- Table showing added medicines -->
+            <div class="table-container" style="flex-grow: 1; min-height: 250px;">
+              <table class="prescription-list-table">
+                <thead>
+                  <tr>
+                    <th>Medicine Name</th>
+                    <th>Dosage</th>
+                    <th>Frequency</th>
+                    <th>Duration</th>
+                    <th>Instructions</th>
+                    <th style="width: 60px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="prescription-list-body">
+                  <!-- Dynamic rows go here -->
+                  <tr id="empty-row-placeholder">
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                      <i class="fa-solid fa-pills" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
+                      No medications added yet. Use the form on the left.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Rx Settings & Sign Block -->
+            <div style="border-top: 1.5px solid var(--border-color); margin-top: 20px; padding-top: 16px;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="rx-refills" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="allow-refills" style="width: 16px; height: 16px;"> Refills Allowed
+                  </label>
+                  <select id="rx-refills" disabled style="margin-top: 6px;">
+                    <option value="0">0 Refills</option>
+                    <option value="1">1 Refill</option>
+                    <option value="2">2 Refills</option>
+                    <option value="3">3 Refills</option>
+                    <option value="5">5 Refills</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="display: flex; flex-direction: column; justify-content: flex-end;">
+                  <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="sign-verify" required style="width: 16px; height: 16px;"> Secure Digital Signature *
+                  </label>
+                  <div style="border: 1px dashed var(--border-color); background-color: #f8fafc; padding: 8px; border-radius: var(--radius-sm); margin-top: 6px; font-size: 11px; text-align: center; color: var(--text-muted);">
+                    <i class="fa-solid fa-key" style="margin-right: 4px;"></i> Credentials Verified: <span id="doctor-sig">Dr. Dina Elijah, MD</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                <button type="button" id="clear-rx-btn" class="btn btn-outline">Discard</button>
+                <button type="button" id="save-rx-btn" class="btn btn-primary"><i class="fa-solid fa-check-double"></i> Save & Send to Pharmacy</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- System Alerts / Allergy Checking warnings info card -->
+        <div class="card" style="border-left: 5px solid var(--warning); background-color: var(--warning-light);">
+          <div style="display: flex; gap: 14px; align-items: flex-start;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; color: var(--warning); margin-top: 2px;"></i>
+            <div>
+              <h4 style="font-size: 14px; font-weight: 700; color: #78350f;">Real-Time Drug Interaction & Allergy Alerts</h4>
+              <p style="font-size: 12px; color: #92400e; margin-top: 4px; line-height: 1.5;">
+                SmartEHR cross-checks the patient's allergy profile (e.g. penicillin) dynamically. 
+                If you select **Amoxicillin** for a patient with penicillin allergies, the portal will trigger a severe alert before saving the record.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      
+      const patientSelect = document.getElementById("rx-patient-select");
+      const patientMeta = document.getElementById("rx-patient-meta");
+      const diagText = document.getElementById("rx-diag-text");
+
+      const medSelect = document.getElementById("med-name");
+      const dosageInput = document.getElementById("med-dosage");
+      const freqSelect = document.getElementById("med-frequency");
+      const durInput = document.getElementById("med-duration");
+      const instSelect = document.getElementById("med-instructions");
+      
+      const addBtn = document.getElementById("add-med-btn");
+      const rxTableBody = document.getElementById("prescription-list-body");
+      const placeholder = document.getElementById("empty-row-placeholder");
+      const listCountBadge = document.getElementById("rx-list-count");
+
+      let addedMedicines = [];
+
+      // Patient select callback
+      patientSelect.addEventListener("change", () => {
+        const option = patientSelect.options[patientSelect.selectedIndex];
+        if (option.value === "") {
+          patientMeta.style.display = "none";
+          return;
+        }
+        
+        diagText.innerText = option.getAttribute("data-diag");
+        patientMeta.style.display = "block";
+      });
+
+      // Refills checkbox enable callback
+      const refillCheckbox = document.getElementById("allow-refills");
+      const refillSelect = document.getElementById("rx-refills");
+      
+      refillCheckbox.addEventListener("change", () => {
+        refillSelect.disabled = !refillCheckbox.checked;
+      });
+
+      // Add Medication callback
+      addBtn.addEventListener("click", () => {
+        const medName = medSelect.value;
+        const dosage = dosageInput.value.trim();
+        const frequency = freqSelect.value;
+        const duration = durInput.value.trim();
+        const instructions = instSelect.value;
+
+        if (!patientSelect.value) {
+          alert("Please select a patient first.");
+          return;
+        }
+
+        if (!medName || !dosage || !duration) {
+          alert("Please fill in Medicine Name, Dosage, and Duration fields.");
+          return;
+        }
+
+        // Allergy Warning Trigger (Penicillin/Amoxicillin crosscheck)
+        if (patientSelect.value === "Jacob Lechner" && medName === "Amoxicillin") {
+          const confirmPrescribe = confirm("🚨 PATIENT CRITICAL ALLERGY ALERT:\nJacob Lechner has a documented Penicillin allergy. Amoxicillin belongs to the penicillin drug family.\n\nAre you sure you want to override this safety alert?");
+          if (!confirmPrescribe) return; // cancel add
+        }
+
+        // Add medicine object to array
+        const medObj = {
+          id: Date.now(),
+          name: medName,
+          dosage: dosage,
+          frequency: frequency,
+          duration: duration,
+          instructions: instructions
+        };
+        
+        addedMedicines.push(medObj);
+        updatePrescriptionTable();
+
+        // Clear builder input fields (keep selectors)
+        dosageInput.value = "";
+        durInput.value = "";
+      });
+
+      function updatePrescriptionTable() {
+        // Clear except placeholder
+        rxTableBody.innerHTML = "";
+
+        if (addedMedicines.length === 0) {
+          rxTableBody.appendChild(placeholder);
+          listCountBadge.innerText = "0 Medicines";
+          return;
+        }
+
+        listCountBadge.innerText = `${addedMedicines.length} Medicine${addedMedicines.length > 1 ? 's' : ''}`;
+
+        addedMedicines.forEach(med => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${med.name}</strong></td>
+            <td>${med.dosage}</td>
+            <td><span class="badge-status badge-mild" style="text-transform:none; font-size:11px;">${med.frequency}</span></td>
+            <td>${med.duration}</td>
+            <td>${med.instructions}</td>
+            <td>
+              <button class="btn btn-danger btn-sm delete-med-btn" data-id="${med.id}" title="Remove medication">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </td>
+          `;
+
+          rxTableBody.appendChild(tr);
+        });
+
+        // Re-attach delete listeners
+        const deleteBtns = document.querySelectorAll(".delete-med-btn");
+        deleteBtns.forEach(btn => {
+          btn.addEventListener("click", () => {
+            const idToDelete = parseInt(btn.getAttribute("data-id"));
+            addedMedicines = addedMedicines.filter(m => m.id !== idToDelete);
+            updatePrescriptionTable();
+          });
+        });
+      }
+
+      // Discard Rx handler
+      document.getElementById("clear-rx-btn").addEventListener("click", () => {
+        if (confirm("Discard active prescription list?")) {
+          addedMedicines = [];
+          updatePrescriptionTable();
+          document.getElementById("allow-refills").checked = false;
+          refillSelect.disabled = true;
+          document.getElementById("sign-verify").checked = false;
+        }
+      });
+
+      // Save Rx Handler
+      document.getElementById("save-rx-btn").addEventListener("click", () => {
+        if (!patientSelect.value) {
+          alert("Please select a patient.");
+          return;
+        }
+        if (addedMedicines.length === 0) {
+          alert("Please add at least one medication to the prescription list.");
+          return;
+        }
+        if (!document.getElementById("sign-verify").checked) {
+          alert("Secure Digital Signature is required. Please verify identity by checking the box.");
+          return;
+        }
+
+        // Simulate saving
+        alert(`Success! Digital Prescription signed and uploaded to EHR.\nSent copy to patient's dashboard and preferred pharmacy.`);
+        
+        // Clear lists
+        addedMedicines = [];
+        updatePrescriptionTable();
+        document.getElementById("allow-refills").checked = false;
+        refillSelect.disabled = true;
+        document.getElementById("sign-verify").checked = false;
+        patientSelect.value = "";
+        patientMeta.style.display = "none";
+      });
+
+    });
+  </script>
+</body>
+</html>
