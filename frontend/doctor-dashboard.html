@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Portal - FutureCraft Health</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper" id="doctorDashboard">
+        <!-- SIDEBAR PANEL -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hospital text-success"></i>
+                <span>FutureCraft</span>Health
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active">
+                    <a href="#" class="sidebar-link" data-panel="panel-dashboard">
+                        <i class="fa-solid fa-house-medical"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-consultation">
+                        <i class="fa-solid fa-stethoscope"></i>
+                        <span>New Consultation</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-patients">
+                        <i class="fa-solid fa-hospital-user"></i>
+                        <span>Patient Directory</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="avatar-letters">DC</div>
+                    <div>
+                        <h6 class="mb-0 text-white font-size-sm fw-bold" id="user-display-name">Doctor Name</h6>
+                        <span class="text-white-50 font-size-xs">Clinician Workspace</span>
+                    </div>
+                </div>
+                <button onclick="AuthService.logout()" class="btn btn-sm btn-outline-danger w-100 py-2"><i class="fa-solid fa-right-from-bracket me-1"></i> Log Out</button>
+            </div>
+        </aside>
+
+        <!-- DASHBOARD BODY CONTENT -->
+        <main class="dashboard-content-area">
+            <!-- HEADER NAVBAR -->
+            <header class="dashboard-header">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="mobile-sidebar-toggle"><i class="fa-solid fa-bars text-primary"></i></button>
+                    <h4 class="mb-0 fw-bold" id="breadcrumb-title">Clinical Dashboard</h4>
+                </div>
+                <div class="header-actions">
+                    <div class="dashboard-search-bar d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="form-control" placeholder="Search appointments...">
+                    </div>
+                    <div class="header-notification-btn">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="header-notification-badge"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN PANELS VIEW AREA (SPA) -->
+            <div class="dashboard-main-view">
+                
+                <!-- PANEL 1: CLINICAL DASHBOARD -->
+                <section class="dashboard-panel active" id="panel-dashboard">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Appointments Today</p>
+                                    <h3 class="stat-value" id="doc-today-appts">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-calendar-check"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Pending Lab Results</p>
+                                    <h3 class="stat-value" id="doc-pending-labs">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-flask-vial"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hc-card">
+                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-clock text-primary me-2"></i>My Consultations Queue</h5>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Scheduled Time</th>
+                                        <th>Patient Name</th>
+                                        <th>Age</th>
+                                        <th>Symptoms / Notes</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="doctor-appt-queue">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 2: NEW CONSULTATION WORKBENCH -->
+                <section class="dashboard-panel" id="panel-consultation">
+                    <form id="doctor-consult-form">
+                        <div class="row g-4">
+                            <!-- Left: Consultation Inputs -->
+                            <div class="col-lg-8">
+                                <div class="hc-card mb-4">
+                                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-clipboard-question text-primary me-2"></i>Clinical Workbench</h5>
+                                    
+                                    <div class="mb-4">
+                                        <label for="consult-patient-select" class="form-label fw-bold">Select Active Patient</label>
+                                        <select class="form-select form-select-lg border-primary" id="consult-patient-select" required>
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+
+                                    <h6 class="fw-bold text-secondary my-3 border-bottom pb-2">1. Vitals Entry</h6>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-sm-3 col-6">
+                                            <label class="form-label font-size-sm">Blood Pressure (SYS)</label>
+                                            <input type="number" class="form-control" id="consult-sys" placeholder="120" required>
+                                        </div>
+                                        <div class="col-sm-3 col-6">
+                                            <label class="form-label font-size-sm">Blood Pressure (DIA)</label>
+                                            <input type="number" class="form-control" id="consult-dia" placeholder="80" required>
+                                        </div>
+                                        <div class="col-sm-2 col-4">
+                                            <label class="form-label font-size-sm">Heart Rate (bpm)</label>
+                                            <input type="number" class="form-control" id="consult-hr" placeholder="72" required>
+                                        </div>
+                                        <div class="col-sm-2 col-4">
+                                            <label class="form-label font-size-sm">Temp (°F)</label>
+                                            <input type="number" step="0.1" class="form-control" id="consult-temp" placeholder="98.6">
+                                        </div>
+                                        <div class="col-sm-2 col-4">
+                                            <label class="form-label font-size-sm">Weight (kg)</label>
+                                            <input type="number" step="0.1" class="form-control" id="consult-weight" placeholder="70">
+                                        </div>
+                                    </div>
+
+                                    <h6 class="fw-bold text-secondary my-3 border-bottom pb-2">2. Diagnosis & Notes</h6>
+                                    <div class="mb-3">
+                                        <label for="consult-diagnosis" class="form-label font-size-sm">Primary Diagnosis</label>
+                                        <input type="text" class="form-control" id="consult-diagnosis" placeholder="e.g. Mild Hypertension, Essential" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="consult-notes" class="form-label font-size-sm">Clinical & Consultation Notes</label>
+                                        <textarea class="form-control" id="consult-notes" rows="4" placeholder="Describe symptoms, assessment, and treatment plan..."></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Prescription Builder -->
+                                <div class="hc-card mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <h5 class="fw-bold mb-0"><i class="fa-solid fa-prescription text-success me-2"></i>Digital Prescription e-Form</h5>
+                                        <button type="button" class="btn btn-sm btn-outline-success" id="doc-add-med-btn"><i class="fa-solid fa-plus me-1"></i> Add Medication</button>
+                                    </div>
+                                    <div id="consult-med-rows">
+                                        <!-- Dynamic medication rows added here -->
+                                    </div>
+                                </div>
+
+                                <!-- Lab Order Builder -->
+                                <div class="hc-card">
+                                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-flask-vial text-warning me-2"></i>Order Lab Assessment</h5>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="consult-order-lab" onchange="document.getElementById('consult-lab-inputs').classList.toggle('d-none', !this.checked)">
+                                        <label class="form-check-label fw-medium" for="consult-order-lab">Order Laboratory Test for Patient</label>
+                                    </div>
+                                    <div class="row g-3 d-none" id="consult-lab-inputs">
+                                        <div class="col-md-6">
+                                            <label class="form-label font-size-sm">Test Category</label>
+                                            <select class="form-select form-select-sm" id="consult-lab-cat">
+                                                <option value="Blood Test">Blood Test</option>
+                                                <option value="Lipid Panel">Lipid Panel</option>
+                                                <option value="Radiology">Radiology</option>
+                                                <option value="Microbiology">Microbiology</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label font-size-sm">Test Name</label>
+                                            <input type="text" class="form-control form-control-sm" id="consult-lab-name" placeholder="e.g. Complete Blood Count (CBC)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Quick Patient Records Reference -->
+                            <div class="col-lg-4">
+                                <div class="hc-card sticky-top" style="top: 100px; z-index: 100;">
+                                    <h5 class="fw-bold mb-4"><i class="fa-solid fa-id-card text-secondary me-2"></i>Patient History Card</h5>
+                                    <div id="consult-patient-info" class="d-none">
+                                        <div class="p-3 bg-light rounded border mb-3">
+                                            <span class="text-muted d-block font-size-xs fw-semibold">PATIENT NAME</span>
+                                            <span class="fw-bold text-dark fs-5" id="consult-info-name">--</span>
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-4">
+                                                <div class="p-2 bg-light rounded border text-center">
+                                                    <span class="text-muted d-block font-size-xs">AGE</span>
+                                                    <span class="fw-bold text-dark" id="consult-info-age">--</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="p-2 bg-light rounded border text-center">
+                                                    <span class="text-muted d-block font-size-xs">GENDER</span>
+                                                    <span class="fw-bold text-dark" id="consult-info-gender">--</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="p-2 bg-light rounded border text-center">
+                                                    <span class="text-muted d-block font-size-xs">BLOOD</span>
+                                                    <span class="fw-bold text-dark" id="consult-info-blood">--</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="p-3 bg-danger-light rounded border border-danger mb-4">
+                                            <span class="text-danger d-block font-size-xs fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i>KNOWN ALLERGIES</span>
+                                            <span class="text-danger fw-semibold" id="consult-info-allergies">--</span>
+                                        </div>
+                                        <button type="submit" class="btn btn-hc-primary btn-lg w-100 py-3"><i class="fa-solid fa-floppy-disk me-1"></i> Save Consultation</button>
+                                    </div>
+                                    <div id="consult-patient-info-placeholder" class="text-center py-5">
+                                        <i class="fa-solid fa-user-injured fs-1 text-muted mb-3 d-block"></i>
+                                        <p class="text-muted mb-0">Select an active patient to preview medical history and unlock consultation tools.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- PANEL 3: PATIENT DIRECTORY -->
+                <section class="dashboard-panel" id="panel-patients">
+                    <div class="hc-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-address-book text-primary me-2"></i>Patient Registry</h5>
+                        </div>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient ID</th>
+                                        <th>Patient Name</th>
+                                        <th>Gender</th>
+                                        <th>Blood Group</th>
+                                        <th>Phone Number</th>
+                                        <th>Allergies</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated dynamically via local storage -->
+                                    <tr>
+                                        <td><strong>pat-1</strong></td>
+                                        <td>John Doe</td>
+                                        <td>Male</td>
+                                        <td>O+</td>
+                                        <td>+1 (555) 019-2834</td>
+                                        <td><span class="badge bg-danger">Penicillin, Shellfish</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-hc-primary" onclick="startConsultation('pat-1')">Consult</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>pat-2</strong></td>
+                                        <td>Emma Watson</td>
+                                        <td>Female</td>
+                                        <td>A-</td>
+                                        <td>+1 (555) 014-9988</td>
+                                        <td><span class="badge bg-danger">Peanuts</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-hc-primary" onclick="startConsultation('pat-2')">Consult</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS Controller -->
+    <script src="js/app.js"></script>
+</body>
+</html>
