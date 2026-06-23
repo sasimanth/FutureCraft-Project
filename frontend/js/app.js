@@ -303,6 +303,28 @@ function setupDashboardNavigation() {
             }
         });
     });
+    function setupDashboardNavigation() {
+
+    const navLinks = document.querySelectorAll('.sidebar-link[data-panel]');
+    const panels = document.querySelectorAll('.dashboard-panel');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const targetPanel = this.getAttribute('data-panel');
+
+            panels.forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            document.getElementById(targetPanel).classList.add('active');
+        });
+    });
+
+    // ADD YOUR NEW CODE HERE
+
+} // function ends here
 }
 
 

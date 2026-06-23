@@ -53,13 +53,26 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
+    <a href="#" class="sidebar-link" data-panel="panel-medical-history">
+        <i class="fa-solid fa-notes-medical"></i>
+        <span>Medical History and ehr</span>
+    </a>
+</li>
+
+<li class="sidebar-item">
+    <a href="#" class="sidebar-link" data-panel="panel-ehr">
+        <i class="fa-solid fa-file-waveform"></i>
+        <span>EHR</span>
+    </a>
+</li>
+                <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-profile">
                         <i class="fa-solid fa-user-gear"></i>
                         <span>My Profile</span>
                     </a>
                 </li>
             </ul>
-
+            
             <div class="sidebar-footer">
                 <div class="sidebar-user">
                     <div class="sidebar-user-avatar" id="avatar-letters">JD</div>
@@ -223,7 +236,7 @@
                         </div>
                     </div>
                 </section>
-
+                
                 <!-- PANEL 4: LAB REPORTS -->
                 <section class="dashboard-panel" id="panel-labs">
                     <div class="hc-card">
@@ -309,6 +322,7 @@
                         </div>
                     </div>
                 </section>
+               
 
                 <!-- PANEL 6: MY PROFILE -->
                 <section class="dashboard-panel" id="panel-profile">
@@ -320,6 +334,7 @@
                                     <label class="form-label fw-semibold">Full Name</label>
                                     <input type="text" class="form-control" id="profile-name" disabled>
                                 </div>
+
                                 <div class="col-md-3">
                                     <label class="form-label fw-semibold">Date of Birth</label>
                                     <input type="date" class="form-control" id="profile-dob" required>
