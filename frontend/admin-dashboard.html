@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - FutureCraft Health</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper" id="adminDashboard">
+        <!-- SIDEBAR PANEL -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                <i class="fa-solid fa-hospital text-success"></i>
+                <span>FutureCraft</span>Health
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active">
+                    <a href="#" class="sidebar-link" data-panel="panel-dashboard">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>System Console</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-users">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span>User Management</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-departments">
+                        <i class="fa-solid fa-sitemap"></i>
+                        <span>Departments</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-admin-reports">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-audits">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>System Audits</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="avatar-letters">AD</div>
+                    <div>
+                        <h6 class="mb-0 text-white font-size-sm fw-bold" id="user-display-name">Admin Name</h6>
+                        <span class="text-white-50 font-size-xs">Admin Console</span>
+                    </div>
+                </div>
+                <button onclick="AuthService.logout()" class="btn btn-sm btn-outline-danger w-100 py-2"><i class="fa-solid fa-right-from-bracket me-1"></i> Log Out</button>
+            </div>
+        </aside>
+
+        <!-- DASHBOARD BODY CONTENT -->
+        <main class="dashboard-content-area">
+            <!-- HEADER NAVBAR -->
+            <header class="dashboard-header">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="mobile-sidebar-toggle"><i class="fa-solid fa-bars text-primary"></i></button>
+                    <h4 class="mb-0 fw-bold" id="breadcrumb-title">System Console</h4>
+                </div>
+                <div class="header-actions">
+                    <div class="dashboard-search-bar d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="form-control" placeholder="Search logs/users...">
+                    </div>
+                    <div class="header-notification-btn">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="header-notification-badge"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN PANELS VIEW AREA (SPA) -->
+            <div class="dashboard-main-view">
+                
+                <!-- PANEL 1: ADMIN CONSOLE OVERVIEW -->
+                <section class="dashboard-panel active" id="panel-dashboard">
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Total Patients</p>
+                                    <h3 class="stat-value" id="admin-stat-patients">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-user-injured"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Active Doctors</p>
+                                    <h3 class="stat-value" id="admin-stat-doctors">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-green mb-0"><i class="fa-solid fa-user-doctor"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Lab Assessments</p>
+                                    <h3 class="stat-value" id="admin-stat-labs">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-flask"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Departments</p>
+                                    <h3 class="stat-value" id="admin-stat-depts">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-red mb-0"><i class="fa-solid fa-sitemap"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <!-- ACTIVITY TRENDS CHART -->
+                        <div class="col-lg-8">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-column text-primary me-2"></i>Department Admission & Case Load</h5>
+                                <div style="position: relative; height:260px; width:100%">
+                                    <canvas id="adminActivityChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LIVE SYSTEM STATS -->
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-server text-success me-2"></i>System Health Status</h5>
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">DATABASE STATUS</span>
+                                    <span class="fw-bold text-success fs-6"><i class="fa-solid fa-circle-check me-1 animate-pulse"></i> Operational (PostgreSQL)</span>
+                                </div>
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">JWT AUTHENTICATION ENGINE</span>
+                                    <span class="fw-bold text-success fs-6"><i class="fa-solid fa-circle-check me-1"></i> Active (Secure HS256)</span>
+                                </div>
+                                <div class="p-3 bg-light rounded border">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">DAILY INBOUND TRAFFIC</span>
+                                    <span class="fw-bold text-dark fs-6"><i class="fa-solid fa-arrow-trend-up text-primary me-1"></i> 142 API requests/hr</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 2: USER MANAGEMENT (CRUD) -->
+                <section class="dashboard-panel" id="panel-users">
+                    <div class="hc-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-users text-primary me-2"></i>Access Control Registry</h5>
+                            <button type="button" class="btn btn-hc-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fa-solid fa-user-plus me-1"></i> Register New User</button>
+                        </div>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email Address</th>
+                                        <th>Role Assigned</th>
+                                        <th>Reference ID</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-list">
+                                    <!-- Dynamic list of users from localStorage -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 3: DEPARTMENT REGISTRY -->
+                <section class="dashboard-panel" id="panel-departments">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-folder-plus text-primary me-2"></i>Create Department</h5>
+                                <form id="admin-add-dept-form">
+                                    <div class="mb-3">
+                                        <label for="admin-dept-name" class="form-label fw-semibold font-size-sm">Department Name</label>
+                                        <input type="text" class="form-control" id="admin-dept-name" placeholder="e.g. Oncology" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="admin-dept-head" class="form-label fw-semibold font-size-sm">Department Head Chief</label>
+                                        <input type="text" class="form-control" id="admin-dept-head" placeholder="e.g. Dr. Stephen Strange" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="admin-dept-staff" class="form-label fw-semibold font-size-sm">Initial Staff Count</label>
+                                        <input type="number" class="form-control" id="admin-dept-staff" value="5" min="1" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-hc-primary w-100 py-2">Create Specialty</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-sitemap text-primary me-2"></i>Medical Specialties Registry</h5>
+                                <div class="table-responsive hc-table-container">
+                                    <table class="table hc-table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Department Name</th>
+                                                <th>Department Head</th>
+                                                <th>Medical Staff Count</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-depts-list">
+                                            <!-- Dynamic lists of departments -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 4: AUDIT LOGS -->
+                <section class="dashboard-panel" id="panel-audits">
+                    <div class="hc-card">
+                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-file-shield text-primary me-2"></i>Database Action Audits</h5>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Module</th>
+                                        <th>Initiator</th>
+                                        <th>Action Description</th>
+                                        <th>Security Flag</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><code>2026-06-19 08:31:02</code></td>
+                                        <td><span class="badge bg-secondary">accounts</span></td>
+                                        <td><code>admin@ehrmail.com</code></td>
+                                        <td>Admin console login successful from IP 192.168.1.52.</td>
+                                        <td><span class="badge bg-success">SECURE</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>2026-06-19 08:15:34</code></td>
+                                        <td><span class="badge bg-secondary">laboratory</span></td>
+                                        <td><code>labtech@ehrmail.com</code></td>
+                                        <td>Completed report compiled for Request lab-1.</td>
+                                        <td><span class="badge bg-success">SECURE</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>2026-06-19 07:54:12</code></td>
+                                        <td><span class="badge bg-secondary">patients</span></td>
+                                        <td><code>system</code></td>
+                                        <td>Patient profile pat-1 successfully updated.</td>
+                                        <td><span class="badge bg-success">SECURE</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>2026-06-19 07:44:22</code></td>
+                                        <td><span class="badge bg-secondary">doctors</span></td>
+                                        <td><code>sarah.connor@ehrmail.com</code></td>
+                                        <td>E-Prescription rx-1 created for patient pat-1.</td>
+                                        <td><span class="badge bg-success">SECURE</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><code>2026-06-19 07:30:00</code></td>
+                                        <td><span class="badge bg-secondary">appointments</span></td>
+                                        <td><code>john.doe@ehrmail.com</code></td>
+                                        <td>Appointment scheduled with Dr. Sarah Connor.</td>
+                                        <td><span class="badge bg-success">SECURE</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 5: REPORTS & ANALYTICS (Smart Hospital style) -->
+                <section class="dashboard-panel" id="panel-admin-reports">
+                    <!-- Billing Income Metrics Grid -->
+                    <div class="billing-card-grid">
+                        <div class="billing-card billing-card-green">
+                            <div>
+                                <h6>OPD Income</h6>
+                                <h4>$10,462.00</h4>
+                            </div>
+                            <i class="fa-solid fa-stethoscope fs-4"></i>
+                        </div>
+                        <div class="billing-card billing-card-blue">
+                            <div>
+                                <h6>IPD Income</h6>
+                                <h4>$2,802.00</h4>
+                            </div>
+                            <i class="fa-solid fa-bed-pulse fs-4"></i>
+                        </div>
+                        <div class="billing-card billing-card-purple">
+                            <div>
+                                <h6>Pharmacy</h6>
+                                <h4>$21,293.60</h4>
+                            </div>
+                            <i class="fa-solid fa-pills fs-4"></i>
+                        </div>
+                        <div class="billing-card billing-card-red">
+                            <div>
+                                <h6>Pathology</h6>
+                                <h4>$3,165.00</h4>
+                            </div>
+                            <i class="fa-solid fa-vial fs-4"></i>
+                        </div>
+                        <div class="billing-card billing-card-orange">
+                            <div>
+                                <h6>Radiology</h6>
+                                <h4>$2,304.00</h4>
+                            </div>
+                            <i class="fa-solid fa-x-ray fs-4"></i>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <!-- Income & Expense Graph -->
+                        <div class="col-lg-8">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-money-bill-trend-up text-primary me-2"></i>Yearly Income vs Expenses</h5>
+                                <div class="analytics-chart-container">
+                                    <canvas id="adminYearlyIncomeChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Monthly Income Doughnut -->
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-pie-chart text-secondary me-2"></i>Income Distribution</h5>
+                                <div class="analytics-chart-container">
+                                    <canvas id="adminIncomeDistChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Statistical Reports -->
+                        <div class="col-md-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-user-doctor text-success me-2"></i>Doctor Performance statistics</h5>
+                                <div class="table-responsive">
+                                    <table class="table hc-table font-size-xs mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Doctor Name</th>
+                                                <th>Specialization</th>
+                                                <th>Consults</th>
+                                                <th>Rating</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Dr. Sarah Connor</td>
+                                                <td>General Medicine</td>
+                                                <td>48</td>
+                                                <td><span class="text-warning"><i class="fa-solid fa-star"></i> 4.9</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Dr. Robert Chen</td>
+                                                <td>Cardiology</td>
+                                                <td>32</td>
+                                                <td><span class="text-warning"><i class="fa-solid fa-star"></i> 4.8</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Dr. Alice Vance</td>
+                                                <td>Neurology</td>
+                                                <td>24</td>
+                                                <td><span class="text-warning"><i class="fa-solid fa-star"></i> 4.7</span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-flask-vial text-warning me-2"></i>Lab Assessments Volume</h5>
+                                <div class="table-responsive">
+                                    <table class="table hc-table font-size-xs mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Test Category</th>
+                                                <th>Tests Conducted</th>
+                                                <th>TAT Performance</th>
+                                                <th>Critical Detected</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Blood Tests</td>
+                                                <td>124</td>
+                                                <td>96.8%</td>
+                                                <td>8</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Lipid Panel</td>
+                                                <td>45</td>
+                                                <td>98.2%</td>
+                                                <td>14</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Biochemistry</td>
+                                                <td>68</td>
+                                                <td>92.4%</td>
+                                                <td>3</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ADMIN CREATE USER MODAL -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="addUserModalLabel">Register System User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="admin-add-user-form">
+                    <div class="modal-body py-4">
+                        <div class="mb-3">
+                            <label for="admin-user-name" class="form-label fw-semibold">Full Name</label>
+                            <input type="text" class="form-control" id="admin-user-name" placeholder="John Smith" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="admin-user-email" class="form-label fw-semibold">Email Address</label>
+                            <input type="email" class="form-control" id="admin-user-email" placeholder="smith@ehrmail.com" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label for="admin-user-role" class="form-label fw-semibold">Access Level</label>
+                                <select class="form-select" id="admin-user-role" required>
+                                    <option value="patient">Patient</option>
+                                    <option value="doctor">Doctor</option>
+                                    <option value="labtech">Lab Tech</option>
+                                    <option value="admin">Administrator</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="admin-user-password" class="form-label fw-semibold">Initial Password</label>
+                                <input type="password" class="form-control" id="admin-user-password" value="password123" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN EDIT USER MODAL -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="editUserModalLabel">Modify System User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="admin-edit-user-form">
+                    <input type="hidden" id="edit-user-original-email">
+                    <div class="modal-body py-4">
+                        <div class="mb-3">
+                            <label for="edit-user-name" class="form-label fw-semibold font-size-sm">Full Name</label>
+                            <input type="text" class="form-control" id="edit-user-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-user-email" class="form-label fw-semibold font-size-sm">Email Address</label>
+                            <input type="email" class="form-control" id="edit-user-email" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label for="edit-user-role" class="form-label fw-semibold font-size-sm">Access Level</label>
+                                <select class="form-select" id="edit-user-role" required>
+                                    <option value="patient">Patient</option>
+                                    <option value="doctor">Doctor</option>
+                                    <option value="labtech">Lab Tech</option>
+                                    <option value="admin">Administrator</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="edit-user-password" class="form-label fw-semibold font-size-sm">Password</label>
+                                <input type="password" class="form-control" id="edit-user-password" value="password123" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS Controller -->
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutureCraft Health - EHR & Laboratory Management Portal</title>
+    <meta name="description" content="A premium, state-of-the-art Electronic Health Record & Laboratory Management Portal for digitized patient records, doctor consults, and laboratory operations.">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="landingPage">
+
+    <!-- 1. NAVIGATION BAR -->
+    <nav class="navbar navbar-expand-lg landing-navbar sticky-top">
+        <div class="container py-1">
+            <a class="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center gap-2" href="#">
+                <i class="fa-solid fa-hospital text-success animate-pulse"></i>
+                <span>FutureCraft</span>Health
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars text-primary"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-3 mt-3 mt-lg-0">
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium" href="#features">Features</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium" href="#about">About System</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium" href="#services">Services</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium" href="#contact">Contact</a></li>
+                    <li class="nav-item ms-lg-2">
+                        <a href="login.html" class="btn btn-hc-outline"><i class="fa-solid fa-user-md me-1"></i> Staff Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="login.html" class="btn btn-hc-primary"><i class="fa-solid fa-hospital-user me-1"></i> Patient Portal</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. HERO SECTION -->
+    <header class="hero-section d-flex align-items-center">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 text-center text-lg-start animate-slide-up">
+                    <div class="hc-badge hc-badge-primary">
+                        <i class="fa-solid fa-shield-halved me-1"></i> HIPAA Compliant Security
+                    </div>
+                    <h1 class="hero-title mb-4">
+                        Smart <span>EHR</span> & Laboratory Portal
+                    </h1>
+                    <p class="hero-subtitle mb-5">
+                        A comprehensive healthcare platform designed to digitize patient history, diagnostic reports, doctor consultations, prescriptions, and medical records in real-time. Secure, centralized, and fully integrated.
+                    </p>
+                    <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3">
+                        <a href="login.html" class="btn btn-hc-primary btn-lg px-4 py-3"><i class="fa-solid fa-sign-in-alt me-2"></i>Access Portal</a>
+                        <a href="register.html" class="btn btn-hc-secondary btn-lg px-4 py-3"><i class="fa-solid fa-user-plus me-2"></i>Patient Registration</a>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center animate-fade-in">
+                    <!-- Premium Graphic Illustration -->
+                    <div class="p-3 bg-white rounded-4 shadow-lg border border-light position-relative">
+                        <div class="position-absolute top-0 start-0 translate-middle badge bg-primary p-3 rounded-circle shadow">
+                            <i class="fa-solid fa-bolt fs-4"></i>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-3" alt="Healthcare Analytics">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. STATISTICS BAR -->
+    <section class="bg-white py-5 border-top border-bottom border-light">
+        <div class="container">
+            <div class="row text-center g-4">
+                <div class="col-md-3 col-6">
+                    <h2 class="fw-extrabold text-primary mb-1">99.8%</h2>
+                    <p class="text-muted mb-0 fw-medium">System Uptime</p>
+                </div>
+                <div class="col-md-3 col-6">
+                    <h2 class="fw-extrabold text-primary mb-1">10k+</h2>
+                    <p class="text-muted mb-0 fw-medium">Active Electronic Records</p>
+                </div>
+                <div class="col-md-3 col-6">
+                    <h2 class="fw-extrabold text-primary mb-1">45+</h2>
+                    <p class="text-muted mb-0 fw-medium">Connected Hospital Labs</p>
+                </div>
+                <div class="col-md-3 col-6">
+                    <h2 class="fw-extrabold text-primary mb-1">&lt; 2 hrs</h2>
+                    <p class="text-muted mb-0 fw-medium">Average Lab Turnaround Time</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. KEY FEATURES SECTION -->
+    <section id="features" class="py-5">
+        <div class="container py-4">
+            <div class="text-center max-width-600 mx-auto mb-5 animate-slide-up">
+                <div class="hc-badge hc-badge-success">Features</div>
+                <h2 class="fw-bold mb-3">Designed for Patients, Doctors, and Labs</h2>
+                <p class="text-muted">Explore how our platform connects different hospital departments under a single unified dashboard.</p>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Patient Feature Card -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="hc-card">
+                        <div class="hc-icon-wrapper hc-icon-blue">
+                            <i class="fa-solid fa-user-injured"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Empowered Patient Portal</h4>
+                        <p class="text-muted mb-4">View your complete EHR, review active prescriptions, track blood pressure/heart rates, and download verified laboratory reports instantly.</p>
+                        <a href="login.html" class="text-decoration-none fw-semibold text-primary">Access Patient Dashboard <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+
+                <!-- Doctor Feature Card -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="hc-card">
+                        <div class="hc-icon-wrapper hc-icon-green">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Clinical Doctor Workbench</h4>
+                        <p class="text-muted mb-4">Search patient records, check vital signs history, write clinical notes, formulate digital prescriptions, and order lab tests with absolute ease.</p>
+                        <a href="login.html" class="text-decoration-none fw-semibold text-success">Access Doctor Dashboard <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+
+                <!-- Lab Feature Card -->
+                <div class="col-lg-4 col-md-6 mx-auto mx-lg-0">
+                    <div class="hc-card">
+                        <div class="hc-icon-wrapper hc-icon-yellow">
+                            <i class="fa-solid fa-vial"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Laboratory Desk</h4>
+                        <p class="text-muted mb-4">Track inbound physician requests, enter quantitative results directly, cross-check automatic reference ranges, and generate PDF lab reports.</p>
+                        <a href="login.html" class="text-decoration-none fw-semibold text-warning">Access Lab Dashboard <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. ABOUT THE SYSTEM -->
+    <section id="about" class="py-5 bg-white">
+        <div class="container py-4">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <img src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-4 shadow border border-light" alt="Hospital EHR Infrastructure">
+                </div>
+                <div class="col-lg-6">
+                    <div class="hc-badge hc-badge-primary">About Platform</div>
+                    <h2 class="fw-bold mb-4">Centralized Hospital & Lab Network</h2>
+                    <p class="text-muted mb-4">
+                        The Electronic Health Record & Laboratory Management Portal represents a modern leap in clinical software architectures. By creating direct APIs between doctors prescribing medicine, labs taking samples, and patients seeking health records, we eliminate paper processing errors and communication delays.
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span class="fw-semibold">Secure JWT Auth</span>
+                            </div>
+                            <p class="text-muted font-size-sm">Encrypted role-based access for HIPAA compliance.</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span class="fw-semibold">Analytics Dashboard</span>
+                            </div>
+                            <p class="text-muted font-size-sm">Administrators monitor total cases, revenue, and loads.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. SERVICES SECTION -->
+    <section id="services" class="py-5">
+        <div class="container py-4">
+            <div class="text-center max-width-600 mx-auto mb-5 animate-slide-up">
+                <div class="hc-badge hc-badge-success">Services</div>
+                <h2 class="fw-bold mb-3">Our Hospital Information Modules</h2>
+                <p class="text-muted">A full-featured application suite built to deliver high quality clinical performance.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="hc-card text-center p-4">
+                        <div class="hc-icon-wrapper hc-icon-blue mx-auto">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <h5 class="fw-bold">Appointment Scheduling</h5>
+                        <p class="text-muted font-size-sm mb-0">Book slots online, choose specific doctor specializations, and view upcoming calendars.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="hc-card text-center p-4">
+                        <div class="hc-icon-wrapper hc-icon-green mx-auto">
+                            <i class="fa-solid fa-notes-medical"></i>
+                        </div>
+                        <h5 class="fw-bold">Clinical Consultation History</h5>
+                        <p class="text-muted font-size-sm mb-0">Retrieve notes, vital signs, blood pressure records, and physician diagnoses in a detailed timeline.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="hc-card text-center p-4">
+                        <div class="hc-icon-wrapper hc-icon-yellow mx-auto">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </div>
+                        <h5 class="fw-bold">PDF Diagnostic Reports</h5>
+                        <p class="text-muted font-size-sm mb-0">Generate fully compiled, print-ready reports with status tracking from pending to pathologist approved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. CONTACT SECTION -->
+    <section id="contact" class="py-5 bg-white border-top">
+        <div class="container py-4">
+            <div class="row g-5">
+                <div class="col-lg-5">
+                    <div class="hc-badge hc-badge-primary">Get In Touch</div>
+                    <h2 class="fw-bold mb-4">We'd love to hear from you</h2>
+                    <p class="text-muted mb-4">
+                        Interested in adopting our EHR system for your clinic or laboratory network? Contact our technical team today for a live database integration showcase.
+                    </p>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="hc-icon-wrapper hc-icon-blue mb-0" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Email Us</h6>
+                                <p class="text-muted mb-0">support@futurecrafthealth.com</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="hc-icon-wrapper hc-icon-green mb-0" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Call Center</h6>
+                                <p class="text-muted mb-0">+1 (555) 019-8800</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <form class="hc-card p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="contact-name" class="form-label fw-semibold">Your Name</label>
+                                <input type="text" class="form-control py-2" id="contact-name" placeholder="John Doe" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="contact-email" class="form-label fw-semibold">Email Address</label>
+                                <input type="email" class="form-control py-2" id="contact-email" placeholder="john@example.com" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="contact-subject" class="form-label fw-semibold">Subject</label>
+                                <input type="text" class="form-control py-2" id="contact-subject" placeholder="Enterprise Integration Demo" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="contact-msg" class="form-label fw-semibold">Message</label>
+                                <textarea class="form-control" id="contact-msg" rows="4" placeholder="Briefly describe your request..." required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-hc-primary py-2 px-4 w-100">Send Message</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. FOOTER -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-hospital text-success me-2"></i>FutureCraft Health</h5>
+                    <p class="text-secondary" style="max-width: 400px;">
+                        Providing state-of-the-art clinical databases and digitized medical records for patients and hospitals globally.
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-bold text-uppercase mb-3 text-secondary">User Portals</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2">
+                        <li><a href="login.html" class="text-white-50 text-decoration-none">Patient Portal</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none">Doctor Workspace</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none">Laboratory Desk</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none">Admin Console</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-bold text-uppercase mb-3 text-secondary">Legal</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2">
+                        <li><a href="#" class="text-white-50 text-decoration-none">Privacy Policy</a></li>
+                        <li><a href="#" class="text-white-50 text-decoration-none">Terms of Service</a></li>
+                        <li><a href="#" class="text-white-50 text-decoration-none">HIPAA Statement</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <p class="text-white-50 mb-0 font-size-sm">&copy; 2026 FutureCraft Health. All rights reserved.</p>
+                <p class="text-white-50 mb-0 font-size-sm">Developed for Academic & Educational Purposes.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS Controller -->
+    <script src="js/app.js"></script>
+</body>
+</html>
