@@ -1357,4 +1357,296 @@ body {
     color: var(--hc-text-muted);
 }
 
+/* --- Dark Mode Styles --- */
+body.dark-mode {
+    --hc-primary-light: #1e293b;
+    --hc-bg-main: #0f172a;        /* Deep Slate Dark Background */
+    --hc-bg-card: #1e293b;        /* Dark Card Slate */
+    --hc-border: #334155;         /* Dark Slate Border */
+    --hc-text-primary: #f8fafc;   /* White/Light Slate Text */
+    --hc-text-secondary: #cbd5e1; /* Light Gray Text */
+    --hc-text-muted: #94a3b8;     /* Muted Slate Text */
+    
+    --hc-secondary-light: #153e4f;
+    --hc-accent-light: #451a03;
+    --hc-danger-light: #450a0a;
+    --hc-info-light: #082f49;
+    
+    background-color: var(--hc-bg-main) !important;
+    color: var(--hc-text-primary) !important;
+}
+
+body.dark-mode .bg-light,
+body.dark-mode .bg-body,
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer,
+body.dark-mode .prescription-table-header {
+    background-color: var(--hc-primary-light) !important;
+    color: var(--hc-text-primary) !important;
+}
+
+body.dark-mode .bg-white,
+body.dark-mode .modal-content,
+body.dark-mode .card,
+body.dark-mode .hc-card,
+body.dark-mode .stat-widget,
+body.dark-mode .calendar-wrapper {
+    background-color: var(--hc-bg-card) !important;
+    color: var(--hc-text-primary) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea,
+body.dark-mode .clinical-form-control,
+body.dark-mode .form-control {
+    background-color: var(--hc-bg-main) !important;
+    color: var(--hc-text-primary) !important;
+    border-color: var(--hc-border) !important;
+}
+
+body.dark-mode .table,
+body.dark-mode .hc-table,
+body.dark-mode .table td,
+body.dark-mode .table th,
+body.dark-mode .hc-table td,
+body.dark-mode .hc-table th {
+    background-color: transparent !important;
+    color: var(--hc-text-primary) !important;
+    border-color: var(--hc-border) !important;
+}
+
+body.dark-mode .hc-table tbody tr:hover td {
+    background-color: var(--hc-primary-light) !important;
+}
+
+body.dark-mode .text-dark,
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+    color: var(--hc-text-primary) !important;
+}
+
+body.dark-mode .text-muted {
+    color: var(--hc-text-muted) !important;
+}
+
+body.dark-mode .border,
+body.dark-mode .border-bottom,
+body.dark-mode .border-top,
+body.dark-mode .border-end,
+body.dark-mode .border-start {
+    border-color: var(--hc-border) !important;
+}
+
+body.dark-mode .calendar-cell {
+    background-color: var(--hc-bg-card) !important;
+    color: var(--hc-text-primary) !important;
+    border-color: var(--hc-border) !important;
+}
+
+body.dark-mode .calendar-cell.other-month {
+    background-color: var(--hc-bg-main) !important;
+    color: var(--hc-text-muted) !important;
+}
+
+body.dark-mode .calendar-cell:hover {
+    background-color: var(--hc-primary-light) !important;
+}
+
+body.dark-mode .calendar-cell.today {
+    border-color: var(--hc-secondary) !important;
+    background-color: var(--hc-primary-light) !important;
+}
+
+body.dark-mode .dashboard-sidebar {
+    background-color: #0b0f19 !important;
+}
+
+body.dark-mode .dashboard-header {
+    background-color: var(--hc-bg-card) !important;
+    border-bottom: 1px solid var(--hc-border) !important;
+}
+
+body.dark-mode .list-group-item {
+    background-color: var(--hc-bg-card) !important;
+    color: var(--hc-text-primary) !important;
+    border-color: var(--hc-border) !important;
+}
+
+body.dark-mode .clinical-vitals-box {
+    background-color: var(--hc-bg-card) !important;
+    border-color: var(--hc-border) !important;
+}
+
+body.dark-mode .badge-clinical-alert {
+    background-color: rgba(153, 27, 27, 0.15) !important;
+}
+
+/* --- Patient Directory Upgrades --- */
+tr.patient-row {
+    transition: var(--hc-transition);
+}
+tr.patient-row:hover {
+    background-color: var(--hc-primary-light) !important;
+    transform: scale(1.005);
+    box-shadow: var(--hc-shadow-sm);
+}
+
+/* Avatar Badge */
+.avatar-circle-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--hc-primary-light);
+    color: var(--hc-primary);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+.avatar-circle-md {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--hc-primary-light);
+    color: var(--hc-primary);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+/* Color-Coded Blood Groups */
+.badge-blood-o { background-color: var(--hc-info) !important; color: #fff !important; }
+.badge-blood-a { background-color: var(--hc-secondary) !important; color: #fff !important; }
+.badge-blood-b { background-color: var(--hc-accent) !important; color: #fff !important; }
+.badge-blood-ab { background-color: #6366f1 !important; color: #fff !important; }
+.badge-blood-other { background-color: var(--hc-text-muted) !important; color: #fff !important; }
+
+/* Status Badges */
+.badge-status-stable {
+    background-color: rgba(16, 185, 129, 0.12) !important;
+    color: #10b981 !important;
+    font-weight: 600;
+}
+.badge-status-followup {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    color: #d97706 !important;
+    font-weight: 600;
+}
+.badge-status-critical {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+    color: #ef4444 !important;
+    font-weight: 600;
+}
+
+/* Dark Mode support for hover and avatars */
+body.dark-mode .avatar-circle-sm,
+body.dark-mode .avatar-circle-md {
+    background-color: var(--hc-primary-light);
+    color: var(--hc-secondary);
+}
+body.dark-mode tr.patient-row:hover {
+    background-color: var(--hc-primary-light) !important;
+}
+
+/* --- Doctor Dashboard Overhauls & Widgets --- */
+.welcome-banner {
+    transition: var(--hc-transition);
+}
+body.dark-mode .welcome-banner {
+    background: linear-gradient(135deg, #0b1a2d, #084c5f) !important;
+}
+
+/* Priority & Status Badges */
+.bg-success-light {
+    background-color: rgba(16, 185, 129, 0.12) !important;
+    color: #10b981 !important;
+}
+.bg-warning-light {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    color: #f59e0b !important;
+}
+.bg-danger-light {
+    background-color: rgba(239, 68, 68, 0.12) !important;
+    color: #ef4444 !important;
+}
+.bg-info-light {
+    background-color: rgba(14, 116, 144, 0.12) !important;
+    color: #0e7490 !important;
+}
+body.dark-mode .bg-success-light {
+    background-color: rgba(16, 185, 129, 0.2) !important;
+    color: #34d399 !important;
+}
+body.dark-mode .bg-warning-light {
+    background-color: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+}
+body.dark-mode .bg-danger-light {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+}
+body.dark-mode .bg-info-light {
+    background-color: rgba(14, 116, 144, 0.2) !important;
+    color: #22d3ee !important;
+}
+
+/* Today's Schedule timeline */
+.schedule-timeline {
+    position: relative;
+}
+.schedule-timeline-item {
+    transition: var(--hc-transition);
+}
+.schedule-timeline-item:hover {
+    background-color: var(--hc-primary-light);
+    transform: translateX(4px);
+}
+
+/* Telemedicine action icons */
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 6px;
+}
+
+/* Custom stats widgets in dark mode */
+body.dark-mode .stat-widget {
+    background-color: var(--hc-bg-card) !important;
+    border-color: var(--hc-border) !important;
+}
+
+/* Background overrides for dropdown menu in dark mode */
+body.dark-mode .dropdown-menu {
+    background-color: var(--hc-bg-card) !important;
+    border: 1px solid var(--hc-border) !important;
+    color: var(--hc-text-primary) !important;
+}
+body.dark-mode .dropdown-item {
+    color: var(--hc-text-secondary) !important;
+}
+body.dark-mode .dropdown-item:hover {
+    background-color: var(--hc-primary-light) !important;
+    color: var(--hc-text-primary) !important;
+}
+
+/* Quick Actions bar button styling */
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover,
+.btn-outline-success:hover,
+.btn-outline-info:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
 

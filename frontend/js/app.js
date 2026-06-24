@@ -52,9 +52,9 @@ const DEFAULT_PATIENTS = [
         id: 'pat-2',
         name: 'Emma Watson',
         email: 'emma.watson@ehrmail.com',
-        dob: '1995-10-22',
+        dob: '1990-04-15',
         gender: 'Female',
-        bloodGroup: 'A-',
+        bloodGroup: 'A+',
         phone: '+1 (555) 014-9988',
         emergencyName: 'Arthur Watson',
         emergencyPhone: '+1 (555) 014-9980',
@@ -65,6 +65,24 @@ const DEFAULT_PATIENTS = [
         medicalHistory: [
             { date: '2026-03-05', condition: 'Vitamin D Deficiency', diagnosedBy: 'Dr. Emily Watson', status: 'Active' }
         ]
+    },
+    {
+        id: 'pat-3',
+        name: 'James Smith',
+        email: 'james.smith@ehrmail.com',
+        dob: '1976-11-05',
+        gender: 'Male',
+        bloodGroup: 'B+',
+        phone: '+1 (555) 018-7766',
+        emergencyName: 'Mary Smith',
+        emergencyPhone: '+1 (555) 018-7760',
+        allergies: 'None',
+        vitalsHistory: [
+            { date: '2026-06-15', bpSystolic: 125, bpDiastolic: 82, heartRate: 74, temp: 98.4, weight: 82 }
+        ],
+        medicalHistory: [
+            { date: '2026-04-10', condition: 'Type 2 Diabetes', diagnosedBy: 'Dr. Sarah Connor', status: 'Managed' }
+        ]
     }
 ];
 
@@ -74,13 +92,14 @@ const DEFAULT_USERS = [
     { email: 'robert.chen@ehrmail.com', password: 'password123', name: 'Dr. Robert Chen', role: 'doctor', doctorId: 'doc-2' },
     { email: 'labtech@ehrmail.com', password: 'password123', name: 'Alex Mercer', role: 'labtech' },
     { email: 'john.doe@ehrmail.com', password: 'password123', name: 'John Doe', role: 'patient', patientId: 'pat-1' },
-    { email: 'emma.watson@ehrmail.com', password: 'password123', name: 'Emma Watson', role: 'patient', patientId: 'pat-2' }
+    { email: 'emma.watson@ehrmail.com', password: 'password123', name: 'Emma Watson', role: 'patient', patientId: 'pat-2' },
+    { email: 'james.smith@ehrmail.com', password: 'password123', name: 'James Smith', role: 'patient', patientId: 'pat-3' }
 ];
 
 const DEFAULT_APPOINTMENTS = [
-    { id: 'appt-1', patientId: 'pat-1', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-20', timeSlot: '09:30 AM', symptoms: 'Follow-up on blood pressure regulation.', status: 'confirmed', type: 'Doctor Checkup' },
-    { id: 'appt-2', patientId: 'pat-2', doctorId: 'doc-4', doctorName: 'Dr. Emily Watson', deptName: 'Pediatrics', date: '2026-06-22', timeSlot: '11:00 AM', symptoms: 'Routine health checkup and vitamin consultation.', status: 'confirmed', type: 'Doctor Checkup' },
-    { id: 'appt-3', patientId: 'pat-1', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-25', timeSlot: '10:30 AM', symptoms: 'BP check and medication renewal.', status: 'confirmed', type: 'Doctor Checkup' }
+    { id: 'appt-1', patientId: 'pat-1', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-24', timeSlot: '09:30 AM', symptoms: 'Follow-up on blood pressure regulation.', status: 'Waiting', priority: 'High', type: 'Doctor Checkup' },
+    { id: 'appt-2', patientId: 'pat-2', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-24', timeSlot: '10:30 AM', symptoms: 'Mild headache and fatigue.', status: 'In Consultation', priority: 'Medium', type: 'Doctor Checkup' },
+    { id: 'appt-3', patientId: 'pat-3', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-24', timeSlot: '11:00 AM', symptoms: 'Routine checkup and blood sugar review.', status: 'Completed', priority: 'Low', type: 'Doctor Checkup' }
 ];
 
 const DEFAULT_PRESCRIPTIONS = [
@@ -159,7 +178,7 @@ const DEFAULT_TASKS = [
 
 // Seed databases in localStorage if empty
 function initializeDatabase() {
-    if (!localStorage.getItem('hc_seeded')) {
+    if (localStorage.getItem('hc_seeded') !== 'v4') {
         localStorage.setItem('hc_users', JSON.stringify(DEFAULT_USERS));
         localStorage.setItem('hc_patients', JSON.stringify(DEFAULT_PATIENTS));
         localStorage.setItem('hc_doctors', JSON.stringify(DEFAULT_DOCTORS));
@@ -171,8 +190,8 @@ function initializeDatabase() {
         localStorage.setItem('hc_files', JSON.stringify(DEFAULT_FILES));
         localStorage.setItem('hc_audits', JSON.stringify(DEFAULT_AUDITS));
         localStorage.setItem('hc_tasks', JSON.stringify(DEFAULT_TASKS));
-        localStorage.setItem('hc_seeded', 'true');
-        console.log('EHR Laboratory Portal Database Seeded Successfully!');
+        localStorage.setItem('hc_seeded', 'v4');
+        console.log('EHR Laboratory Portal Database Seeded Successfully (v4)!');
     }
 }
 
@@ -933,8 +952,78 @@ window.deletePatientFile = function (fileId, patientId) {
 
 // --- DOCTOR DASHBOARD WORKFLOWS ---
 let doctorConsultsChartInstance = null;
+let doctorConsultsTrendChartInstance = null;
+let doctorApptStatusChartInstance = null;
+let doctorSpecialtyChartInstance = null;
 let currentCalendarView = 'month'; // 'month' | 'week' | 'day'
 let currentCalendarDate = new Date(2026, 5, 22); // Default to Monday, June 22, 2026
+let currentDirectoryPage = 1;
+const directoryPageSize = 5;
+
+function initDarkMode() {
+    const isDarkMode = localStorage.getItem('hc_dark_mode') === 'true';
+    const btn = document.getElementById('dark-mode-toggle-btn');
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-sun text-warning"></i>';
+    } else {
+        document.body.classList.remove('dark-mode');
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+    }
+    if (btn) {
+        btn.replaceWith(btn.cloneNode(true));
+        const newBtn = document.getElementById('dark-mode-toggle-btn');
+        newBtn.addEventListener('click', toggleDarkMode);
+    }
+}
+
+function toggleDarkMode() {
+    const body = document.body;
+    body.classList.toggle('dark-mode');
+    const isDarkMode = body.classList.contains('dark-mode');
+    localStorage.setItem('hc_dark_mode', isDarkMode ? 'true' : 'false');
+    
+    const btn = document.getElementById('dark-mode-toggle-btn');
+    if (btn) {
+        btn.innerHTML = isDarkMode 
+            ? '<i class="fa-solid fa-sun text-warning"></i>' 
+            : '<i class="fa-solid fa-moon"></i>';
+    }
+    
+    const activeUser = JSON.parse(sessionStorage.getItem('hc_current_user'));
+    if (activeUser && activeUser.role === 'doctor') {
+        const doctor = getDB('doctors').find(d => d.id === activeUser.doctorId);
+        if (doctor) {
+            renderDoctorAnalytics(doctor);
+            renderMiniPerformanceChart();
+        }
+    }
+}
+
+function setupReportsDateFilters(doctor) {
+    const dateFilter = document.getElementById('reports-date-filter');
+    const customDates = document.getElementById('reports-custom-dates');
+    if (dateFilter && customDates) {
+        dateFilter.replaceWith(dateFilter.cloneNode(true));
+        const newDateFilter = document.getElementById('reports-date-filter');
+        newDateFilter.addEventListener('change', function () {
+            if (this.value === 'custom') {
+                customDates.classList.remove('d-none');
+            } else {
+                customDates.classList.add('d-none');
+            }
+        });
+    }
+
+    const applyBtn = document.getElementById('apply-reports-filter');
+    if (applyBtn) {
+        applyBtn.replaceWith(applyBtn.cloneNode(true));
+        const newApplyBtn = document.getElementById('apply-reports-filter');
+        newApplyBtn.addEventListener('click', function () {
+            renderDoctorAnalytics(doctor);
+        });
+    }
+}
 
 function initDoctorPortal(doctorUser) {
     const docId = doctorUser.doctorId;
@@ -945,11 +1034,14 @@ function initDoctorPortal(doctorUser) {
     document.getElementById('user-display-name').innerText = doctor.name;
     document.getElementById('avatar-letters').innerText = doctor.name.replace('Dr. ', '').split(' ').map(n=>n[0]).join('');
 
+    initDarkMode();
     renderDoctorDashboard(doctor);
     setupDoctorPatientSelectors();
     renderDoctorPatientDirectory();
+    setupPatientDirectoryListeners();
     setupDoctorCalendarListeners();
     renderDoctorCalendar(2026, 5); // June is 0-indexed month 5
+    setupReportsDateFilters(doctor);
     renderDoctorAnalytics(doctor);
     renderDoctorTasks(doctor);
 
@@ -994,35 +1086,319 @@ function initDoctorPortal(doctorUser) {
 function renderDoctorDashboard(doctor) {
     const appointments = getDB('appointments').filter(ap => ap.doctorId === doctor.id);
     const labs = getDB('lab_requests').filter(l => l.doctorName === doctor.name);
+    const patients = getDB('patients');
 
-    document.getElementById('doc-today-appts').innerText = appointments.length;
-    document.getElementById('doc-pending-labs').innerText = labs.filter(l => l.status === 'pending').length;
+    // Welcome message stats binding
+    const todayApptsCount = appointments.length;
+    const pendingLabsCount = labs.filter(l => l.status === 'pending').length;
+    const welcomeDoctorName = document.getElementById('welcome-doctor-name');
+    if (welcomeDoctorName) {
+        welcomeDoctorName.innerText = doctor.name;
+    }
+    const welcomeSummary = document.getElementById('welcome-summary-text');
+    if (welcomeSummary) {
+        welcomeSummary.innerText = `You have ${todayApptsCount} appointment${todayApptsCount === 1 ? '' : 's'} and ${pendingLabsCount} pending lab request${pendingLabsCount === 1 ? '' : 's'} today.`;
+    }
 
+    // Summary Cards binding
+    const elAppts = document.getElementById('doc-today-appts');
+    if (elAppts) elAppts.innerText = todayApptsCount;
+
+    const elLabs = document.getElementById('doc-pending-labs');
+    if (elLabs) elLabs.innerText = pendingLabsCount;
+
+    // Seen today, Completed, Pending Rx, Follow ups
+    let statsSeen = localStorage.getItem('hc_stats_seen') ? parseInt(localStorage.getItem('hc_stats_seen')) : 15;
+    let statsCompleted = localStorage.getItem('hc_stats_completed') ? parseInt(localStorage.getItem('hc_stats_completed')) : 12;
+    let statsPendingRx = localStorage.getItem('hc_stats_pending_rx') ? parseInt(localStorage.getItem('hc_stats_pending_rx')) : 4;
+    let statsFollowups = localStorage.getItem('hc_stats_followups') ? parseInt(localStorage.getItem('hc_stats_followups')) : 6;
+
+    const elSeen = document.getElementById('doc-patients-seen');
+    if (elSeen) elSeen.innerText = statsSeen;
+
+    const elCompleted = document.getElementById('doc-completed-consults');
+    if (elCompleted) elCompleted.innerText = statsCompleted;
+
+    const elRx = document.getElementById('doc-pending-rx');
+    if (elRx) elRx.innerText = statsPendingRx;
+
+    const elFollowups = document.getElementById('doc-followups-due');
+    if (elFollowups) elFollowups.innerText = statsFollowups;
+
+    // Quick Actions Bar listeners setup
+    const qaNewConsult = document.getElementById('qa-new-consult');
+    if (qaNewConsult) {
+        qaNewConsult.onclick = () => {
+            document.querySelector('[data-panel="panel-consultation"]').click();
+        };
+    }
+    const qaNewPrescription = document.getElementById('qa-new-prescription');
+    if (qaNewPrescription) {
+        qaNewPrescription.onclick = () => {
+            document.querySelector('[data-panel="panel-consultation"]').click();
+            setTimeout(() => {
+                const addMedBtn = document.getElementById('doc-add-med-btn');
+                if (addMedBtn) addMedBtn.click();
+            }, 150);
+        };
+    }
+    const qaScheduleAppt = document.getElementById('qa-schedule-appt');
+    if (qaScheduleAppt) {
+        qaScheduleAppt.onclick = () => {
+            document.querySelector('[data-panel="panel-schedule"]').click();
+        };
+    }
+
+    // Active Consultation Queue rendering
     const apptQueue = document.getElementById('doctor-appt-queue');
     if (apptQueue) {
         if (appointments.length === 0) {
             apptQueue.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No appointments scheduled for today.</td></tr>`;
-            return;
-        }
+        } else {
+            let html = '';
+            appointments.forEach(ap => {
+                const pat = patients.find(p => p.id === ap.patientId);
+                
+                // Get Status Badge
+                let statusBadge = '';
+                const s = (ap.status || 'Waiting').toLowerCase();
+                if (s === 'waiting') {
+                    statusBadge = '<span class="badge bg-success-light text-success fw-bold"><i class="fa-solid fa-circle-dot me-1"></i>Waiting</span>';
+                } else if (s === 'in consultation' || s === 'consulting') {
+                    statusBadge = '<span class="badge bg-warning-light text-warning fw-bold"><i class="fa-solid fa-spinner fa-spin me-1"></i>In Consultation</span>';
+                } else if (s === 'completed') {
+                    statusBadge = '<span class="badge bg-info-light text-info fw-bold"><i class="fa-solid fa-circle-check me-1"></i>Completed</span>';
+                } else if (s === 'cancelled') {
+                    statusBadge = '<span class="badge bg-danger-light text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i>Cancelled</span>';
+                } else {
+                    statusBadge = `<span class="badge bg-secondary-light text-secondary fw-bold">${ap.status}</span>`;
+                }
 
+                // Get Priority Badge
+                let priorityBadge = '';
+                const p = (ap.priority || 'Low').toLowerCase();
+                if (p === 'high') {
+                    priorityBadge = '<span class="badge bg-danger text-white fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i>High</span>';
+                } else if (p === 'medium') {
+                    priorityBadge = '<span class="badge bg-warning text-dark fw-bold">Medium</span>';
+                } else {
+                    priorityBadge = '<span class="badge bg-success text-white fw-bold">Low</span>';
+                }
+
+                html += `
+                <tr class="patient-row">
+                    <td><strong>${ap.timeSlot}</strong></td>
+                    <td>
+                        <div class="fw-bold text-dark">${pat ? pat.name : 'Unknown'}</div>
+                        <div class="text-muted font-size-xs mt-0.5">
+                            <span class="me-2"><i class="fa-solid fa-calendar me-1"></i>${pat ? (new Date().getFullYear() - new Date(pat.dob).getFullYear()) + ' Years' : '--'}</span>
+                            <span class="me-2"><i class="fa-solid fa-droplet text-danger me-1"></i>${pat ? pat.bloodGroup : '--'}</span>
+                            <span><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>Allergy: ${pat && pat.allergies && pat.allergies !== 'None' ? pat.allergies : 'None'}</span>
+                        </div>
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td>${priorityBadge}</td>
+                    <td>
+                        <div class="d-flex justify-content-end gap-1">
+                            <button class="btn btn-xs btn-outline-primary" onclick="startConsultation('${ap.patientId}', '${ap.id}')" title="Consult"><i class="fa-solid fa-stethoscope me-1"></i>Consult</button>
+                            <button class="btn btn-xs btn-outline-info" onclick="teleconsultPatient('${ap.patientId}')" title="Video Call"><i class="fa-solid fa-video"></i></button>
+                            <button class="btn btn-xs btn-outline-secondary" onclick="quickEHRPreview('${ap.patientId}')" title="View History"><i class="fa-solid fa-history"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            apptQueue.innerHTML = html;
+        }
+    }
+
+    // Critical Alerts Section rendering
+    const alertsContainer = document.getElementById('doctor-critical-alerts');
+    if (alertsContainer) {
+        const mockAlerts = [
+            { patient: 'John Doe', alert: 'Penicillin Allergy', icon: 'fa-triangle-exclamation', color: 'text-danger', bg: 'bg-danger-light border-danger-subtle' },
+            { patient: 'Emma Watson', alert: 'High Blood Pressure', icon: 'fa-heart-circle-exclamation', color: 'text-warning', bg: 'bg-warning-light border-warning-subtle' }
+        ];
         let html = '';
-        const patients = getDB('patients');
-        appointments.forEach(ap => {
-            const pat = patients.find(p => p.id === ap.patientId);
+        mockAlerts.forEach(a => {
             html += `
-            <tr>
-                <td><strong>${ap.timeSlot}</strong></td>
-                <td>${pat ? pat.name : 'Unknown'}</td>
-                <td>${pat ? (new Date().getFullYear() - new Date(pat.dob).getFullYear()) : '--'}</td>
-                <td>${ap.symptoms || 'General Consult'}</td>
-                <td>
-                    <button class="btn btn-sm btn-hc-primary" onclick="startConsultation('${ap.patientId}', '${ap.id}')"><i class="fa-solid fa-stethoscope me-1"></i> Consult</button>
-                </td>
-            </tr>`;
+            <div class="col-md-6">
+                <div class="p-3 rounded border d-flex align-items-center gap-3 ${a.bg}">
+                    <div style="font-size: 1.5rem;" class="${a.color}"><i class="fa-solid ${a.icon}"></i></div>
+                    <div>
+                        <h6 class="fw-bold mb-0.5 text-dark" style="font-size: 0.9rem;">${a.patient}</h6>
+                        <p class="mb-0 text-muted font-size-xs fw-semibold">${a.alert}</p>
+                    </div>
+                </div>
+            </div>`;
         });
-        apptQueue.innerHTML = html;
+        alertsContainer.innerHTML = html;
+    }
+
+    // Today's Schedule timeline rendering
+    const scheduleList = document.getElementById('doctor-today-schedule-list');
+    if (scheduleList) {
+        let html = '';
+        if (appointments.length === 0) {
+            html = '<div class="text-center py-3 text-muted font-size-xs">No appointments scheduled for today.</div>';
+        } else {
+            const sorted = [...appointments].sort((a,b) => a.timeSlot.localeCompare(b.timeSlot));
+            sorted.forEach(ap => {
+                const pat = patients.find(p => p.id === ap.patientId);
+                let borderClass = 'border-success';
+                let textClass = 'text-success';
+                if (ap.status === 'Completed') {
+                    borderClass = 'border-info';
+                    textClass = 'text-info';
+                } else if (ap.status === 'In Consultation') {
+                    borderClass = 'border-warning';
+                    textClass = 'text-warning';
+                }
+                html += `
+                <div class="d-flex align-items-center justify-content-between p-2.5 mb-2 bg-light-subtle rounded border-start border-3 ${borderClass}" style="font-size: 0.85rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="text-muted fw-bold" style="min-width: 70px;">${ap.timeSlot}</div>
+                        <div class="fw-semibold text-dark">${pat ? pat.name : 'Unknown'}</div>
+                    </div>
+                    <span class="font-size-xxs px-2 py-0.5 rounded-pill bg-light fw-bold ${textClass}">${ap.status || 'Waiting'}</span>
+                </div>`;
+            });
+        }
+        scheduleList.innerHTML = html;
+    }
+
+    // Upgraded Checklist rendering
+    renderDoctorQuickTasks();
+
+    // Recent Lab Results Panel rendering
+    const labsList = document.getElementById('doctor-recent-labs-widget');
+    if (labsList) {
+        const mockLabs = [
+            { name: 'CBC Report', status: 'Ready', badge: 'bg-success-light text-success' },
+            { name: 'Blood Sugar', status: 'Ready', badge: 'bg-success-light text-success' },
+            { name: 'X-Ray', status: 'Pending', badge: 'bg-warning-light text-warning' }
+        ];
+        let html = '';
+        mockLabs.forEach(l => {
+            html += `
+            <div class="list-group-item d-flex align-items-center justify-content-between p-2.5 border-0 bg-transparent" style="font-size: 0.85rem;">
+                <span class="fw-semibold text-dark"><i class="fa-solid fa-file-medical text-muted me-2"></i>${l.name}</span>
+                <span class="badge ${l.badge} fw-bold" style="font-size: 0.75rem;">${l.status}</span>
+            </div>`;
+        });
+        labsList.innerHTML = html;
+    }
+
+    // Performance Section Card rendering (mini bar chart)
+    renderMiniPerformanceChart();
+}
+
+let miniPerformanceChartInstance = null;
+
+function renderMiniPerformanceChart() {
+    const ctx = document.getElementById('miniPerformanceChart');
+    if (!ctx) return;
+
+    if (miniPerformanceChartInstance) {
+        miniPerformanceChartInstance.destroy();
+    }
+
+    const isDark = document.body.classList.contains('dark-mode');
+    const textColor = isDark ? '#cbd5e1' : '#475569';
+    const gridColor = isDark ? '#334155' : '#e2e8f0';
+
+    miniPerformanceChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            datasets: [{
+                label: 'Consultations',
+                data: [8, 12, 10, 15, 7],
+                backgroundColor: '#0e7490',
+                borderRadius: 4,
+                barPercentage: 0.6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: textColor, font: { size: 10 } }
+                },
+                y: {
+                    grid: { color: gridColor },
+                    ticks: { color: textColor, font: { size: 10 }, stepSize: 5 },
+                    min: 0,
+                    max: 20
+                }
+            }
+        }
+    });
+}
+
+function renderDoctorQuickTasks() {
+    let qTasks = JSON.parse(localStorage.getItem('hc_quick_tasks'));
+    if (!qTasks || qTasks.length === 0) {
+        qTasks = [
+            { id: 'task-q1', title: 'Review Lab Results', completed: true },
+            { id: 'task-q2', title: 'Complete Prescriptions', completed: true },
+            { id: 'task-q3', title: 'Follow-up Calls', completed: true },
+            { id: 'task-q4', title: 'Patient Documentation', completed: false }
+        ];
+        localStorage.setItem('hc_quick_tasks', JSON.stringify(qTasks));
+    }
+
+    const container = document.getElementById('doctor-quick-tasks-list');
+    if (container) {
+        let html = '';
+        qTasks.forEach(t => {
+            html += `
+            <div class="form-check p-2.5 mb-2 bg-light-subtle rounded border d-flex align-items-center justify-content-between" style="border-radius: 8px;">
+                <div class="d-flex align-items-center gap-2">
+                    <input class="form-check-input ms-0 mt-0" type="checkbox" id="${t.id}" ${t.completed ? 'checked' : ''} onchange="toggleQuickTask('${t.id}')" style="cursor: pointer; width: 1.15rem; height: 1.15rem;">
+                    <label class="form-check-label text-dark ${t.completed ? 'text-decoration-line-through text-muted' : ''}" for="${t.id}" style="cursor: pointer; font-size: 0.85rem; font-weight: 500; margin-left: 6px;">
+                        ${t.title}
+                    </label>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+
+        // Calculate progress
+        const completedCount = qTasks.filter(t => t.completed).length;
+        const progressPct = Math.round((completedCount / qTasks.length) * 100);
+        
+        const badge = document.getElementById('tasks-progress-badge');
+        if (badge) badge.innerText = `${progressPct}% Done`;
+        
+        const bar = document.getElementById('tasks-progress-bar');
+        if (bar) {
+            bar.style.width = `${progressPct}%`;
+            if (progressPct === 100) {
+                bar.className = 'progress-bar bg-success';
+            } else {
+                bar.className = 'progress-bar bg-info';
+            }
+        }
     }
 }
+
+window.toggleQuickTask = function(taskId) {
+    let qTasks = JSON.parse(localStorage.getItem('hc_quick_tasks')) || [];
+    qTasks = qTasks.map(t => {
+        if (t.id === taskId) {
+            t.completed = !t.completed;
+        }
+        return t;
+    });
+    localStorage.setItem('hc_quick_tasks', JSON.stringify(qTasks));
+    renderDoctorQuickTasks();
+};
 
 function setupDoctorPatientSelectors() {
     const patSelect = document.getElementById('consult-patient-select');
@@ -1184,13 +1560,24 @@ async function submitDoctorConsultation(doctor) {
         await ApiService.createLabTest(labReq);
     }
 
-    // 5. Clear active consult appt
+    // 5. Update active consult appt status and increment dashboard counters
     const activeApptId = sessionStorage.getItem('hc_active_appt_consult');
     if (activeApptId) {
         let appointments = getDB('appointments');
-        appointments = appointments.filter(a => a.id !== activeApptId);
+        appointments = appointments.map(a => {
+            if (a.id === activeApptId) {
+                a.status = 'Completed';
+            }
+            return a;
+        });
         setDB('appointments', appointments);
         sessionStorage.removeItem('hc_active_appt_consult');
+
+        // Increment stats
+        let statsSeen = localStorage.getItem('hc_stats_seen') ? parseInt(localStorage.getItem('hc_stats_seen')) : 15;
+        let statsCompleted = localStorage.getItem('hc_stats_completed') ? parseInt(localStorage.getItem('hc_stats_completed')) : 12;
+        localStorage.setItem('hc_stats_seen', statsSeen + 1);
+        localStorage.setItem('hc_stats_completed', statsCompleted + 1);
     }
 
     alert('Consultation completed successfully! EHR has been updated.');
@@ -1206,31 +1593,367 @@ async function submitDoctorConsultation(doctor) {
     document.querySelector('[data-panel="panel-dashboard"]').click();
 }
 
+function setupPatientDirectoryListeners() {
+    const searchInput = document.getElementById('search-patient-input');
+    const genderSel = document.getElementById('filter-gender');
+    const bloodSel = document.getElementById('filter-blood');
+    const ageSel = document.getElementById('filter-age');
+    const allergySel = document.getElementById('filter-allergy');
+
+    if (searchInput) {
+        searchInput.replaceWith(searchInput.cloneNode(true));
+        const newSearchInput = document.getElementById('search-patient-input');
+        newSearchInput.addEventListener('input', () => {
+            currentDirectoryPage = 1;
+            renderDoctorPatientDirectory();
+        });
+    }
+
+    [genderSel, bloodSel, ageSel, allergySel].forEach(el => {
+        if (el) {
+            el.replaceWith(el.cloneNode(true));
+            const newEl = document.getElementById(el.id);
+            newEl.addEventListener('change', () => {
+                currentDirectoryPage = 1;
+                renderDoctorPatientDirectory();
+            });
+        }
+    });
+
+    const addPatientForm = document.getElementById('add-patient-form');
+    if (addPatientForm) {
+        addPatientForm.replaceWith(addPatientForm.cloneNode(true));
+        const newForm = document.getElementById('add-patient-form');
+        newForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            registerNewPatient();
+        });
+    }
+}
+
+function getFilteredPatientsList() {
+    const patients = getDB('patients');
+    const searchVal = document.getElementById('search-patient-input')?.value.toLowerCase() || '';
+    const genderVal = document.getElementById('filter-gender')?.value || 'all';
+    const bloodVal = document.getElementById('filter-blood')?.value || 'all';
+    const ageVal = document.getElementById('filter-age')?.value || 'all';
+    const allergyVal = document.getElementById('filter-allergy')?.value || 'all';
+
+    return patients.filter(p => {
+        const pAllergies = p.allergies || 'None';
+
+        // 1. Search text
+        if (searchVal) {
+            const matchesId = p.id.toLowerCase().includes(searchVal);
+            const matchesName = p.name.toLowerCase().includes(searchVal);
+            if (!matchesId && !matchesName) return false;
+        }
+
+        // 2. Gender
+        if (genderVal !== 'all') {
+            if (p.gender !== genderVal) return false;
+        }
+
+        // 3. Blood Group
+        if (bloodVal !== 'all') {
+            if (!p.bloodGroup.includes(bloodVal)) return false;
+        }
+
+        // 4. Age Group
+        if (ageVal !== 'all') {
+            const age = new Date().getFullYear() - new Date(p.dob).getFullYear();
+            if (ageVal === 'under18' && age >= 18) return false;
+            if (ageVal === '18-35' && (age < 18 || age > 35)) return false;
+            if (ageVal === '36-60' && (age < 36 || age > 60)) return false;
+            if (ageVal === 'over60' && age <= 60) return false;
+        }
+
+        // 5. Allergy
+        if (allergyVal !== 'all') {
+            const hasAllergies = pAllergies.toLowerCase() !== 'none' && pAllergies.trim() !== '';
+            if (allergyVal === 'yes' && !hasAllergies) return false;
+            if (allergyVal === 'no' && hasAllergies) return false;
+        }
+
+        return true;
+    });
+}
+
+function renderPatientSidebars() {
+    // 1. Recently Registered Patients
+    const recentEl = document.getElementById('sidebar-recent-patients');
+    if (recentEl) {
+        const patients = getDB('patients');
+        const sorted = [...patients].reverse().slice(0, 3); // last 3 registered
+        let html = '';
+        sorted.forEach(p => {
+            const initials = p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            html += `
+            <div class="d-flex align-items-center gap-2">
+                <div class="avatar-circle-sm bg-light text-secondary">${initials}</div>
+                <div>
+                    <span class="fw-semibold d-block font-size-sm">${p.name}</span>
+                    <span class="text-muted font-size-xs">${p.id}</span>
+                </div>
+            </div>`;
+        });
+        recentEl.innerHTML = html;
+    }
+
+    // 2. Upcoming Follow-ups
+    const followupsEl = document.getElementById('sidebar-followups');
+    if (followupsEl) {
+        followupsEl.innerHTML = `
+        <div class="p-2 bg-light rounded border border-start border-3 border-warning" style="border-left-color: #f59e0b !important;">
+            <span class="fw-bold d-block font-size-sm">Emma Watson</span>
+            <span class="text-muted font-size-xs">2:00 PM - Routine Follow-up</span>
+        </div>
+        <div class="p-2 bg-light rounded border border-start border-3 border-warning mt-2" style="border-left-color: #f59e0b !important;">
+            <span class="fw-bold d-block font-size-sm">John Doe</span>
+            <span class="text-muted font-size-xs">4:00 PM - BP Check</span>
+        </div>`;
+    }
+
+    // 3. High Risk Allergy alerts
+    const allergyEl = document.getElementById('sidebar-high-risk-allergies');
+    if (allergyEl) {
+        allergyEl.innerHTML = `
+        <div class="p-2 bg-white rounded border border-danger">
+            <span class="fw-bold text-danger font-size-sm"><i class="fa-solid fa-triangle-exclamation"></i> John Doe</span>
+            <span class="text-danger font-size-xs d-block">Penicillin, Shellfish Allergy</span>
+        </div>
+        <div class="p-2 bg-white rounded border border-danger mt-2">
+            <span class="fw-bold text-danger font-size-sm"><i class="fa-solid fa-triangle-exclamation"></i> Emma Watson</span>
+            <span class="text-danger font-size-xs d-block">Peanut Allergy</span>
+        </div>`;
+    }
+}
+
+function registerNewPatient() {
+    const name = document.getElementById('reg-name').value;
+    const dob = document.getElementById('reg-dob').value;
+    const gender = document.getElementById('reg-gender').value;
+    const blood = document.getElementById('reg-blood').value;
+    const phone = document.getElementById('reg-phone').value;
+    const emergency = document.getElementById('reg-emergency').value;
+    const allergies = document.getElementById('reg-allergies').value || 'None';
+    const status = document.getElementById('reg-status').value;
+
+    const patients = getDB('patients');
+    const newId = `pat-${patients.length + 1}`;
+
+    const newPatient = {
+        id: newId,
+        name: name,
+        dob: dob,
+        gender: gender,
+        bloodGroup: blood,
+        phone: phone,
+        emergencyPhone: emergency,
+        allergies: allergies,
+        status: status,
+        lastConsultation: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+        vitalsHistory: [],
+        medicalHistory: []
+    };
+
+    patients.push(newPatient);
+    setDB('patients', patients);
+
+    const modalEl = document.getElementById('registerPatientModal');
+    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+    modal.hide();
+
+    document.getElementById('add-patient-form').reset();
+    alert('Patient registered successfully!');
+    renderDoctorPatientDirectory();
+}
+
+window.changeDirectoryPage = function(page) {
+    currentDirectoryPage = page;
+    renderDoctorPatientDirectory();
+};
+
+window.quickEHRPreview = function(patientId) {
+    const patients = getDB('patients');
+    const p = patients.find(pat => pat.id === patientId);
+    if (!p) return;
+
+    const initials = p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const details = `${p.gender} | Age ${new Date().getFullYear() - new Date(p.dob).getFullYear()}`;
+
+    const prescriptions = getDB('prescriptions').filter(rx => rx.patientId === patientId);
+    let recentDiagnosis = 'No record found';
+    let currentMeds = 'None';
+
+    if (p.medicalHistory && p.medicalHistory.length > 0) {
+        recentDiagnosis = p.medicalHistory[p.medicalHistory.length - 1].condition;
+    } else if (prescriptions.length > 0) {
+        recentDiagnosis = prescriptions[prescriptions.length - 1].diagnosis;
+    }
+
+    if (prescriptions.length > 0) {
+        const meds = prescriptions[prescriptions.length - 1].medicines;
+        currentMeds = meds.map(m => m.name).join(', ');
+    }
+
+    const lastVisit = p.lastConsultation || (p.id === 'pat-1' ? '15 Jun 2026' : p.id === 'pat-2' ? '22 Jun 2026' : '15 Jun 2026');
+
+    document.getElementById('quick-avatar').innerText = initials;
+    document.getElementById('quick-p-name').innerText = p.name;
+    document.getElementById('quick-p-details').innerText = details;
+    document.getElementById('quick-p-diagnosis').innerText = recentDiagnosis;
+    document.getElementById('quick-p-meds').innerText = currentMeds;
+    document.getElementById('quick-p-allergies').innerText = p.allergies || 'None';
+    document.getElementById('quick-p-last-visit').innerText = lastVisit;
+
+    const modal = new bootstrap.Modal(document.getElementById('quickEHRModal'));
+    modal.show();
+
+    appendAccessLog(p.name);
+};
+
+window.scheduleFollowUp = function(patientId) {
+    const patients = getDB('patients');
+    const p = patients.find(pat => pat.id === patientId);
+    if (p) {
+        alert(`Follow-up appointment booking interface triggered for ${p.name}.`);
+    }
+};
+
+window.teleconsultPatient = function(patientId) {
+    const patients = getDB('patients');
+    const p = patients.find(pat => pat.id === patientId);
+    if (p) {
+        alert(`Initiating video teleconsult link for ${p.name}...`);
+    }
+};
+
+function appendAccessLog(patientName) {
+    const activeUser = JSON.parse(sessionStorage.getItem('hc_current_user'));
+    const docName = activeUser ? activeUser.name || 'Dr. Sarah Connor' : 'Dr. Sarah Connor';
+    const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    
+    const infoEl = document.getElementById('compliance-log-info');
+    if (infoEl) {
+        infoEl.innerHTML = `${docName}<br><span class="text-muted">Accessed ${patientName}'s EHR at ${time}</span>`;
+    }
+}
+
 function renderDoctorPatientDirectory() {
     const list = document.getElementById('doctor-patients-list');
     if (!list) return;
 
-    const patients = getDB('patients');
+    const filtered = getFilteredPatientsList();
+    const totalCount = filtered.length;
+    const totalPages = Math.ceil(totalCount / directoryPageSize);
+
+    if (currentDirectoryPage > totalPages && totalPages > 0) {
+        currentDirectoryPage = totalPages;
+    }
+
+    const paginated = filtered.slice((currentDirectoryPage - 1) * directoryPageSize, currentDirectoryPage * directoryPageSize);
+
     let html = '';
-    patients.forEach(p => {
+    paginated.forEach(p => {
+        const age = new Date().getFullYear() - new Date(p.dob).getFullYear();
+        const initials = p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        
+        let bloodClass = 'badge-blood-other';
+        const bg = p.bloodGroup.toUpperCase();
+        if (bg.startsWith('O')) bloodClass = 'badge-blood-o';
+        else if (bg.startsWith('A')) bloodClass = 'badge-blood-a';
+        else if (bg.startsWith('B')) bloodClass = 'badge-blood-b';
+        else if (bg.startsWith('AB')) bloodClass = 'badge-blood-ab';
+
+        const pStatus = p.status || (p.id === 'pat-1' ? 'Critical' : p.id === 'pat-2' ? 'Follow-Up Due' : 'Stable');
+        let statusClass = 'badge-status-stable';
+        let statusText = '🟢 Stable';
+        if (pStatus === 'Critical') {
+            statusClass = 'badge-status-critical';
+            statusText = '🔴 Critical';
+        } else if (pStatus === 'Follow-Up Due') {
+            statusClass = 'badge-status-followup';
+            statusText = '🟡 Follow-Up';
+        }
+
+        const lastConsult = p.lastConsultation || (p.id === 'pat-1' ? '15 Jun 2026' : p.id === 'pat-2' ? '22 Jun 2026' : '15 Jun 2026');
+        const emergency = p.emergencyPhone || '+1 (555) 019-2835';
+
         html += `
-        <tr>
+        <tr class="patient-row" style="cursor: pointer;">
             <td><strong>${p.id}</strong></td>
-            <td>${p.name}</td>
+            <td>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="avatar-circle-sm">${initials}</div>
+                    <span class="fw-semibold">${p.name}</span>
+                </div>
+            </td>
+            <td>${age}</td>
             <td>${p.gender}</td>
-            <td><span class="badge bg-secondary">${p.bloodGroup}</span></td>
-            <td>${p.phone}</td>
-            <td><span class="badge bg-danger">${p.allergies || 'None'}</span></td>
-            <td class="d-flex gap-2">
-                <button class="btn btn-xs btn-hc-primary" onclick="startConsultation('${p.id}')">Consult</button>
-                <button class="btn btn-xs btn-outline-primary" onclick="viewPatientEHR('${p.id}')">View EHR</button>
+            <td><span class="badge ${bloodClass}">${p.bloodGroup}</span></td>
+            <td>${lastConsult}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td><i class="fa-solid fa-phone text-muted me-1"></i> ${emergency}</td>
+            <td>
+                <div class="dropdown">
+                    <button class="btn btn-xs btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" onclick="event.stopPropagation()">
+                        <i class="fa-solid fa-ellipsis-vertical"></i> Actions
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" onclick="event.stopPropagation(); startConsultation('${p.id}')"><i class="fa-solid fa-stethoscope me-2 text-primary"></i>Consult</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="event.stopPropagation(); viewPatientEHR('${p.id}')"><i class="fa-solid fa-id-card me-2 text-secondary"></i>View EHR</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="event.stopPropagation(); quickEHRPreview('${p.id}')"><i class="fa-solid fa-eye me-2 text-success"></i>Quick View</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="event.stopPropagation(); scheduleFollowUp('${p.id}')"><i class="fa-solid fa-calendar-plus me-2 text-warning"></i>Schedule</a></li>
+                        <li><a class="dropdown-item" href="#" onclick="event.stopPropagation(); teleconsultPatient('${p.id}')"><i class="fa-solid fa-video me-2 text-info"></i>Teleconsult</a></li>
+                    </ul>
+                </div>
             </td>
         </tr>`;
     });
-    list.innerHTML = html;
+
+    list.innerHTML = html || `<tr><td colspan="9" class="text-center py-4 text-muted">No patients found.</td></tr>`;
+
+    const patients = getDB('patients');
+    const totalPatientsCount = 1200 + patients.length;
+    const criticalPatientsCount = patients.filter(p => {
+        const s = p.status || (p.id === 'pat-1' ? 'Critical' : p.id === 'pat-2' ? 'Follow-Up Due' : 'Stable');
+        return s === 'Critical';
+    }).length + 10;
+    
+    const totalEl = document.getElementById('dir-stat-total');
+    if (totalEl) totalEl.innerText = totalPatientsCount;
+    
+    const criticalEl = document.getElementById('dir-stat-critical');
+    if (criticalEl) criticalEl.innerText = criticalPatientsCount;
+
+    renderPatientSidebars();
+
+    const infoEl = document.getElementById('dir-pagination-info');
+    if (infoEl) {
+        const startIdx = totalCount === 0 ? 0 : (currentDirectoryPage - 1) * directoryPageSize + 1;
+        const endIdx = Math.min(currentDirectoryPage * directoryPageSize, totalCount);
+        infoEl.innerText = `Showing patients ${startIdx}-${endIdx} of ${totalCount}`;
+    }
+
+    const paginationEl = document.getElementById('dir-pagination-controls');
+    if (paginationEl) {
+        let pagHtml = '';
+        const prevDisabled = currentDirectoryPage === 1 ? 'disabled' : '';
+        pagHtml += `<li class="page-item ${prevDisabled}"><a class="page-link" href="#" onclick="event.preventDefault(); changeDirectoryPage(${currentDirectoryPage - 1})">Previous</a></li>`;
+
+        for (let page = 1; page <= totalPages; page++) {
+            const activeClass = page === currentDirectoryPage ? 'active' : '';
+            pagHtml += `<li class="page-item ${activeClass}"><a class="page-link" href="#" onclick="event.preventDefault(); changeDirectoryPage(${page})">${page}</a></li>`;
+        }
+
+        const nextDisabled = currentDirectoryPage === totalPages || totalPages === 0 ? 'disabled' : '';
+        pagHtml += `<li class="page-item ${nextDisabled}"><a class="page-link" href="#" onclick="event.preventDefault(); changeDirectoryPage(${currentDirectoryPage + 1})">Next</a></li>`;
+        
+        paginationEl.innerHTML = pagHtml;
+    }
 }
 
-// EHR Patient Modal Details & Trends
 let modalVitalsChart = null;
 window.viewPatientEHR = function (patientId) {
     const patients = getDB('patients');
@@ -1244,25 +1967,48 @@ window.viewPatientEHR = function (patientId) {
     document.getElementById('ehr-p-phone').innerText = patient.phone;
     document.getElementById('ehr-p-allergies').innerText = patient.allergies || 'None';
 
-    // Populate timeline list
     const timeline = document.getElementById('doctor-p-timeline');
     timeline.innerHTML = '';
-    if (patient.medicalHistory && patient.medicalHistory.length > 0) {
-        patient.medicalHistory.forEach(h => {
-            timeline.innerHTML += `
-            <div class="timeline-event">
-                <div class="timeline-date font-size-xs text-primary">${h.date}</div>
-                <div class="ehr-timeline-point py-2 px-3">
+    
+    const medHistory = patient.medicalHistory && patient.medicalHistory.length > 0
+        ? patient.medicalHistory
+        : [
+            { date: '2026-05-15', condition: 'Consultation & BP Review', diagnosedBy: 'Dr. Sarah Connor' },
+            { date: '2026-05-15', condition: 'Digital Prescription Issued', diagnosedBy: 'Dr. Sarah Connor' },
+            { date: '2025-11-10', condition: 'Laboratory Diagnostic Test', diagnosedBy: 'Dr. Sarah Connor' },
+            { date: '2025-11-10', condition: 'Primary Diagnosis: Mild Hypertension', diagnosedBy: 'Dr. Sarah Connor' }
+        ];
+
+    const groups = {};
+    medHistory.forEach(h => {
+        const year = h.date.split('-')[0];
+        if (!groups[year]) groups[year] = [];
+        groups[year].push(h);
+    });
+
+    const years = Object.keys(groups).sort((a, b) => b - a);
+    years.forEach(yr => {
+        let eventsHtml = '';
+        groups[yr].forEach(h => {
+            eventsHtml += `
+            <div class="timeline-event mb-3">
+                <div class="timeline-date font-size-xs text-primary fw-semibold mb-1">${h.date}</div>
+                <div class="ehr-timeline-point py-2 px-3 bg-white rounded border">
                     <h6 class="timeline-title font-size-sm fw-bold mb-1">${h.condition}</h6>
-                    <p class="text-muted font-size-xs mb-0">Diagnosed by: <strong>${h.diagnosedBy}</strong> | Status: <span class="badge bg-success font-size-xxs">Active</span></p>
+                    <p class="text-muted font-size-xs mb-0">Recorded by: <strong>${h.diagnosedBy || 'Dr. Sarah Connor'}</strong></p>
                 </div>
             </div>`;
         });
-    } else {
-        timeline.innerHTML = '<p class="text-muted font-size-xs">No clinical diagnoses recorded.</p>';
-    }
 
-    // Populate prescriptions
+        timeline.innerHTML += `
+        <div class="timeline-year-group mb-4">
+            <span class="badge bg-primary font-size-xs fw-bold py-1 px-3 mb-2" style="border-radius: 10px;"><i class="fa-solid fa-calendar me-1"></i> ${yr}</span>
+            <div class="ps-3 border-start border-2 ms-2">
+                ${eventsHtml}
+            </div>
+        </div>`;
+    });
+
     const rxList = document.getElementById('doctor-p-rx-list');
     rxList.innerHTML = '';
     const prescriptions = getDB('prescriptions').filter(p => p.patientId === patientId);
@@ -1282,7 +2028,6 @@ window.viewPatientEHR = function (patientId) {
         rxList.innerHTML = '<tr><td colspan="4" class="text-center text-muted font-size-xs">No active prescriptions.</td></tr>';
     }
 
-    // Populate laboratory results
     const labsList = document.getElementById('doctor-p-labs-list');
     labsList.innerHTML = '';
     const labRequests = getDB('lab_requests').filter(l => l.patientId === patientId);
@@ -1303,16 +2048,24 @@ window.viewPatientEHR = function (patientId) {
         labsList.innerHTML = '<tr><td colspan="4" class="text-center text-muted font-size-xs">No lab requests order.</td></tr>';
     }
 
-    // Render vital trend history chart inside Modal
     setTimeout(() => {
         const canvas = document.getElementById('doctorPatientVitalsChart');
         if (!canvas) return;
         if (modalVitalsChart) modalVitalsChart.destroy();
 
-        const labels = patient.vitalsHistory.map(v => v.date);
-        const sys = patient.vitalsHistory.map(v => v.bpSystolic);
-        const dia = patient.vitalsHistory.map(v => v.bpDiastolic);
-        const hr = patient.vitalsHistory.map(v => v.heartRate);
+        const vitals = patient.vitalsHistory && patient.vitalsHistory.length > 0
+            ? patient.vitalsHistory
+            : [
+                { date: '2026-05-01', bpSystolic: 120, bpDiastolic: 80, heartRate: 72 },
+                { date: '2026-05-15', bpSystolic: 124, bpDiastolic: 82, heartRate: 75 },
+                { date: '2026-06-01', bpSystolic: 118, bpDiastolic: 79, heartRate: 70 },
+                { date: '2026-06-15', bpSystolic: 121, bpDiastolic: 80, heartRate: 73 }
+              ];
+
+        const labels = vitals.map(v => v.date);
+        const sys = vitals.map(v => v.bpSystolic);
+        const dia = vitals.map(v => v.bpDiastolic);
+        const hr = vitals.map(v => v.heartRate);
 
         modalVitalsChart = new Chart(canvas, {
             type: 'line',
@@ -1334,6 +2087,8 @@ window.viewPatientEHR = function (patientId) {
 
     const modal = new bootstrap.Modal(document.getElementById('ehrHistoryModal'));
     modal.show();
+
+    appendAccessLog(patient.name);
 };
 
 function setupDoctorCalendarListeners() {
@@ -1574,41 +2329,238 @@ function renderDoctorCalendar(year, month) {
     }
 }
 
+function getFilteredAnalyticsData(doctor, rangeType, customStart, customEnd) {
+    const now = new Date(2026, 5, 23); // June 23, 2026 is today in the system context
+    let start = null;
+    let end = null;
+
+    if (rangeType === 'today') {
+        start = new Date(now);
+        start.setHours(0,0,0,0);
+        end = new Date(now);
+        end.setHours(23,59,59,999);
+    } else if (rangeType === 'week') {
+        start = new Date(now);
+        const day = start.getDay();
+        const diff = start.getDate() - day + (day === 0 ? -6 : 1); // Monday
+        start.setDate(diff);
+        start.setHours(0,0,0,0);
+        
+        end = new Date(start);
+        end.setDate(end.getDate() + 6); // Sunday
+        end.setHours(23,59,59,999);
+    } else if (rangeType === 'month') {
+        start = new Date(now.getFullYear(), now.getMonth(), 1);
+        end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    } else if (rangeType === 'custom') {
+        start = customStart ? new Date(customStart) : null;
+        if (start) start.setHours(0,0,0,0);
+        end = customEnd ? new Date(customEnd) : null;
+        if (end) end.setHours(23,59,59,999);
+    }
+
+    const prescriptions = getDB('prescriptions').filter(p => {
+        if (p.doctorName !== doctor.name) return false;
+        const pDate = new Date(p.date);
+        return (!start || pDate >= start) && (!end || pDate <= end);
+    });
+
+    const labs = getDB('lab_requests').filter(l => {
+        if (l.doctorName !== doctor.name) return false;
+        const lDate = new Date(l.requestDate);
+        return (!start || lDate >= start) && (!end || lDate <= end);
+    });
+
+    const patientIds = [...new Set(prescriptions.map(p => p.patientId))];
+    let totalConsults = prescriptions.length;
+    let labsOrdered = labs.length;
+    let uniquePatients = patientIds.length;
+
+    // Fallbacks to keep dashboard populated with realistic clinical mock data if DB empty
+    if (totalConsults === 0) {
+        if (rangeType === 'today') {
+            totalConsults = 3;
+            labsOrdered = 2;
+            uniquePatients = 3;
+        } else if (rangeType === 'week') {
+            totalConsults = 14;
+            labsOrdered = 8;
+            uniquePatients = 12;
+        } else if (rangeType === 'month') {
+            totalConsults = 58;
+            labsOrdered = 24;
+            uniquePatients = 45;
+        } else {
+            totalConsults = 10;
+            labsOrdered = 4;
+            uniquePatients = 8;
+        }
+    }
+
+    return {
+        totalConsults: totalConsults,
+        labsOrdered: labsOrdered,
+        uniquePatients: uniquePatients
+    };
+}
+
+function renderTopDiseases() {
+    const list = document.getElementById('disease-list');
+    if (!list) return;
+
+    const diseases = [
+        { name: 'Fever', cases: 25, color: 'bg-info' },
+        { name: 'Diabetes', cases: 18, color: 'bg-warning text-dark' },
+        { name: 'Hypertension', cases: 15, color: 'bg-danger' },
+        { name: 'Asthma', cases: 8, color: 'bg-success' }
+    ];
+
+    let html = '';
+    diseases.forEach(d => {
+        const pct = (d.cases / 25) * 100;
+        html += `
+        <div>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="fw-semibold font-size-sm">${d.name}</span>
+                <span class="badge bg-light text-dark font-size-xs fw-bold border">${d.cases} cases</span>
+            </div>
+            <div class="progress" style="height: 8px; border-radius: 4px; background-color: var(--hc-border);">
+                <div class="progress-bar ${d.color}" role="progressbar" style="width: ${pct}%; border-radius: 4px;"></div>
+            </div>
+        </div>`;
+    });
+    list.innerHTML = html;
+}
+
 function renderDoctorAnalytics(doctor) {
-    const totalConsults = getDB('prescriptions').filter(p => p.doctorName === doctor.name).length;
-    const patients = getDB('patients').length;
-    const labsOrdered = getDB('lab_requests').filter(l => l.doctorName === doctor.name).length;
+    const dateFilterVal = document.getElementById('reports-date-filter')?.value || 'month';
+    const customStart = document.getElementById('reports-start-date')?.value;
+    const customEnd = document.getElementById('reports-end-date')?.value;
+
+    const data = getFilteredAnalyticsData(doctor, dateFilterVal, customStart, customEnd);
 
     const elTotal = document.getElementById('doc-stat-total-consults');
     const elUnique = document.getElementById('doc-stat-unique-patients');
-    const elLabs = document.getElementById('doc-labs-ordered');
+    const elRxGen = document.getElementById('reports-rx-generated');
+    const elLabReqs = document.getElementById('reports-lab-requests');
 
-    if (elTotal) elTotal.innerText = totalConsults;
-    if (elUnique) elUnique.innerText = patients;
-    if (elLabs) elLabs.innerText = labsOrdered;
+    if (elTotal) elTotal.innerText = data.totalConsults;
+    if (elUnique) elUnique.innerText = data.uniquePatients;
+    if (elRxGen) elRxGen.innerText = Math.round(data.totalConsults * 0.95);
+    if (elLabReqs) elLabReqs.innerText = data.labsOrdered;
 
-    const canvas = document.getElementById('doctorConsultsChart');
-    if (!canvas) return;
+    renderTopDiseases();
 
-    if (doctorConsultsChartInstance) doctorConsultsChartInstance.destroy();
+    const isDark = document.body.classList.contains('dark-mode');
+    const textColor = isDark ? '#cbd5e1' : '#475569';
+    const gridColor = isDark ? '#334155' : '#e2e8f0';
 
-    doctorConsultsChartInstance = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'Consultation Count',
-                data: [18, 22, 28, 20, 24, totalConsults + 5],
-                backgroundColor: '#0f52ba',
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
-        }
-    });
+    Chart.defaults.color = textColor;
+
+    // 1. Consultation Trends (Area/Line Chart)
+    const trendCanvas = document.getElementById('doctorConsultsTrendChart');
+    if (trendCanvas) {
+        if (doctorConsultsTrendChartInstance) doctorConsultsTrendChartInstance.destroy();
+        doctorConsultsTrendChartInstance = new Chart(trendCanvas, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Consultations',
+                    data: [15, 24, 35, 22, 38, data.totalConsults],
+                    fill: true,
+                    backgroundColor: isDark ? 'rgba(14, 116, 144, 0.25)' : 'rgba(14, 116, 144, 0.1)',
+                    borderColor: '#0e7490',
+                    tension: 0.35,
+                    borderWidth: 2,
+                    pointBackgroundColor: '#0e7490'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: gridColor },
+                        ticks: { color: textColor }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textColor }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Appointment Status (Donut Chart)
+    const apptStatusCanvas = document.getElementById('doctorApptStatusChart');
+    if (apptStatusCanvas) {
+        if (doctorApptStatusChartInstance) doctorApptStatusChartInstance.destroy();
+        doctorApptStatusChartInstance = new Chart(apptStatusCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Pending', 'Cancelled'],
+                datasets: [{
+                    data: [70, 20, 10],
+                    backgroundColor: ['#0e7490', '#b45309', '#991b1b'],
+                    borderWidth: isDark ? 2 : 0,
+                    borderColor: isDark ? '#1e293b' : '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: textColor,
+                            boxWidth: 12,
+                            padding: 15
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    }
+
+    // 3. Case Specialty Distribution (Pie Chart)
+    const specialtyCanvas = document.getElementById('doctorSpecialtyChart');
+    if (specialtyCanvas) {
+        if (doctorSpecialtyChartInstance) doctorSpecialtyChartInstance.destroy();
+        doctorSpecialtyChartInstance = new Chart(specialtyCanvas, {
+            type: 'pie',
+            data: {
+                labels: ['General Medicine', 'Cardiology', 'Pediatrics', 'Others'],
+                datasets: [{
+                    data: [55, 20, 15, 10],
+                    backgroundColor: ['#0d2847', '#0e7490', '#b45309', '#64748b'],
+                    borderWidth: isDark ? 2 : 0,
+                    borderColor: isDark ? '#1e293b' : '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: textColor,
+                            boxWidth: 12,
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+    }
 }
 
 function renderDoctorTasks(doctor) {
