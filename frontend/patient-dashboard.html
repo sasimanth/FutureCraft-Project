@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Patient Portal - FutureCraft Health</title>
+    <title>Patient Dashboard - CurePoint</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='cg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3ClinearGradient id='cg2' x1='0%25' y1='100%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2306b6d4'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='url(%23cg)' stroke-width='2'/%3E%3Cpath d='M 12 6 L 12 18 M 6 12 L 18 12' stroke='url(%23cg)' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M 8 12 L 10 12 L 11 9 L 13 15 L 14 12 L 16 12' stroke='url(%23cg2)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -17,8 +19,38 @@
         <!-- SIDEBAR PANEL -->
         <aside class="dashboard-sidebar">
             <div class="sidebar-brand">
-                <i class="fa-solid fa-hospital text-success"></i>
-                <span>FutureCraft</span>Health
+                <svg class="curepoint-logo" viewBox="0 0 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                    <defs>
+                        <linearGradient id="medicore-white-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"></stop>
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.5"></stop>
+                        </linearGradient>
+                        <linearGradient id="medicore-white-trans" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4"></stop>
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.7"></stop>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 32 12 A 40 40 0 1 1 76 76" fill="none" stroke="url(#medicore-white-grad)" stroke-width="4.5" stroke-linecap="round" />
+                    <path d="M 22 50 C 22 68, 38 82, 56 80 C 62 79, 68 76, 72 71" fill="none" stroke="url(#medicore-white-trans)" stroke-width="4" stroke-linecap="round" />
+                    <path d="M 24 46 C 26 54, 32 64, 42 66 C 46 67, 50 65, 52 62" fill="none" stroke="url(#medicore-white-trans)" stroke-width="3" stroke-linecap="round" />
+                    <rect x="38" y="22" width="24" height="32" rx="3" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2.5" />
+                    <rect x="44" y="19" width="12" height="4" rx="1.5" fill="url(#medicore-white-grad)" />
+                    <path d="M 50 26 V 32 M 47 29 H 53" stroke="url(#medicore-white-trans)" stroke-width="2" stroke-linecap="round" />
+                    <line x1="43" y1="36" x2="57" y2="36" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="43" y1="40" x2="57" y2="40" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" />
+                    <path d="M 43 46 L 46 46 L 48 43 L 50 49 L 52 45 L 54 47 L 57 47" fill="none" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 50 63 C 45 58, 41 54, 41 49 C 41 45.5, 43.5 43, 47 43 C 48.8 43, 49.6 44, 50 44.5 C 50.4 44, 51.2 43, 53 43 C 56.5 43, 59 45.5, 59 49 C 59 54, 55 58, 50 63 Z" fill="url(#medicore-white-grad)" />
+                    <path d="M 44 49 L 46 49 L 47 46 L 49 52 L 51 47 L 53 50 L 56 50" fill="none" stroke="#2563eb" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 67 22 C 67 22, 65 17, 69 15 C 72 13.5, 75 18, 74 21" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 77 23 C 77 23, 75 18, 79 16 C 82 14.5, 85 19, 84 22" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="69" cy="15" r="1" fill="url(#medicore-white-grad)" />
+                    <circle cx="79" cy="16" r="1" fill="url(#medicore-white-grad)" />
+                    <path d="M 70 21 C 71 27, 81 28, 82 22" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 76 25 C 76 25, 77 34, 73 38 C 69 42, 69 50, 74 53 C 79 56, 79 62, 75 64" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="74" cy="67" r="4" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" />
+                    <circle cx="74" cy="67" r="1.5" fill="url(#medicore-white-trans)" />
+                </svg>
+                <span class="brand-text text-white">Cure<span class="brand-highlight" style="color: rgba(255,255,255,0.7);">Point</span></span>
             </div>
             
             <ul class="sidebar-menu">
@@ -84,7 +116,12 @@
                     <div class="dashboard-search-bar d-none d-md-block">
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" class="form-control" placeholder="Search records...">
+                        <span class="cmd-indicator" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.7rem;"><i class="fa-solid fa-arrow-turn-down fa-rotate-90 me-1" style="font-size: 0.6rem;"></i> K</span>
                     </div>
+                    <!-- Theme Toggle Button -->
+                    <button type="button" class="theme-toggle-btn btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center p-2 rounded-circle me-2" onclick="toggleTheme()" style="width: 38px; height: 38px;">
+                        <i class="fa-solid fa-moon fs-6"></i>
+                    </button>
                     <div class="header-notification-btn">
                         <i class="fa-solid fa-bell"></i>
                         <span class="header-notification-badge"></span>
@@ -316,47 +353,106 @@
                     </div>
                 </section>
 
-                <!-- PANEL 5: APPOINTMENTS -->
+                <!-- PANEL 5: APPOINTMENTS & ADVANCED BOOKING WIZARD -->
                 <section class="dashboard-panel" id="panel-appointments">
                     <div class="row g-4">
-                        <div class="col-lg-4">
+                        <!-- Step-by-Step Booking Card -->
+                        <div class="col-lg-6">
                             <div class="hc-card">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-calendar-plus text-primary me-2"></i>Book Consultation</h5>
-                                <form id="book-appointment-form">
-                                    <div class="mb-3">
-                                        <label for="appt-doctor" class="form-label fw-semibold">Select Physician</label>
-                                        <select class="form-select" id="appt-doctor" required>
-                                            <!-- Loaded dynamically -->
-                                        </select>
+                                <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-calendar-plus me-2"></i>Book Consultation Wizard</h5>
+                                
+                                <!-- Stepper Header -->
+                                <div class="wizard-steps mb-4">
+                                    <div class="wizard-progress-bar" id="booking-progress"></div>
+                                    <div class="wizard-step-node active" id="node-1">1</div>
+                                    <div class="wizard-step-node" id="node-2">2</div>
+                                    <div class="wizard-step-node" id="node-3">3</div>
+                                    <div class="wizard-step-node" id="node-4">4</div>
+                                    <div class="wizard-step-node" id="node-5"><i class="fa-solid fa-check"></i></div>
+                                </div>
+
+                                <form id="book-appointment-form" onsubmit="event.preventDefault();">
+                                    <!-- STEP 1: Select Specialization -->
+                                    <div class="step-panel" id="step-panel-1">
+                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-stethoscope me-1 text-primary"></i>Step 1: Select Specialization</h6>
+                                        <div class="spec-grid mb-4" id="booking-spec-grid">
+                                            <!-- Dynamically filled with specializations -->
+                                        </div>
+                                        <input type="hidden" id="booking-specialization">
+                                        <div class="text-end">
+                                            <button type="button" class="btn btn-hc-primary" onclick="goToBookingStep(2)">Next <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="appt-date" class="form-label fw-semibold">Consultation Date</label>
-                                        <input type="date" class="form-control" id="appt-date" required>
+
+                                    <!-- STEP 2: Show Available Doctors -->
+                                    <div class="step-panel d-none" id="step-panel-2">
+                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-user-doctor me-1 text-primary"></i>Step 2: Choose Doctor</h6>
+                                        <div class="d-flex flex-column gap-3 mb-4" id="booking-doctors-list">
+                                            <!-- Dynamically filled with available doctors in specialization -->
+                                        </div>
+                                        <input type="hidden" id="booking-doctor-id">
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="goToBookingStep(1)"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                            <button type="button" class="btn btn-hc-primary" id="btn-to-step3" onclick="goToBookingStep(3)" disabled>Next <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="appt-time" class="form-label fw-semibold">Time Slot</label>
-                                        <select class="form-select" id="appt-time" required>
-                                            <option value="">Choose slot...</option>
-                                            <option value="09:00 AM">09:00 AM - 09:30 AM</option>
-                                            <option value="09:30 AM">09:30 AM - 10:00 AM</option>
-                                            <option value="10:30 AM">10:30 AM - 11:00 AM</option>
-                                            <option value="11:00 AM">11:00 AM - 11:30 AM</option>
-                                            <option value="02:00 PM">02:00 PM - 02:30 PM</option>
-                                            <option value="03:30 PM">03:30 PM - 04:00 PM</option>
-                                        </select>
+
+                                    <!-- STEP 3: Show Availability Calendar -->
+                                    <div class="step-panel d-none" id="step-panel-3">
+                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-calendar-day me-1 text-primary"></i>Step 3: Select Date & Time</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Available Dates</label>
+                                            <input type="date" class="form-control border-primary-subtle" id="booking-date" required>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label fw-semibold mb-2">Available Time Slots</label>
+                                            <div class="slot-grid" id="booking-slots-grid">
+                                                <!-- Dynamically filled with time slots -->
+                                            </div>
+                                            <input type="hidden" id="booking-time-slot">
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="goToBookingStep(2)"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                            <button type="button" class="btn btn-hc-primary" id="btn-to-step4" onclick="goToBookingStep(4)" disabled>Next <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label for="appt-symptoms" class="form-label fw-semibold">Describe Symptoms / Notes</label>
-                                        <textarea class="form-control" id="appt-symptoms" rows="3" placeholder="e.g. Mild headache, chest pain..."></textarea>
+
+                                    <!-- STEP 4: Book Appointment -->
+                                    <div class="step-panel d-none" id="step-panel-4">
+                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice me-1 text-primary"></i>Step 4: Describe Symptoms & Confirm</h6>
+                                        <div class="mb-4">
+                                            <label for="booking-symptoms" class="form-label fw-semibold">Symptoms / Reason for Visit</label>
+                                            <textarea class="form-control border-primary-subtle" id="booking-symptoms" rows="4" placeholder="e.g. Mild fever, persistent chest tightness..." required></textarea>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="goToBookingStep(3)"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                            <button type="button" class="btn btn-success text-white" onclick="submitWizardBooking()"><i class="fa-solid fa-check-double me-1"></i> Confirm & Book</button>
+                                        </div>
                                     </div>
-                                    <button type="submit" class="btn btn-hc-primary w-100 py-2">Confirm Booking</button>
+
+                                    <!-- STEP 5: Confirmation -->
+                                    <div class="step-panel d-none text-center py-4" id="step-panel-5">
+                                        <div class="text-success fs-1 mb-3"><i class="fa-solid fa-circle-check"></i></div>
+                                        <h4 class="fw-bold text-dark">Appointment Confirmed!</h4>
+                                        <p class="text-muted mb-4">Your appointment has been registered successfully on our platform.</p>
+                                        
+                                        <div class="p-3 bg-light rounded border mb-4 text-start font-size-sm" style="max-width:320px; margin:0 auto;">
+                                            <div class="mb-1"><strong>Appointment ID:</strong> <span class="text-primary fw-bold" id="confirm-appt-id">--</span></div>
+                                            <div class="mb-1"><strong>Doctor Name:</strong> <span id="confirm-doctor-name">--</span></div>
+                                            <div class="mb-1"><strong>Department:</strong> <span id="confirm-dept">--</span></div>
+                                            <div><strong>Date & Time:</strong> <span id="confirm-datetime">--</span></div>
+                                        </div>
+                                        
+                                        <button type="button" class="btn btn-hc-primary" onclick="resetBookingWizard()">Book Another Appointment</button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
 
-                        <div class="col-lg-8">
-                            <div class="hc-card">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-calendar-days text-success me-2"></i>My Consultations Queue</h5>
+                        <!-- Right Panel: Active Appointments Queue -->
+                        <div class="col-lg-6">
+                            <div class="hc-card h-100">
+                                <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-calendar-days me-2"></i>My Consultations Queue</h5>
                                 <div class="table-responsive hc-table-container">
                                     <table class="table hc-table">
                                         <thead>
@@ -370,7 +466,7 @@
                                             </tr>
                                         </thead>
                                         <tbody id="patient-appts-list">
-                                            <!-- Dynamic rows -->
+                                            <!-- Dynamically populated -->
                                         </tbody>
                                     </table>
                                 </div>

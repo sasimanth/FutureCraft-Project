@@ -1,4 +1,4 @@
-# 🏥 Electronic Health Record (EHR) & Laboratory Management Portal
+# 🏥 CurePoint - Electronic Health Record (EHR) & Laboratory Management Portal
 
 ## 📌 Project Overview
 
