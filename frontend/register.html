@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Profile - EHR & Lab Portal</title>
+    <title>Create Patient Account - CurePoint</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -13,13 +13,54 @@
 </head>
 <body>
 
+    <!-- Floating Theme Toggle -->
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 1050;">
+        <button type="button" class="theme-toggle-btn btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center p-2 rounded-circle" onclick="toggleTheme()" style="width: 38px; height: 38px;">
+            <i class="fa-solid fa-moon fs-6"></i>
+        </button>
+    </div>
+
     <div class="auth-wrapper">
         <!-- LEFT PANEL: Brand Info & Registration Context -->
         <div class="auth-sidebar d-none d-lg-flex">
             <div>
                 <a href="index.html" class="text-white text-decoration-none fw-bold fs-3 d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-hospital text-success animate-pulse"></i>
-                    <span>FutureCraft</span>Health
+                    <svg class="curepoint-logo" viewBox="0 0 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                    <defs>
+                        <linearGradient id="medicore-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0a3d62"></stop>
+                            <stop offset="100%" stop-color="#1e3a8a"></stop>
+                        </linearGradient>
+                        <linearGradient id="medicore-teal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0d9488"></stop>
+                            <stop offset="100%" stop-color="#14b8a6"></stop>
+                        </linearGradient>
+                        <linearGradient id="medicore-red-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ef4444"></stop>
+                            <stop offset="100%" stop-color="#dc2626"></stop>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 32 12 A 40 40 0 1 1 76 76" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="4.5" stroke-linecap="round" />
+                    <path d="M 22 50 C 22 68, 38 82, 56 80 C 62 79, 68 76, 72 71" fill="none" stroke="url(#medicore-teal-grad)" stroke-width="4" stroke-linecap="round" />
+                    <path d="M 24 46 C 26 54, 32 64, 42 66 C 46 67, 50 65, 52 62" fill="none" stroke="url(#medicore-teal-grad)" stroke-width="3" stroke-linecap="round" />
+                    <rect x="38" y="22" width="24" height="32" rx="3" fill="#ffffff" stroke="url(#medicore-blue-grad)" stroke-width="2.5" />
+                    <rect x="44" y="19" width="12" height="4" rx="1.5" fill="url(#medicore-blue-grad)" />
+                    <path d="M 50 26 V 32 M 47 29 H 53" stroke="url(#medicore-teal-grad)" stroke-width="2" stroke-linecap="round" />
+                    <line x1="43" y1="36" x2="57" y2="36" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="43" y1="40" x2="57" y2="40" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
+                    <path d="M 43 46 L 46 46 L 48 43 L 50 49 L 52 45 L 54 47 L 57 47" fill="none" stroke="url(#medicore-teal-grad)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 50 63 C 45 58, 41 54, 41 49 C 41 45.5, 43.5 43, 47 43 C 48.8 43, 49.6 44, 50 44.5 C 50.4 44, 51.2 43, 53 43 C 56.5 43, 59 45.5, 59 49 C 59 54, 55 58, 50 63 Z" fill="url(#medicore-red-grad)" />
+                    <path d="M 44 49 L 46 49 L 47 46 L 49 52 L 51 47 L 53 50 L 56 50" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 67 22 C 67 22, 65 17, 69 15 C 72 13.5, 75 18, 74 21" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 77 23 C 77 23, 75 18, 79 16 C 82 14.5, 85 19, 84 22" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="69" cy="15" r="1" fill="url(#medicore-blue-grad)" />
+                    <circle cx="79" cy="16" r="1" fill="url(#medicore-blue-grad)" />
+                    <path d="M 70 21 C 71 27, 81 28, 82 22" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 76 25 C 76 25, 77 34, 73 38 C 69 42, 69 50, 74 53 C 79 56, 79 62, 75 64" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="74" cy="67" r="4" fill="#ffffff" stroke="url(#medicore-blue-grad)" stroke-width="2" />
+                    <circle cx="74" cy="67" r="1.5" fill="url(#medicore-teal-grad)" />
+                </svg>
+                    <span class="brand-text text-white">Cure<span class="brand-highlight" style="color: rgba(255,255,255,0.7);">Point</span></span>
                 </a>
             </div>
             
@@ -41,7 +82,7 @@
             </div>
 
             <div>
-                <span class="text-white-50 font-size-sm">&copy; 2026 FutureCraft Health. All rights reserved.</span>
+                <span class="text-white-50 font-size-sm">&copy; 2026 CurePoint. Smart Healthcare. Connected Care.</span>
             </div>
         </div>
 
@@ -80,14 +121,8 @@
                         </div>
                     </div>
 
-                    <!-- Role Selection -->
-                    <div class="form-floating mb-3">
-                        <select class="form-select" id="reg-role" required>
-                            <option value="patient" selected>Patient</option>
-                            <option value="doctor">Doctor</option>
-                        </select>
-                        <label for="reg-role">Register As</label>
-                    </div>
+                    <!-- Role Selection Hidden for Patient-Only Registration -->
+                    <input type="hidden" id="reg-role" value="patient">
 
                     <!-- DYNAMIC PATIENT ONLY FIELDS -->
                     <div id="patient-extra-fields">
