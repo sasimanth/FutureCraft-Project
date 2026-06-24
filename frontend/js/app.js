@@ -257,7 +257,7 @@ const ApiService = {
         if (this.useMock) {
             await new Promise(r => setTimeout(r, 200));
             const users = getDB('users');
-            const user = users.find(u => u.email === email && u.password === password && u.role === role);
+            const user = users.find(u => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password && u.role === role);
             if (user) {
                 sessionStorage.setItem('hc_current_user', JSON.stringify(user));
                 this.addAuditLog('accounts', email, `Login successful with role: ${role}`);
@@ -3708,6 +3708,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
             });
+
+            const resetDbBtn = document.getElementById('reset-db-btn');
+            if (resetDbBtn) {
+                resetDbBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    localStorage.clear();
+                    initializeDatabase();
+                    Toast.success('Demo database reset successfully! You can now log in.');
+                    // Hide any active error message
+                    const errEl = document.getElementById('login-error-msg');
+                    if (errEl) errEl.classList.add('d-none');
+                });
+            }
         }
     }
 
