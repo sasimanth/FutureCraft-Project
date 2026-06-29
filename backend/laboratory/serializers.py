@@ -19,6 +19,9 @@ class LabRequestSerializer(serializers.ModelSerializer):
     resultDate = serializers.DateField(source='result_date', required=False, allow_null=True)
     results = LabResultSerializer(source='parameters', many=True, required=False)
     consultationId = serializers.CharField(source='consultation_id', required=False, allow_blank=True)
+    appointmentId = serializers.CharField(source='appointment_id', required=False, allow_blank=True)
+    doctorNotes = serializers.CharField(source='doctor_notes', required=False, allow_blank=True)
+    techComments = serializers.CharField(source='tech_comments', required=False, allow_blank=True)
     
     # Custom representation for file field (return file details or URL)
     rawReportFile = serializers.SerializerMethodField(required=False)
@@ -28,7 +31,7 @@ class LabRequestSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'patientId', 'patientName', 'doctorName', 'testCategory', 'testName',
             'requestDate', 'status', 'resultDate', 'technician', 'priority', 'results', 'rawReportFile',
-            'consultationId'
+            'consultationId', 'appointmentId', 'doctorNotes', 'techComments'
         )
 
     def get_rawReportFile(self, obj):
@@ -54,7 +57,10 @@ class LabRequestSerializer(serializers.ModelSerializer):
                 'request_date': validated_data.get('request_date') or timezone_now_date(),
                 'status': validated_data.get('status', 'pending'),
                 'priority': validated_data.get('priority', 'Medium'),
-                'consultation_id': validated_data.get('consultation_id', '')
+                'consultation_id': validated_data.get('consultation_id', ''),
+                'appointment_id': validated_data.get('appointment_id', ''),
+                'doctor_notes': validated_data.get('doctor_notes', ''),
+                'tech_comments': validated_data.get('tech_comments', '')
             }
         )
         return lab_request
@@ -66,6 +72,9 @@ class LabRequestSerializer(serializers.ModelSerializer):
         instance.result_date = validated_data.get('result_date', instance.result_date)
         instance.technician = validated_data.get('technician', instance.technician)
         instance.priority = validated_data.get('priority', instance.priority)
+        instance.appointment_id = validated_data.get('appointment_id', instance.appointment_id)
+        instance.doctor_notes = validated_data.get('doctor_notes', instance.doctor_notes)
+        instance.tech_comments = validated_data.get('tech_comments', instance.tech_comments)
         
         if 'raw_report_file' in validated_data:
             instance.raw_report_file = validated_data.get('raw_report_file')

@@ -37,6 +37,7 @@ class PatientMedicalHistory(models.Model):
     condition = models.CharField(max_length=255)
     diagnosed_by = models.CharField(max_length=255)
     status = models.CharField(max_length=100) # e.g. Active, Managed, Recovered
+    notes = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ['-date']
@@ -50,6 +51,7 @@ class PatientVisit(models.Model):
     department = models.CharField(max_length=100)
     doctor_name = models.CharField(max_length=255)
     reason = models.TextField()
+    notes = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ['-date']

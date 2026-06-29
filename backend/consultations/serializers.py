@@ -81,7 +81,8 @@ class ConsultationSerializer(serializers.ModelSerializer):
                     condition=diagnosis,
                     defaults={
                         'diagnosed_by': doctor_name,
-                        'status': 'Active'
+                        'status': 'Active',
+                        'notes': recommendations or ''
                     }
                 )
 
@@ -99,7 +100,8 @@ class ConsultationSerializer(serializers.ModelSerializer):
                     reason=diagnosis,
                     defaults={
                         'department': dept_name,
-                        'doctor_name': doctor_name
+                        'doctor_name': doctor_name,
+                        'notes': recommendations or ''
                     }
                 )
 
@@ -146,7 +148,9 @@ class ConsultationSerializer(serializers.ModelSerializer):
                         'request_date': consultation_date,
                         'status': 'pending',
                         'priority': lab_request_data.get('priority', 'Medium'),
-                        'consultation_id': consultation_id
+                        'consultation_id': consultation_id,
+                        'appointment_id': appointment_id or '',
+                        'doctor_notes': recommendations or ''
                     }
                 )
 

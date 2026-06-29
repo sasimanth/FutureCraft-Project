@@ -210,6 +210,14 @@ class LabReportPdfView(APIView):
         except LabRequest.DoesNotExist:
             return HttpResponse("Lab report not found", status=404)
 
+        if lab.raw_report_file:
+            try:
+                response = HttpResponse(lab.raw_report_file.read(), content_type='application/pdf')
+                response['Content-Disposition'] = f'inline; filename="{lab.raw_report_file.name.split("/")[-1]}"'
+                return response
+            except Exception:
+                pass
+
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
         story = []

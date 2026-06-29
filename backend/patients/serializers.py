@@ -15,14 +15,14 @@ class PatientMedicalHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PatientMedicalHistory
-        fields = ('date', 'condition', 'diagnosedBy', 'status')
+        fields = ('date', 'condition', 'diagnosedBy', 'status', 'notes')
 
 class PatientVisitSerializer(serializers.ModelSerializer):
     doctorName = serializers.CharField(source='doctor_name')
 
     class Meta:
         model = PatientVisit
-        fields = ('id', 'date', 'department', 'doctorName', 'reason')
+        fields = ('id', 'date', 'department', 'doctorName', 'reason', 'notes')
 
 class PatientFileSerializer(serializers.ModelSerializer):
     class Meta:
