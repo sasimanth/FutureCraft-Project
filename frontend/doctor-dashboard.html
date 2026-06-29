@@ -236,136 +236,193 @@
                                 </div>
                             </div>
 
-                            <!-- Form Contents Split Panel -->
-                            <div class="col-lg-7" id="consult-form-left-col">
-                                <!-- Vitals Entry -->
-                                <div class="hc-card mb-4 consult-active-fields d-none">
-                                    <h5 class="fw-bold mb-4 text-primary border-bottom pb-2"><i class="fa-solid fa-heart-pulse me-2"></i>1. Capture Vitals</h5>
-                                    <div class="row g-3">
-                                        <div class="col-sm-3 col-6">
-                                            <label class="form-label font-size-sm fw-semibold">BP (SYS) <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control border-primary-subtle" id="consult-sys" placeholder="120">
-                                        </div>
-                                        <div class="col-sm-3 col-6">
-                                            <label class="form-label font-size-sm fw-semibold">BP (DIA) <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control border-primary-subtle" id="consult-dia" placeholder="80">
-                                        </div>
-                                        <div class="col-sm-2 col-4">
-                                            <label class="form-label font-size-sm fw-semibold">HR (bpm) <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control border-primary-subtle" id="consult-hr" placeholder="72">
-                                        </div>
-                                        <div class="col-sm-2 col-4">
-                                            <label class="form-label font-size-sm fw-semibold">Temp (°F)</label>
-                                            <input type="number" step="0.1" class="form-control" id="consult-temp" placeholder="98.6">
-                                        </div>
-                                        <div class="col-sm-2 col-4">
-                                            <label class="form-label font-size-sm fw-semibold">Weight (kg)</label>
-                                            <input type="number" step="0.1" class="form-control" id="consult-weight" placeholder="70">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Symptoms & Diagnosis -->
-                                <div class="hc-card mb-4 consult-active-fields d-none">
-                                    <h5 class="fw-bold mb-4 text-primary border-bottom pb-2"><i class="fa-solid fa-stethoscope me-2"></i>2. Symptoms & Diagnosis</h5>
-                                    <div class="mb-3">
-                                        <label for="consult-symptoms" class="form-label fw-semibold font-size-sm">Symptoms & Chief Complaints</label>
-                                        <textarea class="form-control" id="consult-symptoms" rows="3" placeholder="Describe clinical symptoms presented by the patient..."></textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="consult-diagnosis" class="form-label fw-semibold font-size-sm">Primary Diagnosis / ICD-10 <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control border-primary-subtle" id="consult-diagnosis" placeholder="e.g. Essential Hypertension (I10)" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="consult-notes" class="form-label fw-semibold font-size-sm">Clinical Notes & Recommendations</label>
-                                        <textarea class="form-control" id="consult-notes" rows="4" placeholder="Detail treatment plan, clinical findings, and advice..."></textarea>
-                                    </div>
-                                </div>
-
-                                <!-- Follow-up Scheduling -->
-                                <div class="hc-card consult-active-fields d-none">
-                                    <h5 class="fw-bold mb-4 text-primary border-bottom pb-2"><i class="fa-solid fa-calendar-check me-2"></i>3. Follow-up Scheduling</h5>
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="consult-followup-check" onchange="document.getElementById('consult-followup-inputs').classList.toggle('d-none', !this.checked)">
-                                        <label class="form-check-label fw-semibold" for="consult-followup-check">Schedule follow-up appointment for this patient</label>
-                                    </div>
-                                    <div class="row g-3 d-none" id="consult-followup-inputs">
-                                        <div class="col-md-6">
-                                            <label class="form-label font-size-sm">Follow-up Date</label>
-                                            <input type="date" class="form-control" id="consult-followup-date">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label font-size-sm">Preferred Time Slot</label>
-                                            <select class="form-select" id="consult-followup-time">
-                                                <option value="09:00 AM">09:00 AM - 09:30 AM</option>
-                                                <option value="09:30 AM">09:30 AM - 10:00 AM</option>
-                                                <option value="10:30 AM">10:30 AM - 11:00 AM</option>
-                                                <option value="11:00 AM">11:00 AM - 11:30 AM</option>
-                                                <option value="02:00 PM">02:00 PM - 02:30 PM</option>
-                                                <option value="03:30 PM">03:30 PM - 04:00 PM</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-5" id="consult-form-right-col">
-                                <!-- Patient Medical History Preview -->
-                                <div class="hc-card mb-4 consult-active-fields d-none">
-                                    <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2"><i class="fa-solid fa-receipt me-2"></i>Medical History Reference</h5>
-                                    <div style="max-height: 180px; overflow-y: auto;" id="consult-history-list">
-                                        <p class="text-muted font-size-xs mb-0">No past visits recorded.</p>
-                                    </div>
-                                </div>
-
-                                <!-- Prescription Builder -->
-                                <div class="hc-card mb-4 consult-active-fields d-none">
-                                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-                                        <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-prescription me-2"></i>e-Prescription</h5>
-                                        <button type="button" class="btn btn-xs btn-outline-success" id="doc-add-med-btn"><i class="fa-solid fa-plus me-1"></i> Add Med</button>
-                                    </div>
-                                    <div id="consult-med-rows" style="max-height: 350px; overflow-y: auto;">
-                                        <!-- Medication rows -->
-                                    </div>
-                                </div>
-
-                                <!-- Lab Ordering -->
-                                <div class="hc-card mb-4 consult-active-fields d-none">
-                                    <h5 class="fw-bold mb-3 text-warning border-bottom pb-2"><i class="fa-solid fa-flask-vial me-2"></i>Order Lab Tests</h5>
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="consult-order-lab" onchange="document.getElementById('consult-lab-inputs').classList.toggle('d-none', !this.checked)">
-                                        <label class="form-check-label fw-semibold" for="consult-order-lab">Request Laboratory Test</label>
-                                    </div>
-                                    <div class="row g-3 d-none" id="consult-lab-inputs">
-                                        <div class="col-md-6">
-                                            <label class="form-label font-size-sm">Test Category</label>
-                                            <select class="form-select form-select-sm" id="consult-lab-cat">
-                                                <option value="Blood Test">Blood Test</option>
-                                                <option value="Lipid Panel">Lipid Panel</option>
-                                                <option value="Pathology">Pathology</option>
-                                                <option value="Radiology">Radiology</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label font-size-sm">Test Name</label>
-                                            <input type="text" class="form-control form-control-sm" id="consult-lab-name" placeholder="e.g. Lipid Profile">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Save Button -->
-                                <div class="consult-active-fields d-none">
-                                    <button type="submit" class="btn btn-hc-primary btn-lg w-100 py-3 mb-2 shadow-sm"><i class="fa-solid fa-floppy-disk me-2"></i> Save & End Consultation</button>
-                                </div>
+                            <!-- Form Contents Stepper Panel (Left Side) -->
+                            <div class="col-lg-8" id="consult-form-left-col">
                                 <div id="consult-patient-info-placeholder" class="text-center py-5 hc-card">
                                     <i class="fa-solid fa-user-injured fs-1 text-muted mb-3 d-block"></i>
                                     <p class="text-muted mb-0">Select an active patient to preview medical history and unlock consultation tools.</p>
                                 </div>
+
+                                <div class="hc-card consult-active-fields d-none">
+                                    <!-- Stepper Progress Header -->
+                                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom overflow-x-auto gap-3">
+                                        <div class="d-flex align-items-center gap-2 step-indicator active" id="step-ind-1" style="cursor: pointer; opacity: 1; transition: all 0.3s ease;">
+                                            <span class="badge bg-primary rounded-circle px-2.5 py-1.5 font-size-xs">1</span>
+                                            <span class="fw-bold font-size-sm text-primary">Vitals</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 step-indicator" id="step-ind-2" style="cursor: pointer; opacity: 0.5; transition: all 0.3s ease;">
+                                            <span class="badge bg-secondary rounded-circle px-2.5 py-1.5 font-size-xs">2</span>
+                                            <span class="fw-semibold font-size-sm text-muted">Diagnosis</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 step-indicator" id="step-ind-3" style="cursor: pointer; opacity: 0.5; transition: all 0.3s ease;">
+                                            <span class="badge bg-secondary rounded-circle px-2.5 py-1.5 font-size-xs">3</span>
+                                            <span class="fw-semibold font-size-sm text-muted">Prescription</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 step-indicator" id="step-ind-4" style="cursor: pointer; opacity: 0.5; transition: all 0.3s ease;">
+                                            <span class="badge bg-secondary rounded-circle px-2.5 py-1.5 font-size-xs">4</span>
+                                            <span class="fw-semibold font-size-sm text-muted">Lab & Followup</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 1: Vitals -->
+                                    <div class="consult-step-pane" id="step-pane-1">
+                                        <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-heart-pulse text-danger me-2"></i>1. Capture Vitals</h5>
+                                        <p class="text-muted font-size-xs mb-4">Input patient physical assessment values. Required fields are marked with an asterisk (*).</p>
+                                        <div class="row g-3 mb-4">
+                                            <div class="col-sm-4 col-6">
+                                                <label class="form-label font-size-sm fw-semibold">BP (SYS) *</label>
+                                                <input type="number" class="form-control border-primary-subtle" id="consult-sys" placeholder="120" value="120">
+                                            </div>
+                                            <div class="col-sm-4 col-6">
+                                                <label class="form-label font-size-sm fw-semibold">BP (DIA) *</label>
+                                                <input type="number" class="form-control border-primary-subtle" id="consult-dia" placeholder="80" value="80">
+                                            </div>
+                                            <div class="col-sm-4 col-6">
+                                                <label class="form-label font-size-sm fw-semibold">Pulse Rate (bpm) *</label>
+                                                <input type="number" class="form-control border-primary-subtle" id="consult-hr" placeholder="72" value="72">
+                                            </div>
+                                            <div class="col-sm-6 col-6">
+                                                <label class="form-label font-size-sm fw-semibold">Temperature (°F)</label>
+                                                <input type="number" step="0.1" class="form-control" id="consult-temp" placeholder="98.6" value="98.6">
+                                            </div>
+                                            <div class="col-sm-6 col-12">
+                                                <label class="form-label font-size-sm fw-semibold">Weight (kg)</label>
+                                                <input type="number" step="0.1" class="form-control" id="consult-weight" placeholder="70" value="70">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 2: Symptoms & Diagnosis -->
+                                    <div class="consult-step-pane d-none" id="step-pane-2">
+                                        <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-stethoscope text-primary me-2"></i>2. Symptoms & Diagnosis</h5>
+                                        <p class="text-muted font-size-xs mb-4">Log current clinical presentation and finalize diagnosis cataloging.</p>
+                                        <div class="mb-3">
+                                            <label for="consult-symptoms" class="form-label fw-semibold font-size-sm">Symptoms & Chief Complaints</label>
+                                            <textarea class="form-control" id="consult-symptoms" rows="3" placeholder="Describe clinical symptoms presented by the patient..."></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="consult-diagnosis" class="form-label fw-semibold font-size-sm">Primary Diagnosis / ICD-10 *</label>
+                                            <input type="text" class="form-control border-primary-subtle" id="consult-diagnosis" placeholder="e.g. Essential Hypertension (I10)">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="consult-notes" class="form-label fw-semibold font-size-sm">Clinical Notes & Recommendations</label>
+                                            <textarea class="form-control" id="consult-notes" rows="3" placeholder="Detail treatment plan, clinical findings, and advice..."></textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 3: e-Prescription -->
+                                    <div class="consult-step-pane d-none" id="step-pane-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-prescription me-2"></i>3. e-Prescription</h5>
+                                            <button type="button" class="btn btn-sm btn-outline-success px-3" id="doc-add-med-btn" style="border-radius: 8px;"><i class="fa-solid fa-plus me-1"></i> Add Medication</button>
+                                        </div>
+                                        <p class="text-muted font-size-xs mb-4">Add medication items with specific dosage guidelines and duration cycles.</p>
+                                        <div id="consult-med-rows" class="pe-1" style="max-height: 380px; overflow-y: auto;">
+                                            <!-- Medication rows -->
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 4: Lab & Followup -->
+                                    <div class="consult-step-pane d-none" id="step-pane-4">
+                                        <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-flask-vial text-warning me-2"></i>4. Lab Orders & Follow-up</h5>
+                                        <p class="text-muted font-size-xs mb-4">Order laboratory test profiles and book follow-up consultations if required.</p>
+                                        
+                                        <!-- Lab Orders -->
+                                        <div class="border rounded-3 p-3 bg-light mb-4">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="consult-order-lab" onchange="document.getElementById('consult-lab-inputs').classList.toggle('d-none', !this.checked)">
+                                                <label class="form-check-label fw-semibold" for="consult-order-lab">Order Laboratory Test</label>
+                                            </div>
+                                            <div class="row g-3 d-none" id="consult-lab-inputs">
+                                                <div class="col-md-6">
+                                                    <label class="form-label font-size-sm">Test Category</label>
+                                                    <select class="form-select form-select-sm" id="consult-lab-cat">
+                                                        <option value="Blood Test">Blood Test</option>
+                                                        <option value="Lipid Panel">Lipid Panel</option>
+                                                        <option value="Pathology">Pathology</option>
+                                                        <option value="Radiology">Radiology</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label font-size-sm">Test Name</label>
+                                                    <input type="text" class="form-control form-control-sm" id="consult-lab-name" placeholder="e.g. Lipid Profile">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Follow-up -->
+                                        <div class="border rounded-3 p-3 bg-light">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="consult-followup-check" onchange="document.getElementById('consult-followup-inputs').classList.toggle('d-none', !this.checked)">
+                                                <label class="form-check-label fw-semibold" for="consult-followup-check">Schedule follow-up appointment</label>
+                                            </div>
+                                            <div class="row g-3 d-none" id="consult-followup-inputs">
+                                                <div class="col-md-6">
+                                                    <label class="form-label font-size-sm">Follow-up Date</label>
+                                                    <input type="date" class="form-control" id="consult-followup-date">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label font-size-sm">Preferred Time Slot</label>
+                                                    <select class="form-select" id="consult-followup-time">
+                                                        <option value="09:00 AM">09:00 AM - 09:30 AM</option>
+                                                        <option value="09:30 AM">09:30 AM - 10:00 AM</option>
+                                                        <option value="10:30 AM">10:30 AM - 11:00 AM</option>
+                                                        <option value="11:00 AM">11:00 AM - 11:30 AM</option>
+                                                        <option value="02:00 PM">02:00 PM - 02:30 PM</option>
+                                                        <option value="03:30 PM">03:30 PM - 04:00 PM</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Stepper Navigation Controls -->
+                                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                                        <button type="button" class="btn btn-outline-secondary px-4 py-2" id="consult-prev-btn" onclick="nextConsultStep(-1)" disabled><i class="fa-solid fa-arrow-left me-2"></i>Previous</button>
+                                        <button type="button" class="btn btn-primary px-4 py-2" id="consult-next-btn" onclick="nextConsultStep(1)">Next<i class="fa-solid fa-arrow-right ms-2"></i></button>
+                                        <button type="button" class="btn btn-success px-4 py-2 d-none" id="consult-save-btn" onclick="triggerConsultationSave()"><i class="fa-solid fa-floppy-disk me-2"></i>Save & End</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Patient Summary & History (Right Side Sticky Panel) -->
+                            <div class="col-lg-4" id="consult-form-right-col">
+                                <div class="consult-active-fields d-none" style="position: sticky; top: 20px;">
+                                    <!-- Medical History Reference -->
+                                    <div class="hc-card mb-4">
+                                        <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2"><i class="fa-solid fa-clock-rotate-left me-2"></i>Medical History Reference</h5>
+                                        <div style="max-height: 250px; overflow-y: auto;" id="consult-history-list" class="pe-1">
+                                            <p class="text-muted font-size-xs mb-0">No past visits recorded.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Consultation Quick Checklist -->
+                                    <div class="hc-card">
+                                        <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2"><i class="fa-solid fa-check-double me-2"></i>Consultation Tasks</h5>
+                                        <div class="d-flex flex-column gap-2.5 font-size-xs text-secondary">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-circle-check text-success" id="chk-vitals"></i>
+                                                <span>Capture Patient Vitals</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-circle-notch text-muted" id="chk-diagnosis"></i>
+                                                <span>Add Primary Diagnosis details</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-circle-notch text-muted" id="chk-rx"></i>
+                                                <span>Create e-Prescription (Optional)</span>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-circle-notch text-muted" id="chk-lab"></i>
+                                                <span>Order Lab Tests & Followup (Optional)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </form>
-                </section>>
-
+                </section>
                 <!-- PANEL 3: PATIENT DIRECTORY (IMPROVED LIST & GRID PROFILE CARDS) -->
                 <section class="dashboard-panel" id="panel-patients">
                     <div class="hc-card">
@@ -533,7 +590,14 @@
                         <!-- Consultations Graph -->
                         <div class="col-lg-8">
                             <div class="hc-card">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-line text-primary me-2"></i>Consultations & Patient Volume</h5>
+                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-2">
+                                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-chart-line text-primary me-2"></i>Consultations & Patient Volume</h5>
+                                    <div class="btn-group btn-group-sm" id="reports-time-filter">
+                                        <button type="button" class="btn btn-outline-primary active" data-filter="daily">Daily</button>
+                                        <button type="button" class="btn btn-outline-primary" data-filter="weekly">Weekly</button>
+                                        <button type="button" class="btn btn-outline-primary" data-filter="monthly">Monthly</button>
+                                    </div>
+                                </div>
                                 <div class="analytics-chart-container">
                                     <canvas id="doctorConsultsChart"></canvas>
                                 </div>
@@ -551,9 +615,15 @@
                                     <span class="text-muted d-block font-size-xs fw-semibold">LAB REQUESTS ORDERED</span>
                                     <span class="fw-bold text-warning fs-6" id="doc-labs-ordered">--</span>
                                 </div>
-                                <div class="p-3 bg-light rounded border">
+                                <div class="p-3 bg-light rounded border mb-3">
                                     <span class="text-muted d-block font-size-xs fw-semibold">PRESCRIPTION CONVERSION</span>
                                     <span class="fw-bold text-success fs-6">94.2%</span>
+                                </div>
+                                <div class="mt-4 border-top pt-3">
+                                    <h6 class="fw-bold mb-3 font-size-sm text-secondary"><i class="fa-solid fa-users text-primary me-2"></i>Patient Demographics</h6>
+                                    <div style="height: 140px; position: relative;">
+                                        <canvas id="doctorDemographicsChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>

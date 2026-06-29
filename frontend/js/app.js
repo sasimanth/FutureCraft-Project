@@ -418,14 +418,17 @@ const ApiService = {
             const activeUser = JSON.parse(sessionStorage.getItem('hc_current_user'));
             if (!activeUser) return;
             
-            const [patients, doctors, appointments, prescriptions, labRequests, audits, departments] = await Promise.all([
+            const [patients, doctors, appointments, prescriptions, labRequests, audits, departments, leaves, reviews, invoices] = await Promise.all([
                 this.getPatients().catch(() => []),
                 this._request('/doctors/').catch(() => []),
                 this.getAppointments().catch(() => []),
                 this.getPrescriptions().catch(() => []),
                 this.getLabTests().catch(() => []),
                 this._request('/audits/').catch(() => []),
-                this._request('/departments/').catch(() => [])
+                this._request('/departments/').catch(() => []),
+                this._request('/leaves/').catch(() => []),
+                this._request('/reviews/').catch(() => []),
+                this._request('/billing/').catch(() => [])
             ]);
 
             setDB('patients', patients);
@@ -435,6 +438,9 @@ const ApiService = {
             setDB('lab_requests', labRequests);
             setDB('audits', audits);
             setDB('departments', departments);
+            setDB('leaves', leaves);
+            setDB('doctor_reviews', reviews);
+            setDB('patient_invoices', invoices);
 
             if (activeUser.role === 'patient' && activeUser.patientId) {
                 const patId = activeUser.patientId;
@@ -1134,7 +1140,7 @@ function initPatientPortal(patientUser) {
         if (patient.insurancePolicy) document.getElementById('profile-insurance-policy').value = patient.insurancePolicy;
         if (patient.avatar) document.getElementById('profile-avatar-img').src = patient.avatar;
 
-        profileForm.addEventListener('submit', function (e) {
+        profileForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const phone = document.getElementById('profile-phone').value;
             if (!FormValidator.validatePhone(phone)) {
@@ -1142,29 +1148,127 @@ function initPatientPortal(patientUser) {
                 return;
             }
 
-            patient.dob = document.getElementById('profile-dob').value;
-            patient.gender = document.getElementById('profile-gender').value;
-            patient.bloodGroup = document.getElementById('profile-blood').value;
-            patient.phone = phone;
-            patient.emergencyName = document.getElementById('profile-emergency-name').value;
-            patient.emergencyPhone = document.getElementById('profile-emergency-phone').value;
-            patient.allergies = document.getElementById('profile-allergies').value;
-            patient.aadhaar = document.getElementById('profile-aadhaar').value;
-            patient.address = document.getElementById('profile-address').value;
-            patient.insuranceCarrier = document.getElementById('profile-insurance-carrier').value;
-            patient.insurancePolicy = document.getElementById('profile-insurance-policy').value;
+            const updatedData = {
+                dob: document.getElementById('profile-dob').value,
+                gender: document.getElementById('profile-gender').value,
+                bloodGroup: document.getElementById('profile-blood').value,
+                phone: phone,
+                emergencyName: document.getElementById('profile-emergency-name').value,
+                emergencyPhone: document.getElementById('profile-emergency-phone').value,
+                allergies: document.getElementById('profile-allergies').value,
+                nationalId: document.getElementById('profile-aadhaar').value,
+                address: document.getElementById('profile-address').value,
+                insuranceCarrier: document.getElementById('profile-insurance-carrier').value,
+                insurancePolicy: document.getElementById('profile-insurance-policy').value
+            };
 
-            const patIndex = patients.findIndex(p => p.id === patient.id);
-            patients[patIndex] = patient;
-            setDB('patients', patients);
+            try {
+                if (!ApiService.useMock) {
+                    await ApiService.updatePatient(patient.id, updatedData);
+                    await ApiService.syncDataFromServer();
+                } else {
+                    const patIndex = patients.findIndex(p => p.id === patient.id);
+                    patients[patIndex] = { ...patient, ...updatedData };
+                    setDB('patients', patients);
+                }
+                
+                // Refresh local patient reference
+                const freshPatient = getDB('patients').find(p => p.id === patient.id);
+                Toast.success("Profile demographics updated successfully!");
+                renderPatientOverview(freshPatient || patient);
+            } catch (err) {
+                Toast.error("Failed to update profile: " + err.message);
+            }
+        });
+    }
 
-            Toast.success("Profile demographics updated successfully!");
-            renderPatientOverview(patient);
+    // Change Password Handler
+    const changePasswordForm = document.getElementById('profile-change-password-form');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const newPass = document.getElementById('profile-new-pass').value;
+            const confirmPass = document.getElementById('profile-confirm-pass').value;
+
+            if (newPass !== confirmPass) {
+                Toast.error("Passwords do not match.");
+                return;
+            }
+
+            try {
+                if (!ApiService.useMock && patientUser.id) {
+                    await ApiService.updateUser(patientUser.id, { password: newPass });
+                } else {
+                    let users = getDB('users') || [];
+                    const idx = users.findIndex(u => u.email === patientUser.email);
+                    if (idx !== -1) {
+                        users[idx].password = newPass;
+                        setDB('users', users);
+                    }
+                }
+                Toast.success("Password updated successfully!");
+                changePasswordForm.reset();
+            } catch (err) {
+                Toast.error("Failed to update password: " + err.message);
+            }
+        });
+    }
+
+    // Global Search Listener
+    const searchInput = document.getElementById('patient-dashboard-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            const query = e.target.value.toLowerCase().trim();
+            filterPatientDashboardRecords(patient, query);
         });
     }
 
     // Initialize Payments Panel details
     renderPatientPayments(patient);
+}
+
+function filterPatientDashboardRecords(patient, query) {
+    // 1. Filter appointments cards
+    const apptCards = document.querySelectorAll('#patient-appts-cards .col-12');
+    apptCards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 2. Filter prescriptions table rows
+    const rxRows = document.querySelectorAll('#patient-prescriptions-list tr');
+    rxRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 3. Filter medical records table rows
+    const historyRows = document.querySelectorAll('#patient-history-list tr');
+    historyRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 4. Filter lab reports table rows
+    const labRows = document.querySelectorAll('#patient-labs-list tr');
+    labRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 5. Filter outstanding invoices table rows
+    const invoiceRows = document.querySelectorAll('#patient-invoices-list tr');
+    invoiceRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 6. Filter payment history table rows
+    const receiptRows = document.querySelectorAll('#patient-receipts-list tr');
+    receiptRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
 }
 
 function renderPatientOverview(patient) {
@@ -1310,9 +1414,11 @@ function renderPatientAppointments(patient) {
 
     const appts = getDB('appointments').filter(ap => ap.patientId === patient.id);
     if (appts.length === 0) {
-        cardsContainer.innerHTML = `<div class="col-12 text-center text-muted p-4">No consultations scheduled.</div>`;
+        cardsContainer.innerHTML = `<div class="col-12 text-center text-muted p-5 bg-white rounded border shadow-sm"><i class="fa-solid fa-calendar-times fs-2 mb-3 text-muted"></i><p class="mb-0 font-size-sm">No consultations scheduled.</p></div>`;
         return;
     }
+
+    const invoices = getDB('patient_invoices') || [];
 
     let html = '';
     appts.forEach(ap => {
@@ -1323,37 +1429,58 @@ function renderPatientAppointments(patient) {
         if (ap.status === 'completed') badgeClass = 'badge-completed';
 
         // Est wait time calculation
-        let estWait = ap.status === 'pending' ? '45m' : (ap.status === 'confirmed' ? '15m' : '--');
+        let estWait = ap.status === 'pending' ? '45 mins' : (ap.status === 'confirmed' ? '15 mins' : '--');
+
+        // Check billing/payment status
+        const invoice = invoices.find(inv => inv.description.toLowerCase().includes(ap.doctorName.toLowerCase()) || inv.patientId === patient.id && inv.status === 'unpaid');
+        const paymentStatus = invoice ? invoice.status.toUpperCase() : 'PAID';
+        const paymentBadgeClass = paymentStatus === 'PAID' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning';
+
+        // Generate initials for avatar
+        const initials = ap.doctorName.replace('Dr. ', '').split(' ').map(n => n[0]).join('');
 
         html += `
-        <div class="col-12 col-md-6">
-            <div class="hc-card p-3 shadow-sm border border-light position-relative">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="avatar-mock bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; font-size: 1.2rem;">
-                        <i class="fa-solid fa-user-doctor"></i>
+        <div class="col-12 col-md-12 col-lg-12 mb-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 position-relative overflow-hidden" style="background: #ffffff; border-left: 5px solid ${ap.status === 'cancelled' ? '#ef4444' : '#3b82f6'} !important; transition: transform 0.2s ease;">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar-mock text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 54px; height: 54px; font-size: 1.1rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                            ${initials}
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 font-size-sm" style="font-size:1.05rem;">${ap.doctorName}</h6>
+                            <span class="badge bg-secondary-subtle text-secondary font-size-xxs px-2 py-1 mt-1">${ap.deptName}</span>
+                        </div>
                     </div>
-                    <div>
-                        <h6 class="fw-bold text-dark mb-0 font-size-sm">${ap.doctorName}</h6>
-                        <span class="text-muted font-size-xxs">${ap.deptName}</span>
+                    <div class="text-sm-end">
+                        <span class="hc-badge-status ${badgeClass} px-3 py-1.5 font-size-xxs fw-bold text-uppercase rounded-3">${ap.status}</span>
+                        <span class="badge ${paymentBadgeClass} px-3 py-1.5 font-size-xxs fw-bold text-uppercase rounded-3 ms-2">${paymentStatus}</span>
                     </div>
                 </div>
-                <hr class="my-2" style="opacity:0.1;">
-                <div class="d-flex justify-content-between font-size-xs text-secondary mb-2">
-                    <span><i class="fa-solid fa-calendar me-1"></i>${ap.date}</span>
-                    <span><i class="fa-solid fa-clock me-1"></i>${ap.timeSlot}</span>
+
+                <div class="row g-3 bg-light rounded-3 p-3 mb-3 border border-light-subtle">
+                    <div class="col-sm-4 col-6">
+                        <span class="text-muted d-block font-size-xxs text-uppercase fw-bold" style="letter-spacing: 0.5px;">Schedule Date</span>
+                        <strong class="text-dark font-size-xs"><i class="fa-solid fa-calendar text-primary me-2"></i>${ap.date}</strong>
+                    </div>
+                    <div class="col-sm-4 col-6">
+                        <span class="text-muted d-block font-size-xxs text-uppercase fw-bold" style="letter-spacing: 0.5px;">Time Slot</span>
+                        <strong class="text-dark font-size-xs"><i class="fa-solid fa-clock text-success me-2"></i>${ap.timeSlot}</strong>
+                    </div>
+                    <div class="col-sm-4 col-12">
+                        <span class="text-muted d-block font-size-xxs text-uppercase fw-bold" style="letter-spacing: 0.5px;">Queue Tracker</span>
+                        <strong class="text-dark font-size-xs"><i class="fa-solid fa-hourglass-start text-warning me-2"></i>#${ap.id.slice(-4).toUpperCase()} (${estWait})</strong>
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between align-items-center mb-2.5">
-                    <span class="hc-badge-status ${badgeClass}">${ap.status.toUpperCase()}</span>
-                    <span class="font-size-xxs text-muted fw-bold">Queue: #${ap.id.slice(-3).toUpperCase()} | Wait: ${estWait}</span>
-                </div>
-                <div class="d-flex gap-2">
+
+                <div class="d-flex justify-content-end gap-2">
                     ${ap.status === 'pending' || ap.status === 'confirmed' ? `
-                        <button type="button" class="btn btn-sm btn-outline-danger w-50 py-1 font-size-xs" onclick="cancelAppointment('${ap.id}')">Cancel</button>
-                        <button type="button" class="btn btn-sm btn-outline-primary w-50 py-1 font-size-xs" onclick="rescheduleAppointment('${ap.id}')">Reschedule</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger px-4 rounded-3 py-2 font-size-xs" onclick="cancelAppointment('${ap.id}')"><i class="fa-solid fa-ban me-1.5"></i>Cancel</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary px-4 rounded-3 py-2 font-size-xs" onclick="rescheduleAppointment('${ap.id}')"><i class="fa-solid fa-calendar-alt me-1.5"></i>Reschedule</button>
                     ` : ''}
                     ${ap.status === 'completed' ? `
-                        <button type="button" class="btn btn-sm btn-outline-warning w-100 py-1 font-size-xs" onclick="openFeedbackModal('${ap.id}', '${ap.doctorName}')">
-                            <i class="fa-solid fa-star me-1"></i> Rate Consultation
+                        <button type="button" class="btn btn-sm btn-warning text-dark px-4 rounded-3 py-2 font-size-xs fw-bold" onclick="openFeedbackModal('${ap.id}', '${ap.doctorName}')">
+                            <i class="fa-solid fa-star me-1.5"></i>Rate Consultation
                         </button>
                     ` : ''}
                 </div>
@@ -1546,6 +1673,7 @@ window.deletePatientFile = async function (fileId, patientId) {
 
 // --- DOCTOR DASHBOARD WORKFLOWS ---
 let doctorConsultsChartInstance = null;
+let doctorDemographicsChartInstance = null;
 
 function initDoctorPortal(doctorUser) {
     const docId = doctorUser.doctorId;
@@ -1574,8 +1702,22 @@ function initDoctorPortal(doctorUser) {
     renderDoctorCalendarWorkspace(doctor);
     setupDoctorCalendarEvents(doctor);
 
-    renderDoctorAnalytics(doctor);
+    renderDoctorAnalytics(doctor, 'daily');
     renderDoctorReviews(doctor);
+
+    // Reports Time Frame Filter Selector
+    const reportsFilter = document.getElementById('reports-time-filter');
+    if (reportsFilter) {
+        const filterBtns = reportsFilter.querySelectorAll('button');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const timeframe = this.getAttribute('data-filter');
+                renderDoctorAnalytics(doctor, timeframe);
+            });
+        });
+    }
 
     // Consultation Med Rows Button
     const addMedBtn = document.getElementById('doc-add-med-btn');
@@ -1759,6 +1901,21 @@ function setupDoctorPatientSelectors() {
                 medRowsContainer.innerHTML = '';
                 addPrescriptionRowToConsult();
             }
+
+            // Stepper Initialization
+            if (typeof changeConsultStep === 'function') {
+                changeConsultStep(1);
+            }
+
+            // Track input fields for real-time checklist update
+            const fieldsToTrack = ['consult-sys', 'consult-dia', 'consult-hr', 'consult-diagnosis', 'consult-order-lab', 'consult-followup-check'];
+            fieldsToTrack.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', () => { if (typeof updateConsultChecklist === 'function') updateConsultChecklist(); });
+                    el.addEventListener('change', () => { if (typeof updateConsultChecklist === 'function') updateConsultChecklist(); });
+                }
+            });
         }
     });
 }
@@ -1985,6 +2142,9 @@ async function submitDoctorConsultation(doctor) {
         document.getElementById('doctor-consult-form').reset();
         document.getElementById('consult-med-rows').innerHTML = '';
         checkNoMedsPlaceholder();
+        if (typeof changeConsultStep === 'function') {
+            changeConsultStep(1);
+        }
         
         // Hide summary cards
         const summary = document.getElementById('consult-patient-summary');
@@ -2498,23 +2658,39 @@ function renderDoctorCalendarWorkspace(doctor) {
     // Attach Drag and Drop handlers to the grid
     setupCalendarDragDrop(doctor);
 }
-async function renderDoctorAnalytics(doctor) {
+
+async function renderDoctorAnalytics(doctor, timeframe = 'daily') {
     let totalConsults = getDB('prescriptions').filter(p => p.doctorName === doctor.name).length;
     let patients = getDB('patients').length;
     let labsOrdered = getDB('lab_requests').filter(l => l.doctorName === doctor.name).length;
-    let chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    let chartData = [18, 22, 28, 20, 24, totalConsults + 5];
+
+    // Timeframe filters for consultations chart
+    let chartLabels = [];
+    let chartData = [];
+
+    if (timeframe === 'daily') {
+        chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        chartData = [5, 8, 12, 7, 10, 4, 1];
+    } else if (timeframe === 'weekly') {
+        chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+        chartData = [24, 32, 28, 35];
+    } else {
+        // Monthly
+        chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        chartData = [65, 82, 95, 78, 90, totalConsults + 10];
+    }
 
     if (!ApiService.useMock) {
         try {
             const data = await ApiService.getDoctorAnalytics();
             totalConsults = data.totalConsultations;
             patients = data.totalPatients;
-            // todayAppointments is also returned, but totalConsults and patients map directly
-            // For the load chart, use weeklyLoad if available from server
-            if (data.weeklyLoad) {
-                chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            if (timeframe === 'daily' && data.dailyLoad) {
+                chartData = data.dailyLoad;
+            } else if (timeframe === 'weekly' && data.weeklyLoad) {
                 chartData = data.weeklyLoad;
+            } else if (timeframe === 'monthly' && data.monthlyLoad) {
+                chartData = data.monthlyLoad;
             }
         } catch (err) {
             console.error("Failed to fetch doctor analytics from server:", err);
@@ -2529,28 +2705,80 @@ async function renderDoctorAnalytics(doctor) {
     if (elUnique) elUnique.innerText = patients;
     if (elLabs) elLabs.innerText = labsOrdered;
 
+    // 1. Consultations Volume Chart
     const canvas = document.getElementById('doctorConsultsChart');
-    if (!canvas) return;
+    if (canvas) {
+        if (doctorConsultsChartInstance) doctorConsultsChartInstance.destroy();
+        doctorConsultsChartInstance = new Chart(canvas, {
+            type: timeframe === 'monthly' ? 'line' : 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Consultation Load',
+                    data: chartData,
+                    backgroundColor: timeframe === 'monthly' ? 'rgba(59, 130, 246, 0.2)' : '#3b82f6',
+                    borderColor: '#3b82f6',
+                    borderWidth: 2.5,
+                    fill: true,
+                    borderRadius: timeframe === 'monthly' ? 0 : 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+            }
+        });
+    }
 
-    if (doctorConsultsChartInstance) doctorConsultsChartInstance.destroy();
-
-    doctorConsultsChartInstance = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                label: 'Consultation Load',
-                data: chartData,
-                backgroundColor: '#0f52ba',
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+    // 2. Patient Demographics Doughnut Chart
+    const demoCanvas = document.getElementById('doctorDemographicsChart');
+    if (demoCanvas) {
+        const patientsList = getDB('patients') || [];
+        let under18 = 0, youngAdult = 0, adult = 0, senior = 0;
+        patientsList.forEach(p => {
+            const age = new Date().getFullYear() - new Date(p.dob).getFullYear();
+            if (age < 18) under18++;
+            else if (age <= 35) youngAdult++;
+            else if (age <= 55) adult++;
+            else senior++;
+        });
+        
+        // Fallback default values
+        if (under18 + youngAdult + adult + senior === 0) {
+            under18 = 2; youngAdult = 8; adult = 6; senior = 4;
         }
-    });
+
+        if (doctorDemographicsChartInstance) doctorDemographicsChartInstance.destroy();
+        doctorDemographicsChartInstance = new Chart(demoCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['< 18', '18-35', '36-55', '55+'],
+                datasets: [{
+                    data: [under18, youngAdult, adult, senior],
+                    backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 10,
+                            font: { size: 9 }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    }
 }
 
 
@@ -2566,6 +2794,12 @@ function initLabPortal(labUser) {
     renderLabDashboardCharts();
     setupLabWalkinSelectors();
     updateLabTechStats();
+
+    // Register search input filter
+    const searchInput = document.getElementById('lab-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', renderLabRequests);
+    }
 
     // Results Submitter
     const labEntryForm = document.getElementById('lab-entry-form');
@@ -2644,9 +2878,9 @@ window.filterLabOrders = function(status) {
     document.querySelectorAll('#lab-orders-tabs .nav-link').forEach(btn => {
         btn.classList.remove('active');
     });
-    if (status === 'pending') document.getElementById('tab-pending-btn').classList.add('active');
-    if (status === 'in_progress') document.getElementById('tab-progress-btn').classList.add('active');
-    if (status === 'completed') document.getElementById('tab-completed-btn').classList.add('active');
+    
+    const activeBtn = document.getElementById(`tab-${status}-btn`);
+    if (activeBtn) activeBtn.classList.add('active');
     
     renderLabRequests();
 };
@@ -2657,7 +2891,10 @@ window.scanBarcode = function(reqId) {
     if (req) {
         let oldStatus = req.status;
         let newStatus = '';
-        if (oldStatus === 'pending' || oldStatus === 'registered') {
+        if (oldStatus === 'pending') {
+            newStatus = 'registered';
+            Toast.success(`Barcode scanned: Order accepted/registered for ${reqId}!`);
+        } else if (oldStatus === 'registered' || oldStatus === 'accepted') {
             newStatus = 'sample_collected';
             Toast.success(`Barcode scanned: Specimen collected for ${reqId}!`);
         } else if (oldStatus === 'sample_collected') {
@@ -2695,11 +2932,27 @@ function renderLabRequests() {
     // Segment based on active sub-tab
     let filtered = [];
     if (window.activeLabTab === 'pending') {
-        filtered = requests.filter(r => r.status === 'pending' || r.status === 'registered' || r.status === 'sample_collected');
+        filtered = requests.filter(r => r.status === 'pending');
+    } else if (window.activeLabTab === 'accepted') {
+        filtered = requests.filter(r => r.status === 'registered' || r.status === 'accepted');
+    } else if (window.activeLabTab === 'sample_collection') {
+        filtered = requests.filter(r => r.status === 'sample_collected');
     } else if (window.activeLabTab === 'in_progress') {
         filtered = requests.filter(r => r.status === 'processing' || r.status === 'results_ready');
     } else if (window.activeLabTab === 'completed') {
         filtered = requests.filter(r => r.status === 'completed');
+    }
+
+    // Apply Search query filter
+    const searchInput = document.getElementById('lab-search-input');
+    const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    if (searchQuery) {
+        filtered = filtered.filter(r => {
+            const testName = String(r.testName || '').toLowerCase();
+            const patId = String(r.patientId || '').toLowerCase();
+            const reqId = String(r.id || '').toLowerCase();
+            return testName.includes(searchQuery) || patId.includes(searchQuery) || reqId.includes(searchQuery);
+        });
     }
 
     if (document.getElementById('lab-stat-pending')) {
@@ -2721,8 +2974,11 @@ function renderLabRequests() {
                 let statusBadge = '';
                 let actionBtn = '';
 
-                if (p.status === 'pending' || p.status === 'registered') {
-                    statusBadge = `<span class="badge bg-info text-white font-size-xxs py-1 px-2">REGISTERED</span>`;
+                if (p.status === 'pending') {
+                    statusBadge = `<span class="badge bg-warning text-dark font-size-xxs py-1 px-2">PENDING</span>`;
+                    actionBtn = `<button class="btn btn-xs btn-primary text-white" onclick="advanceLabStatus('${p.id}', 'registered')"><i class="fa-solid fa-check me-1"></i>Accept</button>`;
+                } else if (p.status === 'registered' || p.status === 'accepted') {
+                    statusBadge = `<span class="badge bg-info text-white font-size-xxs py-1 px-2">ACCEPTED</span>`;
                     actionBtn = `<button class="btn btn-xs btn-success text-white" onclick="advanceLabStatus('${p.id}', 'sample_collected')"><i class="fa-solid fa-vial me-1"></i>Collect Sample</button>`;
                 } else if (p.status === 'sample_collected') {
                     statusBadge = `<span class="badge bg-primary text-white font-size-xxs py-1 px-2">SAMPLE COLLECTED</span>`;
@@ -3218,15 +3474,67 @@ function initAdminPortal(adminUser) {
 }
 
 function renderAdminDashboard() {
-    const users = getDB('users');
-    const labs = getDB('lab_requests');
-    const depts = getDB('departments');
-    const appointments = getDB('appointments');
+    const users = getDB('users') || [];
+    const labs = getDB('lab_requests') || [];
+    const depts = getDB('departments') || [];
+    const appointments = getDB('appointments') || [];
 
     document.getElementById('admin-stat-patients').innerText = users.filter(u => u.role === 'patient').length;
     document.getElementById('admin-stat-doctors').innerText = users.filter(u => u.role === 'doctor').length;
     document.getElementById('admin-stat-labs').innerText = labs.length;
     document.getElementById('admin-stat-depts').innerText = depts.length;
+
+    // Calculate dynamic revenue stats (Today, Week, Month, Year)
+    const invoices = getDB('patient_invoices') || [];
+    const paidInvoices = invoices.filter(inv => inv.status === 'paid' && inv.paidOn);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayMs = new Date(todayStr).getTime();
+
+    let revToday = 0;
+    let revWeek = 0;
+    let revMonth = 0;
+    let revYear = 0;
+
+    paidInvoices.forEach(inv => {
+        const paidMs = new Date(inv.paidOn).getTime();
+        const diffDays = (todayMs - paidMs) / (1000 * 3600 * 24);
+        const amount = parseFloat(inv.amount) || 0;
+
+        if (inv.paidOn === todayStr) {
+            revToday += amount;
+        }
+        if (diffDays <= 7) {
+            revWeek += amount;
+        }
+        if (diffDays <= 30) {
+            revMonth += amount;
+        }
+        if (diffDays <= 365) {
+            revYear += amount;
+        }
+    });
+
+    // Fallbacks if no invoices exist or mock data is empty
+    if (revYear === 0) {
+        revToday = 180.00;
+        revWeek = 1450.00;
+        revMonth = 5820.00;
+        revYear = 68400.00;
+    }
+
+    const formatCurrency = (val) => {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+    };
+
+    const elRevToday = document.getElementById('admin-rev-today');
+    const elRevWeek = document.getElementById('admin-rev-week');
+    const elRevMonth = document.getElementById('admin-rev-month');
+    const elRevYear = document.getElementById('admin-rev-year');
+
+    if (elRevToday) elRevToday.innerText = formatCurrency(revToday);
+    if (elRevWeek) elRevWeek.innerText = formatCurrency(revWeek);
+    if (elRevMonth) elRevMonth.innerText = formatCurrency(revMonth);
+    if (elRevYear) elRevYear.innerText = formatCurrency(revYear);
 
     // Populate global appointments list
     const apptsTable = document.getElementById('admin-appointments-list');
@@ -3262,15 +3570,21 @@ function renderAdminUserTable() {
     const table = document.getElementById('admin-users-list');
     if (!table) return;
 
-    const users = getDB('users');
+    const users = getDB('users') || [];
     let html = '';
     users.forEach(u => {
+        const deptText = u.department || 'None / General';
+        const statusBadge = u.status === 'Suspended' 
+            ? `<span class="badge bg-danger px-2 py-1">Suspended</span>` 
+            : `<span class="badge bg-success px-2 py-1">Active</span>`;
+
         html += `
         <tr>
             <td><strong>${u.name}</strong></td>
             <td>${u.email}</td>
             <td><span class="badge bg-secondary px-2 py-1">${u.role.toUpperCase()}</span></td>
-            <td><code>${u.patientId || u.doctorId || 'System Admin'}</code></td>
+            <td><code>${deptText}</code></td>
+            <td>${statusBadge}</td>
             <td class="d-flex gap-2">
                 <button class="btn btn-xs btn-outline-primary" onclick="openAdminUserEditModal('${u.email}')"><i class="fa-solid fa-edit"></i></button>
                 <button class="btn btn-xs btn-outline-danger" onclick="deleteUser('${u.email}')"><i class="fa-solid fa-trash"></i></button>
@@ -3326,7 +3640,9 @@ window.openAdminUserEditModal = function (email) {
     document.getElementById('edit-user-name').value = user.name;
     document.getElementById('edit-user-email').value = user.email;
     document.getElementById('edit-user-role').value = user.role;
-    document.getElementById('edit-user-password').value = user.password || '';
+    document.getElementById('edit-user-password').value = '';
+    document.getElementById('edit-user-status').value = user.status || 'Active';
+    document.getElementById('edit-user-dept').value = user.department || 'None';
     document.getElementById('editUserModal').setAttribute('data-user-id', user.id || '');
 
     const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
@@ -3339,15 +3655,22 @@ async function submitAdminUserEdit() {
     const email = document.getElementById('edit-user-email').value;
     const role = document.getElementById('edit-user-role').value;
     const password = document.getElementById('edit-user-password').value;
+    const status = document.getElementById('edit-user-status').value;
+    const department = document.getElementById('edit-user-dept').value;
     const userId = document.getElementById('editUserModal').getAttribute('data-user-id');
+
+    const updatePayload = { name, email, role, status, department };
+    if (password) {
+        updatePayload.password = password;
+    }
 
     if (!ApiService.useMock && userId) {
         try {
-            await ApiService.updateUser(userId, { name, email, role, password });
+            await ApiService.updateUser(userId, updatePayload);
             await ApiService.syncDataFromServer();
-            alert("User profile updated successfully in database!");
+            Toast.success("User profile updated successfully in database!");
         } catch (err) {
-            alert("Failed to update user: " + err.message);
+            Toast.error("Failed to update user: " + err.message);
             return;
         }
     } else {
@@ -3357,9 +3680,13 @@ async function submitAdminUserEdit() {
             users[idx].name = name;
             users[idx].email = email;
             users[idx].role = role;
-            users[idx].password = password;
+            users[idx].status = status;
+            users[idx].department = department;
+            if (password) {
+                users[idx].password = password;
+            }
             setDB('users', users);
-            alert("User profile updated successfully!");
+            Toast.success("User profile updated successfully!");
         }
     }
 
@@ -3977,20 +4304,32 @@ window.renderDoctorLeaves = function (doctor) {
     }).join('');
 };
 
-window.deleteDoctorLeave = function (leaveId) {
-    let leaves = getDB('leaves') || [];
-    leaves = leaves.filter(l => l.id !== leaveId);
-    setDB('leaves', leaves);
-    Toast.success('Leave cancelled successfully.');
-    
-    const currentUser = AuthService.getCurrentUser();
-    if (currentUser && currentUser.role === 'doctor') {
-        const doctors = getDB('doctors');
-        const doctor = doctors.find(d => d.id === currentUser.doctorId);
-        if (doctor) {
-            renderDoctorLeaves(doctor);
-            renderDoctorCalendarWorkspace(doctor);
+window.deleteDoctorLeave = async function (leaveId) {
+    try {
+        if (!ApiService.useMock) {
+            await ApiService._request(`/leaves/${leaveId}/`, {
+                method: 'DELETE'
+            });
+            await ApiService.syncDataFromServer();
+        } else {
+            let leaves = getDB('leaves') || [];
+            leaves = leaves.filter(l => l.id !== leaveId);
+            setDB('leaves', leaves);
         }
+        
+        Toast.success('Leave cancelled successfully.');
+        
+        const currentUser = AuthService.getCurrentUser();
+        if (currentUser && currentUser.role === 'doctor') {
+            const doctors = getDB('doctors');
+            const doctor = doctors.find(d => d.id === currentUser.doctorId);
+            if (doctor) {
+                renderDoctorLeaves(doctor);
+                renderDoctorCalendarWorkspace(doctor);
+            }
+        }
+    } catch (err) {
+        Toast.error("Failed to cancel leave request: " + err.message);
     }
 };
 
@@ -4001,7 +4340,7 @@ window.setupDoctorLeaveForm = function (doctor) {
     form.replaceWith(form.cloneNode(true));
     const newForm = document.getElementById('doctor-leave-form');
 
-    newForm.addEventListener('submit', function (e) {
+    newForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const start = document.getElementById('leave-start').value;
         const end = document.getElementById('leave-end').value;
@@ -4013,25 +4352,42 @@ window.setupDoctorLeaveForm = function (doctor) {
             return;
         }
 
-        const leaves = getDB('leaves') || [];
-        const newLeave = {
-            id: 'leave-' + Date.now(),
-            doctorId: doctor.id,
-            doctorName: doctor.name,
-            startDate: start,
-            endDate: end,
-            type: type,
-            reason: reason,
-            status: 'Approved' // auto-approved
-        };
+        try {
+            if (!ApiService.useMock) {
+                await ApiService._request('/leaves/', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        startDate: start,
+                        endDate: end,
+                        leaveType: type,
+                        reason: reason
+                    })
+                });
+                await ApiService.syncDataFromServer();
+            } else {
+                const leaves = getDB('leaves') || [];
+                const newLeave = {
+                    id: 'leave-' + Date.now(),
+                    doctorId: doctor.id,
+                    doctorName: doctor.name,
+                    startDate: start,
+                    endDate: end,
+                    leaveType: type,
+                    reason: reason,
+                    status: 'Pending'
+                };
+                leaves.push(newLeave);
+                setDB('leaves', leaves);
+            }
 
-        leaves.push(newLeave);
-        setDB('leaves', leaves);
-        Toast.success('Leave requested and approved successfully!');
-        newForm.reset();
-        
-        renderDoctorLeaves(doctor);
-        renderDoctorCalendarWorkspace(doctor);
+            Toast.success('Leave request submitted successfully as PENDING!');
+            newForm.reset();
+            
+            renderDoctorLeaves(doctor);
+            renderDoctorCalendarWorkspace(doctor);
+        } catch (err) {
+            Toast.error("Failed to submit leave request: " + err.message);
+        }
     });
 };
 
@@ -4154,16 +4510,28 @@ function setupCalendarDragDrop(doctor) {
                 const newSlot = cell.getAttribute('data-slot') || '09:00 AM';
 
                 if (apptId && newDate) {
-                    const appointments = getDB('appointments');
-                    const appt = appointments.find(a => a.id === apptId);
-                    if (appt) {
-                        appt.date = newDate;
-                        appt.timeSlot = newSlot;
-                        setDB('appointments', appointments);
-                        
-                        Toast.success(`Appointment rescheduled to ${newDate} at ${newSlot}`);
-                        renderDoctorCalendarWorkspace(doctor);
+                    try {
+                        if (!ApiService.useMock) {
+                            await ApiService._request(`/appointments/${apptId}/`, {
+                                method: 'PATCH',
+                                body: JSON.stringify({ date: newDate, timeSlot: newSlot })
+                            });
+                            await ApiService.syncDataFromServer();
+                            Toast.success(`Appointment rescheduled to ${newDate} at ${newSlot}`);
+                        } else {
+                            const appointments = getDB('appointments');
+                            const appt = appointments.find(a => a.id === apptId);
+                            if (appt) {
+                                appt.date = newDate;
+                                appt.timeSlot = newSlot;
+                                setDB('appointments', appointments);
+                                Toast.success(`Appointment rescheduled to ${newDate} at ${newSlot}`);
+                            }
+                        }
+                    } catch (err) {
+                        Toast.error("Failed to reschedule: " + err.message);
                     }
+                    renderDoctorCalendarWorkspace(doctor);
                 }
             }
         });
@@ -4177,7 +4545,7 @@ window.initBookingWizard = function (patient) {
 
     const depts = getDB('departments');
     specGrid.innerHTML = depts.map(dept => `
-        <div class="spec-card p-3 border rounded text-center cursor-pointer hover-shadow" data-dept-id="${dept.id}" data-dept-name="${dept.name}">
+        <div class="spec-card p-3 border rounded text-center cursor-pointer hover-shadow position-relative" data-dept-id="${dept.id}" data-dept-name="${dept.name}" style="transition: all 0.2s ease;">
             <i class="fa-solid fa-notes-medical fs-3 text-primary mb-2"></i>
             <div class="fw-bold font-size-sm">${dept.name}</div>
             <div class="text-muted font-size-xxs">${dept.staffCount} staff</div>
@@ -4187,8 +4555,21 @@ window.initBookingWizard = function (patient) {
     const cards = specGrid.querySelectorAll('.spec-card');
     cards.forEach(card => {
         card.addEventListener('click', function () {
-            cards.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
+            cards.forEach(c => {
+                c.classList.remove('active', 'border-primary', 'bg-primary-subtle');
+                const existingCheck = c.querySelector('.spec-check-icon');
+                if (existingCheck) existingCheck.remove();
+            });
+            this.classList.add('active', 'border-primary', 'bg-primary-subtle');
+
+            // Add small green check mark icon
+            const checkEl = document.createElement('div');
+            checkEl.className = 'spec-check-icon position-absolute';
+            checkEl.style.top = '8px';
+            checkEl.style.right = '8px';
+            checkEl.style.color = '#10b981';
+            checkEl.innerHTML = '<i class="fa-solid fa-circle-check fs-6"></i>';
+            this.appendChild(checkEl);
             const deptId = this.getAttribute('data-dept-id');
             const deptName = this.getAttribute('data-dept-name');
             document.getElementById('booking-specialization').value = deptName;
@@ -4279,24 +4660,25 @@ window.initBookingWizard = function (patient) {
             const bookedSlots = existingAppts.map(a => a.timeSlot);
             const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
 
-            if (availableSlots.length === 0) {
-                slotsGrid.innerHTML = `<div class="alert alert-info font-size-xs col-12 py-2">No available time slots on this date.</div>`;
-            } else {
-                slotsGrid.innerHTML = availableSlots.map(slot => `
-                    <div class="slot-btn" data-slot="${slot}">${slot}</div>
-                `).join('');
+            slotsGrid.innerHTML = allSlots.map(slot => {
+                const isBooked = bookedSlots.includes(slot);
+                if (isBooked) {
+                    return `<div class="slot-btn disabled opacity-50 bg-secondary-subtle border-0 text-muted" style="cursor: not-allowed;" data-slot="${slot}">${slot} (Booked)</div>`;
+                } else {
+                    return `<div class="slot-btn" data-slot="${slot}">${slot}</div>`;
+                }
+            }).join('');
 
-                const slotBtns = slotsGrid.querySelectorAll('.slot-btn');
-                slotBtns.forEach(btn => {
-                    btn.addEventListener('click', function () {
-                        slotBtns.forEach(b => b.classList.remove('active'));
-                        this.classList.add('active');
-                        const selectedSlot = this.getAttribute('data-slot');
-                        document.getElementById('booking-time-slot').value = selectedSlot;
-                        document.getElementById('btn-to-step4').removeAttribute('disabled');
-                    });
+            const slotBtns = slotsGrid.querySelectorAll('.slot-btn:not(.disabled)');
+            slotBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    slotsGrid.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const selectedSlot = this.getAttribute('data-slot');
+                    document.getElementById('booking-time-slot').value = selectedSlot;
+                    document.getElementById('btn-to-step4').removeAttribute('disabled');
                 });
-            }
+            });
         });
     }
 };
@@ -4404,13 +4786,31 @@ window.resetBookingWizard = function () {
 
 // --- LAB TECH WORKFLOW EXTENSIONS ---
 window.updateLabTechStats = function () {
-    const requests = getDB('lab_requests');
+    const requests = getDB('lab_requests') || [];
     const todayStr = new Date().toISOString().split('T')[0];
     const todayRequests = requests.filter(r => r.requestDate === todayStr);
 
     const delayedCount = requests.filter(r => r.status !== 'completed' && r.requestDate < todayStr).length;
     const criticalCount = requests.filter(r => (r.priority === 'Critical' || r.priority === 'High') && r.status !== 'completed').length;
-    let avgTatText = "04 hr 15 mins";
+    
+    // Dynamic Turnaround Time (TAT) Calculation
+    const completedRequests = requests.filter(r => r.status === 'completed' && r.resultDate && r.requestDate);
+    let avgTatHours = 4.25; // default 4 hr 15 mins
+    if (completedRequests.length > 0) {
+        let totalDiff = 0;
+        completedRequests.forEach(r => {
+            const reqTime = new Date(r.requestDate).getTime();
+            const resTime = new Date(r.resultDate).getTime();
+            // Fallback to 2 hours if processed same day
+            const diff = Math.max(2 * 3600 * 1000, resTime - reqTime);
+            totalDiff += diff;
+        });
+        avgTatHours = (totalDiff / completedRequests.length) / (1000 * 3600);
+    }
+
+    const hours = Math.floor(avgTatHours);
+    const minutes = Math.round((avgTatHours - hours) * 60);
+    const avgTatText = `${String(hours).padStart(2, '0')} hr ${String(minutes).padStart(2, '0')} mins`;
 
     const todayCount = todayRequests.length;
     const completedToday = todayRequests.filter(r => r.status === 'completed').length;
@@ -4879,54 +5279,95 @@ window.selectPaymentMethod = function(method) {
     document.getElementById('btn-pay-now').disabled = false;
 };
 
-window.executeSecurePayment = function() {
+window.executeSecurePayment = async function() {
     const activeId = document.getElementById('payment-active-id').value;
     const methodEl = document.querySelector('input[name="payment-method"]:checked');
     if (!activeId || !methodEl) return;
 
     const method = methodEl.value;
-    let invoices = getDB('patient_invoices') || [];
-    let inv = invoices.find(i => i.id === activeId);
-    if (inv) {
-        inv.status = 'paid';
-        inv.paidOn = new Date().toISOString().split('T')[0];
-        inv.method = method;
-        inv.receiptId = 'REC-' + Math.floor(1000 + Math.random() * 9000);
-        setDB('patient_invoices', invoices);
-        
-        Toast.success(`Payment of $${inv.amount.toFixed(2)} completed successfully via ${method}!`);
-        
-        // Reset selections
-        document.getElementById('payment-active-id').value = '';
-        document.getElementById('payment-active-desc').innerText = 'Select an invoice to proceed...';
-        document.getElementById('payment-active-amount').innerText = '$0.00';
-        document.getElementById('btn-pay-now').disabled = true;
-        
-        // Refresh Invoices & Receipts UI
-        const patients = getDB('patients');
-        const currentUser = getDB('users').find(u => u.username === localStorage.getItem('hc_username'));
-        if (currentUser) {
-            const patient = patients.find(p => p.id === currentUser.patientId);
-            if (patient) renderPatientPayments(patient);
+    
+    if (ApiService.useMock) {
+        let invoices = getDB('patient_invoices') || [];
+        let inv = invoices.find(i => i.id === activeId);
+        if (inv) {
+            inv.status = 'paid';
+            inv.paidOn = new Date().toISOString().split('T')[0];
+            inv.method = method;
+            inv.receiptId = 'REC-' + Math.floor(1000 + Math.random() * 9000);
+            setDB('patient_invoices', invoices);
+            
+            Toast.success(`Payment of $${inv.amount.toFixed(2)} completed successfully via ${method}!`);
+            resetPaymentUI();
+            refreshPaymentsUI();
+        }
+    } else {
+        try {
+            const res = await ApiService._request(`/billing/${activeId}/pay/`, {
+                method: 'POST',
+                body: JSON.stringify({ method })
+            });
+            Toast.success(`Payment of $${parseFloat(res.amount).toFixed(2)} completed successfully via ${method}!`);
+            
+            // Sync with server to get updated billing list
+            await ApiService.syncDataFromServer();
+            
+            resetPaymentUI();
+            refreshPaymentsUI();
+        } catch (err) {
+            Toast.error(`Payment failed: ${err.message}`);
         }
     }
 };
 
+function resetPaymentUI() {
+    const elId = document.getElementById('payment-active-id');
+    const elDesc = document.getElementById('payment-active-desc');
+    const elAmt = document.getElementById('payment-active-amount');
+    const elBtn = document.getElementById('btn-pay-now');
+    if (elId) elId.value = '';
+    if (elDesc) elDesc.innerText = 'Select an invoice to proceed...';
+    if (elAmt) elAmt.innerText = '$0.00';
+    if (elBtn) elBtn.disabled = true;
+}
+
+function refreshPaymentsUI() {
+    const currentUser = JSON.parse(sessionStorage.getItem('hc_current_user'));
+    if (currentUser) {
+        const patients = getDB('patients') || [];
+        const patient = patients.find(p => p.id === currentUser.patientId);
+        if (patient) renderPatientPayments(patient);
+    }
+}
+
 window.downloadReceipt = function(invId) {
-    Toast.success(`Receipt for invoice ${invId} downloaded successfully.`);
+    if (ApiService.useMock) {
+        Toast.success(`Receipt for invoice ${invId} downloaded successfully (Mock).`);
+    } else {
+        window.downloadPdfReport('receipt', invId);
+    }
 };
 
-window.cancelAppointment = function(apptId) {
+window.cancelAppointment = async function(apptId) {
     let appointments = getDB('appointments') || [];
     let appt = appointments.find(a => a.id === apptId);
     if (appt) {
         appt.status = 'cancelled';
         setDB('appointments', appointments);
+
+        if (!ApiService.useMock) {
+            try {
+                await ApiService.updateAppointmentStatus(apptId, 'cancelled');
+            } catch (err) {
+                Toast.error(`Failed to cancel appointment: ${err.message}`);
+                return;
+            }
+        }
+        
         Toast.success("Appointment cancelled successfully.");
         
         // Re-render
         const patients = getDB('patients');
-        const currentUser = getDB('users').find(u => u.username === localStorage.getItem('hc_username'));
+        const currentUser = AuthService.getCurrentUser();
         if (currentUser) {
             const patient = patients.find(p => p.id === currentUser.patientId);
             if (patient) renderPatientAppointments(patient);
@@ -4934,8 +5375,41 @@ window.cancelAppointment = function(apptId) {
     }
 };
 
-window.rescheduleAppointment = function(apptId) {
-    Toast.info("Rescheduling request submitted to physician support desk.");
+window.rescheduleAppointment = async function(apptId) {
+    const newDate = prompt("Enter new Date (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+    if (!newDate) return;
+    const newTime = prompt("Enter new Time Slot (e.g., 09:30 AM, 11:00 AM, 02:00 PM):", "09:30 AM");
+    if (!newTime) return;
+
+    if (!ApiService.useMock) {
+        try {
+            await ApiService._request(`/appointments/${apptId}/`, {
+                method: 'PATCH',
+                body: JSON.stringify({ date: newDate, timeSlot: newTime })
+            });
+            await ApiService.syncDataFromServer();
+            Toast.success("Appointment rescheduled successfully!");
+        } catch (err) {
+            Toast.error(`Failed to reschedule appointment: ${err.message}`);
+            return;
+        }
+    } else {
+        let appts = getDB('appointments') || [];
+        let appt = appts.find(a => a.id === apptId);
+        if (appt) {
+            appt.date = newDate;
+            appt.timeSlot = newTime;
+            setDB('appointments', appts);
+            Toast.success("Appointment rescheduled successfully!");
+        }
+    }
+
+    const patients = getDB('patients');
+    const currentUser = AuthService.getCurrentUser();
+    if (currentUser) {
+        const patient = patients.find(p => p.id === currentUser.patientId);
+        if (patient) renderPatientAppointments(patient);
+    }
 };
 
 window.openFeedbackModal = function(apptId, doctorName) {
@@ -4966,7 +5440,7 @@ window.selectRatingStar = function(rating) {
     });
 };
 
-window.submitPatientFeedback = function() {
+window.submitPatientFeedback = async function() {
     const apptId = document.getElementById('feedback-appt-id').value;
     const rating = parseInt(document.getElementById('feedback-rating-value').value);
     const comments = document.getElementById('feedback-comments').value;
@@ -4976,18 +5450,42 @@ window.submitPatientFeedback = function() {
         return;
     }
 
-    let reviews = getDB('doctor_reviews') || [];
-    reviews.push({
-        id: 'REV-' + Math.floor(1000 + Math.random() * 9000),
-        apptId: apptId,
-        doctorName: document.getElementById('feedback-doctor-name').innerText,
-        rating: rating,
-        comments: comments,
-        date: new Date().toISOString().split('T')[0]
-    });
-    setDB('doctor_reviews', reviews);
-    
-    Toast.success("Thank you for your rating! Feedback submitted successfully.");
+    const doctorName = document.getElementById('feedback-doctor-name').innerText;
+    const doctorObj = getDB('doctors').find(d => d.name.toLowerCase().includes(doctorName.toLowerCase()) || doctorName.toLowerCase().includes(d.name.toLowerCase()));
+    const doctorId = doctorObj ? doctorObj.id : 'doc-1';
+
+    if (!ApiService.useMock) {
+        try {
+            const currentUser = AuthService.getCurrentUser();
+            const patientName = currentUser ? currentUser.name : 'Patient';
+            await ApiService._request('/reviews/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    doctorId: doctorId,
+                    patientName: patientName,
+                    apptId: apptId,
+                    rating: rating,
+                    comments: comments
+                })
+            });
+            Toast.success("Thank you for your rating! Feedback submitted successfully.");
+        } catch (err) {
+            Toast.error(`Failed to submit feedback to backend: ${err.message}`);
+            return;
+        }
+    } else {
+        let reviews = getDB('doctor_reviews') || [];
+        reviews.push({
+            id: 'REV-' + Math.floor(1000 + Math.random() * 9000),
+            apptId: apptId,
+            doctorName: doctorName,
+            rating: rating,
+            comments: comments,
+            date: new Date().toISOString().split('T')[0]
+        });
+        setDB('doctor_reviews', reviews);
+        Toast.success("Thank you for your rating! Feedback submitted successfully.");
+    }
     
     const modalEl = document.getElementById('feedbackRatingModal');
     const modal = bootstrap.Modal.getInstance(modalEl);
@@ -5058,22 +5556,214 @@ window.renderDoctorReviews = function(doctor) {
 
         html += `
         <div class="col-12 col-md-6 col-lg-4">
-            <div class="hc-card p-3 shadow-sm border border-light h-100">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold font-size-xs" style="width: 32px; height: 32px;">
-                            ${initials}
-                        </div>
-                        <div>
-                            <h6 class="fw-bold mb-0 text-dark font-size-xs">${r.patientName || 'Verified Patient'}</h6>
-                            <span class="text-muted font-size-xxs">${r.date}</span>
+            <div class="hc-card p-3 shadow-sm border border-light h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold font-size-xs" style="width: 32px; height: 32px;">
+                                ${initials}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark font-size-xs">${r.patientName || 'Verified Patient'}</h6>
+                                <span class="text-muted font-size-xxs">${r.date}</span>
+                            </div>
                         </div>
                     </div>
+                    <div class="mb-2 d-flex gap-1">${starsHtml}</div>
+                    <p class="text-secondary font-size-xs mb-0 italic" style="line-height: 1.5;">"${r.comments}"</p>
                 </div>
-                <div class="mb-2 d-flex gap-1">${starsHtml}</div>
-                <p class="text-secondary font-size-xs mb-0 italic" style="line-height: 1.5;">"${r.comments}"</p>
+                <div>
+                    ${r.response ? `
+                        <div class="mt-3 p-2 bg-light rounded border border-light-subtle font-size-xxs text-secondary">
+                            <strong>My Response:</strong> "${r.response}"
+                        </div>
+                    ` : `
+                        <div class="mt-3">
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control font-size-xxs" id="reply-input-${r.id}" placeholder="Type a reply...">
+                                <button class="btn btn-hc-primary font-size-xxs py-1" onclick="submitReviewReply('${r.id}')">Reply</button>
+                            </div>
+                        </div>
+                    `}
+                </div>
             </div>
         </div>`;
     });
     container.innerHTML = html;
+};
+
+window.submitReviewReply = async function(reviewId) {
+    const input = document.getElementById(`reply-input-${reviewId}`);
+    if (!input) return;
+    const responseText = input.value.trim();
+    if (!responseText) {
+        Toast.warning("Reply cannot be empty.");
+        return;
+    }
+
+    try {
+        if (!ApiService.useMock) {
+            await ApiService._request(`/reviews/${reviewId}/respond/`, {
+                method: 'POST',
+                body: JSON.stringify({ response: responseText })
+            });
+            await ApiService.syncDataFromServer();
+        } else {
+            let reviews = getDB('doctor_reviews') || [];
+            const idx = reviews.findIndex(r => r.id === reviewId);
+            if (idx !== -1) {
+                reviews[idx].response = responseText;
+                setDB('doctor_reviews', reviews);
+            }
+        }
+        Toast.success("Reply submitted successfully!");
+        
+        const currentUser = AuthService.getCurrentUser();
+        if (currentUser && currentUser.role === 'doctor') {
+            const doctors = getDB('doctors');
+            const doctor = doctors.find(d => d.id === currentUser.doctorId);
+            if (doctor) renderDoctorReviews(doctor);
+        }
+    } catch (err) {
+        Toast.error("Failed to submit reply: " + err.message);
+    }
+};
+
+let consultCurrentStep = 1;
+
+window.changeConsultStep = function(step) {
+    if (step < 1 || step > 4) return;
+    
+    // Validate fields before proceeding forward
+    if (step > consultCurrentStep) {
+        if (consultCurrentStep === 1) {
+            const sys = document.getElementById('consult-sys').value;
+            const dia = document.getElementById('consult-dia').value;
+            const hr = document.getElementById('consult-hr').value;
+            if (!sys || !dia || !hr) {
+                Toast.warning("Please fill in systolic/diastolic BP and Pulse Rate before continuing.");
+                return;
+            }
+        }
+        if (consultCurrentStep === 2) {
+            const diag = document.getElementById('consult-diagnosis').value;
+            if (!diag || !diag.trim()) {
+                Toast.warning("Please specify a primary diagnosis / ICD-10 code before continuing.");
+                return;
+            }
+        }
+    }
+
+    consultCurrentStep = step;
+    
+    // Show active step pane, hide others
+    for (let i = 1; i <= 4; i++) {
+        const pane = document.getElementById('step-pane-' + i);
+        const indicator = document.getElementById('step-ind-' + i);
+        if (pane) {
+            if (i === step) {
+                pane.classList.remove('d-none');
+            } else {
+                pane.classList.add('d-none');
+            }
+        }
+        if (indicator) {
+            if (i === step) {
+                indicator.classList.add('active');
+                indicator.style.opacity = '1';
+                indicator.querySelector('.badge').className = 'badge bg-primary rounded-circle px-2.5 py-1.5 font-size-xs';
+                indicator.querySelector('span:last-child').className = 'fw-bold font-size-sm text-primary';
+            } else if (i < step) {
+                indicator.classList.remove('active');
+                indicator.style.opacity = '0.8';
+                indicator.querySelector('.badge').className = 'badge bg-success rounded-circle px-2.5 py-1.5 font-size-xs';
+                indicator.querySelector('span:last-child').className = 'fw-semibold font-size-sm text-success';
+            } else {
+                indicator.classList.remove('active');
+                indicator.style.opacity = '0.5';
+                indicator.querySelector('.badge').className = 'badge bg-secondary rounded-circle px-2.5 py-1.5 font-size-xs';
+                indicator.querySelector('span:last-child').className = 'fw-semibold font-size-sm text-muted';
+            }
+        }
+    }
+
+    // Toggle navigation buttons
+    const prevBtn = document.getElementById('consult-prev-btn');
+    const nextBtn = document.getElementById('consult-next-btn');
+    const saveBtn = document.getElementById('consult-save-btn');
+    
+    if (prevBtn) prevBtn.disabled = (step === 1);
+    if (nextBtn) {
+        if (step === 4) {
+            nextBtn.classList.add('d-none');
+            if (saveBtn) saveBtn.classList.remove('d-none');
+        } else {
+            nextBtn.classList.remove('d-none');
+            if (saveBtn) saveBtn.classList.add('d-none');
+        }
+    }
+
+    // Update Checklist tasks
+    updateConsultChecklist();
+};
+
+window.nextConsultStep = function(dir) {
+    changeConsultStep(consultCurrentStep + dir);
+};
+
+window.updateConsultChecklist = function() {
+    const chkVitals = document.getElementById('chk-vitals');
+    const chkDiag = document.getElementById('chk-diagnosis');
+    const chkRx = document.getElementById('chk-rx');
+    const chkLab = document.getElementById('chk-lab');
+
+    // 1. Vitals Check
+    const sys = document.getElementById('consult-sys').value;
+    const dia = document.getElementById('consult-dia').value;
+    const hr = document.getElementById('consult-hr').value;
+    if (chkVitals) {
+        if (sys && dia && hr) {
+            chkVitals.className = 'fa-solid fa-circle-check text-success';
+        } else {
+            chkVitals.className = 'fa-solid fa-circle-notch text-muted';
+        }
+    }
+
+    // 2. Diagnosis Check
+    const diag = document.getElementById('consult-diagnosis').value;
+    if (chkDiag) {
+        if (diag && diag.trim()) {
+            chkDiag.className = 'fa-solid fa-circle-check text-success';
+        } else {
+            chkDiag.className = 'fa-solid fa-circle-notch text-muted';
+        }
+    }
+
+    // 3. Rx Check
+    const medRows = document.querySelectorAll('#consult-med-rows .prescription-item-row');
+    if (chkRx) {
+        if (medRows.length > 0) {
+            chkRx.className = 'fa-solid fa-circle-check text-success';
+        } else {
+            chkRx.className = 'fa-solid fa-circle-notch text-muted';
+        }
+    }
+
+    // 4. Lab Check
+    const labChecked = document.getElementById('consult-order-lab').checked;
+    const followupChecked = document.getElementById('consult-followup-check').checked;
+    if (chkLab) {
+        if (labChecked || followupChecked) {
+            chkLab.className = 'fa-solid fa-circle-check text-success';
+        } else {
+            chkLab.className = 'fa-solid fa-circle-notch text-muted';
+        }
+    }
+};
+
+window.triggerConsultationSave = function() {
+    const form = document.getElementById('doctor-consult-form');
+    if (form) {
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+    }
 };

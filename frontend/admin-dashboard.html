@@ -195,6 +195,7 @@
                                     <span class="fw-bold text-dark fs-6"><i class="fa-solid fa-arrow-trend-up text-primary me-1"></i> 142 API requests/hr</span>
                                 </div>
                             </div>
+                        </div>
                     </div>
 
                     <!-- Global Appointment Monitoring -->
@@ -233,7 +234,8 @@
                                         <th>Name</th>
                                         <th>Email Address</th>
                                         <th>Role Assigned</th>
-                                        <th>Reference ID</th>
+                                        <th>Department</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -350,42 +352,43 @@
 
                 <!-- PANEL 5: REPORTS & ANALYTICS (Smart Hospital style) -->
                 <section class="dashboard-panel" id="panel-admin-reports">
-                    <!-- Billing Income Metrics Grid -->
-                    <div class="billing-card-grid">
-                        <div class="billing-card billing-card-green">
-                            <div>
-                                <h6>OPD Income</h6>
-                                <h4>$10,462.00</h4>
+                    <!-- Revenue Overview stats (Today, Week, Month, Year) -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="stat-widget bg-primary text-white border-0">
+                                <div>
+                                    <p class="stat-title text-white-50">Today's Revenue</p>
+                                    <h3 class="stat-value text-white" id="admin-rev-today">$0.00</h3>
+                                </div>
+                                <div class="hc-icon-wrapper bg-white bg-opacity-25 text-white mb-0"><i class="fa-solid fa-calendar-day"></i></div>
                             </div>
-                            <i class="fa-solid fa-stethoscope fs-4"></i>
                         </div>
-                        <div class="billing-card billing-card-blue">
-                            <div>
-                                <h6>IPD Income</h6>
-                                <h4>$2,802.00</h4>
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="stat-widget bg-success text-white border-0">
+                                <div>
+                                    <p class="stat-title text-white-50">This Week's Revenue</p>
+                                    <h3 class="stat-value text-white" id="admin-rev-week">$0.00</h3>
+                                </div>
+                                <div class="hc-icon-wrapper bg-white bg-opacity-25 text-white mb-0"><i class="fa-solid fa-calendar-week"></i></div>
                             </div>
-                            <i class="fa-solid fa-bed-pulse fs-4"></i>
                         </div>
-                        <div class="billing-card billing-card-purple">
-                            <div>
-                                <h6>Pharmacy</h6>
-                                <h4>$21,293.60</h4>
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="stat-widget bg-info text-white border-0">
+                                <div>
+                                    <p class="stat-title text-white-50">This Month's Revenue</p>
+                                    <h3 class="stat-value text-white" id="admin-rev-month">$0.00</h3>
+                                </div>
+                                <div class="hc-icon-wrapper bg-white bg-opacity-25 text-white mb-0"><i class="fa-solid fa-calendar-minus"></i></div>
                             </div>
-                            <i class="fa-solid fa-pills fs-4"></i>
                         </div>
-                        <div class="billing-card billing-card-red">
-                            <div>
-                                <h6>Pathology</h6>
-                                <h4>$3,165.00</h4>
+                        <div class="col-sm-6 col-xl-3">
+                            <div class="stat-widget text-white border-0" style="background-color: #8b5cf6 !important;">
+                                <div>
+                                    <p class="stat-title text-white-50">Yearly Revenue</p>
+                                    <h3 class="stat-value text-white" id="admin-rev-year">$0.00</h3>
+                                </div>
+                                <div class="hc-icon-wrapper bg-white bg-opacity-25 text-white mb-0"><i class="fa-solid fa-calendar"></i></div>
                             </div>
-                            <i class="fa-solid fa-vial fs-4"></i>
-                        </div>
-                        <div class="billing-card billing-card-orange">
-                            <div>
-                                <h6>Radiology</h6>
-                                <h4>$2,304.00</h4>
-                            </div>
-                            <i class="fa-solid fa-x-ray fs-4"></i>
                         </div>
                     </div>
 
@@ -566,8 +569,28 @@
                                 </select>
                             </div>
                             <div class="col-6">
-                                <label for="edit-user-password" class="form-label fw-semibold font-size-sm">Password</label>
-                                <input type="password" class="form-control" id="edit-user-password" value="password123" required>
+                                <label for="edit-user-password" class="form-label fw-semibold font-size-sm">Reset Password</label>
+                                <input type="password" class="form-control" id="edit-user-password" placeholder="Enter new password">
+                            </div>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label for="edit-user-status" class="form-label fw-semibold font-size-sm">Account Status</label>
+                                <select class="form-select" id="edit-user-status" required>
+                                    <option value="Active">Active</option>
+                                    <option value="Suspended">Suspended</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label for="edit-user-dept" class="form-label fw-semibold font-size-sm">Department Assignment</label>
+                                <select class="form-select" id="edit-user-dept">
+                                    <option value="None">None / General</option>
+                                    <option value="Cardiology">Cardiology</option>
+                                    <option value="Neurology">Neurology</option>
+                                    <option value="Pediatrics">Pediatrics</option>
+                                    <option value="Orthopedics">Orthopedics</option>
+                                    <option value="Dermatology">Dermatology</option>
+                                </select>
                             </div>
                         </div>
                     </div>

@@ -9,7 +9,8 @@ from appointments.models import Appointment
 from consultations.models import Consultation
 from prescriptions.models import Prescription, PrescriptionMedicine
 from laboratory.models import LabRequest, LabResult
-from patients.models import PatientProfile, PatientVital, PatientMedicalHistory, PatientVisit
+from patients.models import PatientProfile, PatientVital, PatientMedicalHistory, PatientVisit, PatientBilling
+from doctors.models import DoctorProfile, DoctorLeaveRequest, DoctorReview
 from accounts.models import AuditLog, CustomUser
 
 print("Cleaning existing database transactions for presentation...")
@@ -22,6 +23,9 @@ LabRequest.objects.all().delete()
 PatientVital.objects.all().delete()
 PatientMedicalHistory.objects.all().delete()
 PatientVisit.objects.all().delete()
+PatientBilling.objects.all().delete()
+DoctorLeaveRequest.objects.all().delete()
+DoctorReview.objects.all().delete()
 AuditLog.objects.all().delete()
 
 print("Seeding fresh, fully populated presentation workflow data...")
@@ -232,7 +236,101 @@ LabRequest.objects.create(
 
 
 # ==============================================================================
-# WORKFLOW E: SYSTEM AUDIT TRAIL LOGS
+# WORKFLOW E: BILLINGS, LEAVES & REVIEWS
+# ==============================================================================
+
+doc1 = DoctorProfile.objects.filter(doctor_id="doc-1").first()
+doc2 = DoctorProfile.objects.filter(doctor_id="doc-2").first()
+
+# Seeding Doctor Leave Requests
+if doc1:
+    DoctorLeaveRequest.objects.create(
+        doctor=doc1,
+        start_date=today + datetime.timedelta(days=2),
+        end_date=today + datetime.timedelta(days=5),
+        leave_type="Sick Leave",
+        reason="Medical checkup & recovery",
+        status="Approved"
+    )
+if doc2:
+    DoctorLeaveRequest.objects.create(
+        doctor=doc2,
+        start_date=today + datetime.timedelta(days=10),
+        end_date=today + datetime.timedelta(days=12),
+        leave_type="Vacation",
+        reason="Family trip",
+        status="Pending"
+    )
+
+# Seeding Doctor Reviews
+if doc1:
+    DoctorReview.objects.create(
+        doctor=doc1,
+        patient_name="John Doe",
+        appt_id="appt-pres-401",
+        rating=5,
+        comments="Very detailed explanation, very helpful!",
+        response=""
+    )
+if doc2:
+    DoctorReview.objects.create(
+        doctor=doc2,
+        patient_name="Robert Downey",
+        appt_id="appt-pres-404",
+        rating=4,
+        comments="Good doctor, but there was a slight delay in consultation.",
+        response="Thank you for your feedback. We are working on optimizing wait times."
+    )
+
+# Seeding Patient Billings
+if pat1:
+    PatientBilling.objects.create(
+        billing_id="bill-pres-501",
+        patient=pat1,
+        description="Consultation & Blood Count CBC Fee",
+        amount=120.00,
+        status="paid",
+        paid_on=timezone.now(),
+        method="Card",
+        receipt_id="REC-10001",
+        consultation_charge=50.00,
+        laboratory_charge=70.00
+    )
+    PatientBilling.objects.create(
+        billing_id="bill-pres-502",
+        patient=pat1,
+        description="Pending Lipid Panel Fee",
+        amount=85.00,
+        status="unpaid",
+        consultation_charge=50.00,
+        laboratory_charge=35.00
+    )
+if pat3:
+    PatientBilling.objects.create(
+        billing_id="bill-pres-503",
+        patient=pat3,
+        description="Consultation & HbA1c Glucose Test Fee",
+        amount=150.00,
+        status="paid",
+        paid_on=timezone.now(),
+        method="UPI",
+        receipt_id="REC-10002",
+        consultation_charge=50.00,
+        laboratory_charge=100.00
+    )
+if pat4:
+    PatientBilling.objects.create(
+        billing_id="bill-pres-504",
+        patient=pat4,
+        description="Routine Consultation Fee",
+        amount=50.00,
+        status="unpaid",
+        consultation_charge=50.00
+    )
+
+
+# ==============================================================================
+# WORKFLOW F: SYSTEM AUDIT TRAIL LOGS
 # ==============================================================================
 AuditLog.objects.create(module="patients", initiator="system", action="Patient profile record pat-3 demographics update.", flag="SECURE")
 AuditLog.objects.create(module="doctors", initiator="robert.chen@ehrmail.com", action="New digital prescription rx-pres-202 issued.", flag="SECURE")

@@ -103,7 +103,7 @@
                 <div class="header-actions">
                     <div class="dashboard-search-bar d-none d-md-block">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" class="form-control" placeholder="Search test requests...">
+                        <input type="text" class="form-control" id="lab-search-input" placeholder="Search test requests...">
                         <span class="cmd-indicator" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.7rem;"><i class="fa-solid fa-arrow-turn-down fa-rotate-90 me-1" style="font-size: 0.6rem;"></i> K</span>
                     </div>
                     <!-- Theme Toggle Button -->
@@ -187,13 +187,19 @@
                         <!-- Segmented Workflow Tabs -->
                         <ul class="nav nav-tabs mb-4 border-light-subtle" id="lab-orders-tabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active fw-semibold font-size-sm" id="tab-pending-btn" onclick="filterLabOrders('pending')" type="button">Pending Orders</button>
+                                <button class="nav-link active fw-semibold font-size-sm" id="tab-pending-btn" onclick="filterLabOrders('pending')" type="button">Pending</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-progress-btn" onclick="filterLabOrders('in_progress')" type="button">In Progress</button>
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-accepted-btn" onclick="filterLabOrders('accepted')" type="button">Accepted</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-completed-btn" onclick="filterLabOrders('completed')" type="button">Completed Reports</button>
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-sample_collection-btn" onclick="filterLabOrders('sample_collection')" type="button">Sample Collection</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-in_progress-btn" onclick="filterLabOrders('in_progress')" type="button">In Progress</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-completed-btn" onclick="filterLabOrders('completed')" type="button">Completed</button>
                             </li>
                         </ul>
 

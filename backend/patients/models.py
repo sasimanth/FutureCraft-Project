@@ -12,6 +12,11 @@ class PatientProfile(models.Model):
     emergency_name = models.CharField(max_length=255, blank=True)
     emergency_phone = models.CharField(max_length=50, blank=True)
     allergies = models.TextField(default='None')
+    address = models.TextField(blank=True, default='')
+    national_id = models.CharField(max_length=50, blank=True, default='')
+    insurance_carrier = models.CharField(max_length=255, blank=True, default='')
+    insurance_policy = models.CharField(max_length=255, blank=True, default='')
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
 
     def __str__(self):
         return f"{self.patient_id} - {self.user.name}"
@@ -72,3 +77,27 @@ class PatientFile(models.Model):
 
     def __str__(self):
         return f"File {self.name} for {self.patient.patient_id}"
+
+class PatientBilling(models.Model):
+    STATUS_CHOICES = (
+        ('unpaid', 'Unpaid'),
+        ('paid', 'Paid'),
+        ('refunded', 'Refunded'),
+    )
+    billing_id = models.CharField(max_length=50, unique=True)
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='billings')
+    description = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unpaid')
+    paid_on = models.DateTimeField(null=True, blank=True)
+    method = models.CharField(max_length=50, blank=True, default='')
+    receipt_id = models.CharField(max_length=50, blank=True, default='')
+    consultation_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    laboratory_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    refund_status = models.CharField(max_length=50, default='none')
+
+    class Meta:
+        ordering = ['-billing_id']
+
+    def __str__(self):
+        return f"{self.billing_id} - {self.patient.patient_id} - {self.description} ({self.status})"
