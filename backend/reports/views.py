@@ -1,10 +1,9 @@
-from django.http import HttpResponse, Http404
-from django.views import View
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework import permissions
 from prescriptions.models import Prescription
 from consultations.models import Consultation
-from laboratory.models import LabRequest, LabResult
+from laboratory.models import LabRequest
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle

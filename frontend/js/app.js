@@ -1241,7 +1241,8 @@ function renderPatientMedicalHistory(patient) {
             <div class="timeline-date">${h.date}</div>
             <div class="timeline-card">
                 <h5 class="timeline-title">${h.condition}</h5>
-                <p class="text-muted mb-0">Diagnosed by: <strong>${h.diagnosedBy}</strong> | Status: <span class="badge bg-success">${h.status}</span></p>
+                <p class="text-muted mb-1">Diagnosed by: <strong>${h.diagnosedBy}</strong> | Status: <span class="badge bg-success">${h.status}</span></p>
+                ${h.notes ? `<p class="font-size-xs mb-0 text-secondary" style="border-left: 2px solid #cbd5e1; padding-left: 8px; margin-top: 4px;"><strong>Doctor Notes:</strong> ${h.notes}</p>` : ''}
             </div>
         </div>`;
     });
@@ -1379,7 +1380,10 @@ function renderPatientVisits(patient) {
             <td><strong>${v.date}</strong></td>
             <td>${v.department}</td>
             <td>${v.doctorName}</td>
-            <td>${v.reason}</td>
+            <td>
+                <div>${v.reason}</div>
+                ${v.notes ? `<div class="font-size-xxs text-muted mt-1">Notes: ${v.notes}</div>` : ''}
+            </td>
         </tr>`;
     });
     visitsList.innerHTML = html;
@@ -2005,6 +2009,39 @@ async function submitDoctorConsultation(doctor) {
         alert("Failed to submit consultation:\n\n" + err.stack);
     }
 }
+window.setupDoctorPatientDirectoryFilters = function () {
+    const searchInput = document.getElementById('patient-search');
+    const genderSelect = document.getElementById('patient-filter-gender');
+    const bloodSelect = document.getElementById('patient-filter-blood');
+    const viewGridBtn = document.getElementById('btn-patient-grid');
+    const viewListBtn = document.getElementById('btn-patient-list');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', renderDoctorPatientDirectory);
+    }
+    if (genderSelect) {
+        genderSelect.addEventListener('change', renderDoctorPatientDirectory);
+    }
+    if (bloodSelect) {
+        bloodSelect.addEventListener('change', renderDoctorPatientDirectory);
+    }
+    if (viewGridBtn) {
+        viewGridBtn.addEventListener('click', () => {
+            patientDirectoryView = 'grid';
+            viewGridBtn.classList.add('active');
+            if (viewListBtn) viewListBtn.classList.remove('active');
+            renderDoctorPatientDirectory();
+        });
+    }
+    if (viewListBtn) {
+        viewListBtn.addEventListener('click', () => {
+            patientDirectoryView = 'list';
+            viewListBtn.classList.add('active');
+            if (viewGridBtn) viewGridBtn.classList.remove('active');
+            renderDoctorPatientDirectory();
+        });
+    }
+};
 
 function renderDoctorPatientDirectory() {
     const gridView = document.getElementById('patient-grid-view');
@@ -2739,7 +2776,12 @@ function renderLabRequests() {
                         <span class="fw-semibold text-dark font-size-xs">${p.patientName}</span>
                         <span class="text-muted font-size-xxs d-block">UID: ${p.patientId}</span>
                     </td>
-                    <td>${p.testName}</td>
+                    <td>
+                        <span class="fw-semibold text-dark font-size-xs">${p.testName}</span>
+                        ${p.doctorNotes ? `<span class="text-muted font-size-xxs d-block">Notes: ${p.doctorNotes}</span>` : ''}
+                        ${p.appointmentId ? `<span class="text-muted font-size-xxs d-block">Appt ID: ${p.appointmentId}</span>` : ''}
+                        ${p.consultationId ? `<span class="text-muted font-size-xxs d-block">Consult ID: ${p.consultationId}</span>` : ''}
+                    </td>
                     <td><span class="hc-badge-status ${priorityClass}">${p.priority || 'Medium'}</span></td>
                     <td>${barcodeSvg}</td>
                     <td>${p.requestDate}</td>
@@ -2901,6 +2943,10 @@ window.enterLabResults = function (requestId) {
         document.getElementById('entry-request-id').value = req.id;
         document.getElementById('entry-patient-name').value = req.patientName;
         document.getElementById('entry-test-name').value = req.testName;
+        document.getElementById('entry-priority').value = req.priority || 'Medium';
+        document.getElementById('entry-appointment-id').value = req.appointmentId || 'N/A';
+        document.getElementById('entry-consultation-id').value = req.consultationId || 'N/A';
+        document.getElementById('entry-doctor-notes').value = req.doctorNotes || 'No notes provided';
 
         const container = document.getElementById('dynamic-param-rows');
         container.innerHTML = '';
@@ -3793,8 +3839,8 @@ window.viewLabReportModal = async function (reportId) {
 };
 
 window.downloadPdfReport = async function (type, id) {
-    if (ApiService.useMock || window.location.protocol === 'file:') {
-        const dummyPdf = 'data:application/pdf;base64,JVBERi0xLjQKJdPr6goxIDAgb2JqCjw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZXMvS2lkc1szIDAgUl0vQ291bnQgMT4+CmVuZG9iagozIDAgb2JqCjw8L1R5cGUvUGFnZS9QYXJlbnQgMiAwIFIvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PCAvVHlwZSAvRm9udCAvU3VidHlwZSAvVHlwZTEgL0Jhc2VGb250IC9IZWx2ZXRpY2EgPj4KZW5kb2JqCjUgMCBvYmoKPDwvTGVuZ3RoIDcwPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgoxMDAgNzAwIFRkCihDdXJlUG9pbnQgLSBTYW1wbGUgUmVwb3J0KSBUagpETQpCVAovRjEgMTIgVGYKMTAwIDY1MCBUZAooVGhpcyBpcyBhIG1vY2sgcGRmIHJlcG9ydCBkb2N1bWVudC4pIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjAgMDAwMDAgbiAKMDAwMDAwMDEwOSAwMDAwMCBuIAowMDAwMDAwMTk4IDAwMDAwIG4gCjAwMDAwMDAyNjcgMDAwMDAgbiAKdHJhaWxlcgo8PC9TaXplIDYvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgozODgKJSVFT0Y=';
+    if (ApiService.useMock) {
+        const dummyPdf = 'data:application/pdf;base64,JVBERi0xLjQKJdPr6goxIDAgb2JqCjw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZXMvS2lkc1szIDAgUl0vQ291bnQgMT4+CmVuZG9iagozIDAgb2JqCjw8L1R5cGUvUGFnZS9QYXJlbnQgMiAwIFIvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PCAvVHlwZSAvRm9udCAvU3VidHlwZSAvVHlwZTEgL0Jhc2VGb250IC9IZWx2ZXRpY2EgPj4KZW5kb2JqCjUgMCBvYmoKPDwvTGVuZ3RoIDcwPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgoxMDAgNzAwIFRkCihDdXJlUG9pbnQgLSBTYW1wbGUgUmVwb3J0KSBUagpFVApCVAovRjEgMTIgVGYKMTAwIDY1MCBUZAooVGhpcyBpcyBhIG1vY2sgcGRmIHJlcG9ydCBkb2N1bWVudC4pIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjAgMDAwMDAgbiAKMDAwMDAwMDEwOSAwMDAwMCBuIAowMDAwMDAwMTk4IDAwMDAwIG4gCjAwMDAwMDAyNjcgMDAwMDAgbiAKdHJhaWxlcgo8PC9TaXplIDYvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgozODgKJSVFT0Y=';
         const a = document.createElement('a');
         a.href = dummyPdf;
         a.download = `${type}_${id}.pdf`;

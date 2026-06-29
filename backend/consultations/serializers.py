@@ -61,30 +61,35 @@ class ConsultationSerializer(serializers.ModelSerializer):
 
             # 2. Save Patient Vitals
             if vitals_data and patient:
-                PatientVital.objects.update_or_create(
-                    patient=patient,
-                    date=consultation_date,
-                    defaults={
-                        'bp_systolic': vitals_data.get('bpSystolic', 120),
-                        'bp_diastolic': vitals_data.get('bpDiastolic', 80),
-                        'heart_rate': vitals_data.get('heartRate', 72),
-                        'temp': vitals_data.get('temp', 98.6),
-                        'weight': vitals_data.get('weight', 70.0)
-                    }
-                )
+                defaults = {
+                    'bp_systolic': vitals_data.get('bpSystolic', 120),
+                    'bp_diastolic': vitals_data.get('bpDiastolic', 80),
+                    'heart_rate': vitals_data.get('heartRate', 72),
+                    'temp': vitals_data.get('temp', 98.6),
+                    'weight': vitals_data.get('weight', 70.0)
+                }
+                vital = PatientVital.objects.filter(patient=patient, date=consultation_date).first()
+                if vital:
+                    for key, val in defaults.items():
+                        setattr(vital, key, val)
+                    vital.save()
+                else:
+                    PatientVital.objects.create(patient=patient, date=consultation_date, **defaults)
 
             # 3. Save Patient Medical History
             if patient:
-                PatientMedicalHistory.objects.update_or_create(
-                    patient=patient,
-                    date=consultation_date,
-                    condition=diagnosis,
-                    defaults={
-                        'diagnosed_by': doctor_name,
-                        'status': 'Active',
-                        'notes': recommendations or ''
-                    }
-                )
+                defaults = {
+                    'diagnosed_by': doctor_name,
+                    'status': 'Active',
+                    'notes': recommendations or ''
+                }
+                history = PatientMedicalHistory.objects.filter(patient=patient, date=consultation_date, condition=diagnosis).first()
+                if history:
+                    for key, val in defaults.items():
+                        setattr(history, key, val)
+                    history.save()
+                else:
+                    PatientMedicalHistory.objects.create(patient=patient, date=consultation_date, condition=diagnosis, **defaults)
 
             # 4. Save Patient Visit
             if patient:
@@ -94,16 +99,18 @@ class ConsultationSerializer(serializers.ModelSerializer):
                 if doctor_profile and doctor_profile.department:
                     dept_name = doctor_profile.department.name
 
-                PatientVisit.objects.update_or_create(
-                    patient=patient,
-                    date=consultation_date,
-                    reason=diagnosis,
-                    defaults={
-                        'department': dept_name,
-                        'doctor_name': doctor_name,
-                        'notes': recommendations or ''
-                    }
-                )
+                defaults = {
+                    'department': dept_name,
+                    'doctor_name': doctor_name,
+                    'notes': recommendations or ''
+                }
+                visit = PatientVisit.objects.filter(patient=patient, date=consultation_date, reason=diagnosis).first()
+                if visit:
+                    for key, val in defaults.items():
+                        setattr(visit, key, val)
+                    visit.save()
+                else:
+                    PatientVisit.objects.create(patient=patient, date=consultation_date, reason=diagnosis, **defaults)
 
             # 5. Save Prescription & PrescriptionMedicine
             if prescription_data:

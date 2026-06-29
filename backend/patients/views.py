@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import PatientProfile, PatientVital, PatientMedicalHistory, PatientVisit, PatientFile
+from .models import PatientProfile, PatientVisit, PatientFile
 from .serializers import (
     PatientProfileSerializer, PatientVitalSerializer, PatientMedicalHistorySerializer,
     PatientVisitSerializer, PatientFileSerializer

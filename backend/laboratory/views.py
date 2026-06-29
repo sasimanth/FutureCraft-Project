@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from .models import LabRequest, LabResult
+from .models import LabRequest
 from .serializers import LabRequestSerializer
 from accounts.models import AuditLog
 
