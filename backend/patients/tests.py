@@ -60,7 +60,7 @@ class PatientIntegrationTests(APITestCase):
         self.assertEqual(response.data['medicalHistory'][0]['condition'], 'Asthma')
 
     def test_post_patient_vitals(self):
-        url = reverse('patient-vitals', kwargs={'patient_id': 'pat-test-1'})
+        url = reverse('patient-add-vitals', kwargs={'patient_id': 'pat-test-1'})
         data = {
             'bpSystolic': 118,
             'bpDiastolic': 78,
@@ -76,7 +76,7 @@ class PatientIntegrationTests(APITestCase):
         self.assertEqual(vital.bp_systolic, 118)
 
     def test_post_patient_medical_history(self):
-        url = reverse('patient-medical-history', kwargs={'patient_id': 'pat-test-1'})
+        url = reverse('patient-add-medical-history', kwargs={'patient_id': 'pat-test-1'})
         data = {
             'condition': 'Diabetes',
             'diagnosedBy': 'Dr. Sarah Connor',
@@ -90,7 +90,7 @@ class PatientIntegrationTests(APITestCase):
         self.assertEqual(history.condition, 'Diabetes')
 
     def test_manage_visits_get_and_post(self):
-        url = reverse('patient-visits', kwargs={'patient_id': 'pat-test-1'})
+        url = reverse('patient-manage-visits', kwargs={'patient_id': 'pat-test-1'})
         
         # 1. Test POST visit
         data = {

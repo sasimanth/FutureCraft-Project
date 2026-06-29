@@ -79,6 +79,12 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-reviews">
+                        <i class="fa-solid fa-star"></i>
+                        <span>Patient Reviews</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-leave">
                         <i class="fa-solid fa-umbrella-beach"></i>
                         <span>Leave & Vacation</span>
@@ -238,15 +244,15 @@
                                     <div class="row g-3">
                                         <div class="col-sm-3 col-6">
                                             <label class="form-label font-size-sm fw-semibold">BP (SYS) <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control border-primary-subtle" id="consult-sys" placeholder="120" required>
+                                            <input type="number" class="form-control border-primary-subtle" id="consult-sys" placeholder="120">
                                         </div>
                                         <div class="col-sm-3 col-6">
                                             <label class="form-label font-size-sm fw-semibold">BP (DIA) <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control border-primary-subtle" id="consult-dia" placeholder="80" required>
+                                            <input type="number" class="form-control border-primary-subtle" id="consult-dia" placeholder="80">
                                         </div>
                                         <div class="col-sm-2 col-4">
                                             <label class="form-label font-size-sm fw-semibold">HR (bpm) <span class="text-danger">*</span></label>
-                                            <input type="number" class="form-control border-primary-subtle" id="consult-hr" placeholder="72" required>
+                                            <input type="number" class="form-control border-primary-subtle" id="consult-hr" placeholder="72">
                                         </div>
                                         <div class="col-sm-2 col-4">
                                             <label class="form-label font-size-sm fw-semibold">Temp (°F)</label>
@@ -318,7 +324,7 @@
                                         <h5 class="fw-bold mb-0 text-success"><i class="fa-solid fa-prescription me-2"></i>e-Prescription</h5>
                                         <button type="button" class="btn btn-xs btn-outline-success" id="doc-add-med-btn"><i class="fa-solid fa-plus me-1"></i> Add Med</button>
                                     </div>
-                                    <div id="consult-med-rows" style="max-height: 180px; overflow-y: auto;">
+                                    <div id="consult-med-rows" style="max-height: 350px; overflow-y: auto;">
                                         <!-- Medication rows -->
                                     </div>
                                 </div>
@@ -369,7 +375,7 @@
                             <div class="d-flex align-items-center gap-2 flex-wrap flex-grow-1 justify-content-md-end">
                                 <div class="position-relative" style="max-width: 250px; width: 100%;">
                                     <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
-                                    <input type="text" id="patient-search" class="form-control ps-5" placeholder="Search by name or ID...">
+                                    <input type="text" id="patient-search" class="form-control ps-5" placeholder="Search name, ID, disease, dept...">
                                 </div>
                                 <select class="form-select form-select-sm" id="patient-filter-gender" style="width: auto;">
                                     <option value="">All Genders</option>
@@ -554,6 +560,19 @@
                     </div>
                 </section>
 
+                <!-- PANEL 5.5: DOCTOR PATIENT REVIEWS -->
+                <section class="dashboard-panel text-start" id="panel-reviews">
+                    <div class="hc-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-star text-warning me-2"></i>Patient Satisfaction Feed</h5>
+                            <span class="badge bg-primary-subtle text-primary fw-bold" id="doc-review-avg">Average: 4.8 / 5.0</span>
+                        </div>
+                        <div class="row g-3" id="doc-reviews-feed-container">
+                            <!-- Dynamic review cards go here -->
+                        </div>
+                    </div>
+                </section>
+
                 <!-- PANEL 6: DOCTOR LEAVE MANAGEMENT (NEW FEATURE) -->
                 <section class="dashboard-panel" id="panel-leave">
                     <div class="row g-4">
@@ -671,7 +690,9 @@
                                                 <th>Date</th>
                                                 <th>Medicine Name</th>
                                                 <th>Dosage</th>
+                                                <th>Frequency</th>
                                                 <th>Duration</th>
+                                                <th>Route</th>
                                             </tr>
                                         </thead>
                                         <tbody id="doctor-p-rx-list">
@@ -713,6 +734,6 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom JS Controller -->
-    <script src="js/app.js?v=1.2"></script>
+    <script src="js/app.js?v=1.3"></script>
 </body>
 </html>

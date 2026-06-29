@@ -18,6 +18,7 @@ class LabRequestSerializer(serializers.ModelSerializer):
     requestDate = serializers.DateField(source='request_date')
     resultDate = serializers.DateField(source='result_date', required=False, allow_null=True)
     results = LabResultSerializer(source='parameters', many=True, required=False)
+    consultationId = serializers.CharField(source='consultation_id', required=False, allow_blank=True)
     
     # Custom representation for file field (return file details or URL)
     rawReportFile = serializers.SerializerMethodField(required=False)
@@ -26,7 +27,8 @@ class LabRequestSerializer(serializers.ModelSerializer):
         model = LabRequest
         fields = (
             'id', 'patientId', 'patientName', 'doctorName', 'testCategory', 'testName',
-            'requestDate', 'status', 'resultDate', 'technician', 'priority', 'results', 'rawReportFile'
+            'requestDate', 'status', 'resultDate', 'technician', 'priority', 'results', 'rawReportFile',
+            'consultationId'
         )
 
     def get_rawReportFile(self, obj):
@@ -51,7 +53,8 @@ class LabRequestSerializer(serializers.ModelSerializer):
                 'test_name': validated_data.get('test_name'),
                 'request_date': validated_data.get('request_date') or timezone_now_date(),
                 'status': validated_data.get('status', 'pending'),
-                'priority': validated_data.get('priority', 'Medium')
+                'priority': validated_data.get('priority', 'Medium'),
+                'consultation_id': validated_data.get('consultation_id', '')
             }
         )
         return lab_request
