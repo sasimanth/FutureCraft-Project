@@ -81,6 +81,10 @@
     --hc-shadow-lux: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--hc-bg-main);
@@ -1886,3 +1890,559 @@ body {
 .status-step-dot.completed {
     background: #10b981;
 }
+
+/* --- CurePoint Premium Landing Page Redesign Overrides --- */
+
+/* Mesh gradient animate background for hero */
+.mesh-gradient-bg {
+    background: radial-gradient(circle at 100% 0%, var(--hc-primary-light) 0%, rgba(255,255,255,0) 70%),
+                radial-gradient(circle at 0% 100%, var(--hc-secondary-light) 0%, rgba(255,255,255,0) 70%),
+                var(--hc-bg-main);
+    background-size: 200% 200%;
+    animation: meshFlow 15s ease infinite;
+}
+
+@keyframes meshFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Glassmorphism Navigation Bar updates */
+.landing-navbar {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .landing-navbar {
+    background: rgba(11, 15, 25, 0.7) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.landing-navbar.scrolled {
+    background: rgba(255, 255, 255, 0.85) !important;
+    box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.08) !important;
+}
+
+[data-theme="dark"] .landing-navbar.scrolled {
+    background: rgba(17, 24, 39, 0.85) !important;
+}
+
+/* Link active animations */
+.navbar-nav .nav-link {
+    position: relative;
+    padding: 0.5rem 0;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--hc-primary), var(--hc-secondary));
+    transition: width 0.3s ease;
+    border-radius: 2px;
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+    width: 100%;
+}
+
+/* Premium Dashboard Mockup styling */
+.hero-dashboard-mockup {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    max-width: 580px;
+    margin: 0 auto;
+    z-index: 2;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+}
+
+[data-theme="dark"] .hero-dashboard-mockup {
+    background: rgba(17, 24, 39, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.hero-dashboard-mockup:hover {
+    transform: translateY(-8px) rotateX(2deg) rotateY(-2deg);
+    box-shadow: var(--hc-shadow-lux) !important;
+}
+
+.mockup-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.mockup-dot.red { background-color: #ef4444; }
+.mockup-dot.yellow { background-color: #f59e0b; }
+.mockup-dot.green { background-color: #10b981; }
+
+.mockup-chart-card, .mockup-stat-card {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .mockup-chart-card, 
+[data-theme="dark"] .mockup-stat-card {
+    background: rgba(31, 41, 55, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.mockup-bar {
+    width: 14%;
+    background-color: #e2e8f0;
+    border-radius: 4px 4px 0 0;
+    transition: height 1s ease-out;
+}
+[data-theme="dark"] .mockup-bar {
+    background-color: #374151;
+}
+
+.mockup-bar.active {
+    background: linear-gradient(180deg, var(--hc-primary), var(--hc-secondary));
+}
+
+/* Floating Mockup Cards */
+.floating-card-left {
+    bottom: -30px;
+    left: -40px;
+    width: 220px;
+    z-index: 10;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px);
+}
+[data-theme="dark"] .floating-card-left {
+    background: rgba(17, 24, 39, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.floating-card-right {
+    top: -20px;
+    right: -40px;
+    width: 200px;
+    z-index: 10;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(10px);
+}
+[data-theme="dark"] .floating-card-right {
+    background: rgba(17, 24, 39, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Float Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+@keyframes float-delayed {
+    0%, 100% { transform: translateY(-10px); }
+    50% { transform: translateY(0px); }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+.animate-float-delayed {
+    animation: float-delayed 6s ease-in-out infinite;
+}
+
+/* 7-Module Grid Card Enhancements */
+#services .hc-card {
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    background: rgba(255, 255, 255, 0.5) !important;
+    backdrop-filter: blur(15px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] #services .hc-card {
+    background: rgba(17, 24, 39, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+#services .hc-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--hc-primary) !important;
+    box-shadow: 0 20px 40px -15px rgba(2, 132, 199, 0.15) !important;
+}
+
+/* Logo enhancement style */
+.curepoint-logo {
+    filter: drop-shadow(0 2px 8px rgba(2, 132, 199, 0.2));
+}
+
+/* Footer Premium Design */
+.premium-footer {
+    background-color: #0b0f19 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-social-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+    text-decoration: none !important;
+}
+
+.footer-social-icon:hover {
+    color: #ffffff;
+    transform: translateY(-3px);
+}
+.footer-social-icon.linkedin:hover { background-color: #0077b5; }
+.footer-social-icon.github:hover { background-color: #333333; }
+.footer-social-icon.twitter:hover { background-color: #0f1419; }
+.footer-social-icon.instagram:hover { background-color: #e1306c; }
+.footer-social-icon.facebook:hover { background-color: #1877f2; }
+.footer-social-icon.youtube:hover { background-color: #ff0000; }
+
+/* Showcase Preview Cards Custom Styles */
+.showcase-card {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .showcase-card {
+    background: rgba(17, 24, 39, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.showcase-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--hc-shadow-lux) !important;
+}
+
+/* Color Glows for Showcase */
+.showcase-glow {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.15;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.showcase-card:hover .showcase-glow {
+    opacity: 0.35;
+}
+
+.showcase-glow.bg-teal { background-color: #0d9488; }
+.showcase-glow.bg-blue { background-color: #0284c7; }
+.showcase-glow.bg-yellow { background-color: #f59e0b; }
+.showcase-glow.bg-purple { background-color: #8b5cf6; }
+
+/* Custom Outlined Buttons with Hover Glow */
+.btn-outline-teal {
+    color: #0d9488;
+    border-color: #0d9488;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+.btn-outline-teal:hover {
+    background-color: #0d9488 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(13, 148, 136, 0.4);
+}
+
+.btn-outline-primary {
+    transition: all 0.3s ease;
+}
+.btn-outline-primary:hover {
+    box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+}
+
+.btn-outline-warning {
+    color: #f59e0b;
+    border-color: #f59e0b;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+.btn-outline-warning:hover {
+    background-color: #f59e0b !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+}
+
+.btn-outline-indigo {
+    color: #6366f1;
+    border-color: #6366f1;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+.btn-outline-indigo:hover {
+    background-color: #6366f1 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+}
+
+.mockup-preview-snippet {
+    background: rgba(255, 255, 255, 0.6) !important;
+    backdrop-filter: blur(10px);
+}
+[data-theme="dark"] .mockup-preview-snippet {
+    background: rgba(31, 41, 55, 0.6) !important;
+}
+
+/* --- CurePoint Global Enterprise UI Accent Styles --- */
+
+/* 1. Toast Notification Container & Alert Boxes */
+#toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 380px;
+    width: 100%;
+    pointer-events: none;
+}
+
+.toast-notification {
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-left: 5px solid #64748b;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15), 0 0 1px rgba(15, 23, 42, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #0f172a;
+    font-size: 0.875rem;
+    font-weight: 600;
+    pointer-events: auto;
+    transform: translateX(120%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+    opacity: 0;
+}
+
+[data-theme="dark"] .toast-notification {
+    background: rgba(17, 24, 39, 0.95);
+    color: #f9fafb;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.toast-notification.success { border-left-color: #10b981; }
+.toast-notification.warning { border-left-color: #f59e0b; }
+.toast-notification.danger { border-left-color: #ef4444; }
+.toast-notification.info { border-left-color: #0284c7; }
+
+/* 2. Medical Timeline UI */
+.medical-timeline {
+    position: relative;
+    border-left: 2px solid var(--hc-border);
+    padding-left: 28px;
+    margin-left: 8px;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 24px;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-badge {
+    position: absolute;
+    left: -38px;
+    top: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--hc-bg-card-solid);
+    border: 3px solid var(--hc-primary);
+    box-shadow: 0 0 0 4px var(--hc-primary-light);
+}
+
+.timeline-badge.success { border-color: #10b981; box-shadow: 0 0 0 4px #ecfdf5; }
+.timeline-badge.warning { border-color: #f59e0b; box-shadow: 0 0 0 4px #fef3c7; }
+.timeline-badge.danger { border-color: #ef4444; box-shadow: 0 0 0 4px #fef2f2; }
+
+/* 3. Google Calendar Redesign */
+.calendar-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-day-header {
+    text-align: center;
+    padding: 10px;
+    font-weight: 700;
+    color: var(--hc-text-secondary);
+    background: var(--hc-bg-main);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.calendar-slot-cell {
+    border: 1px solid var(--hc-border);
+    border-radius: 10px;
+    padding: 12px 8px;
+    min-height: 85px;
+    background: var(--hc-bg-card-solid);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.calendar-slot-cell:hover {
+    border-color: var(--hc-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--hc-shadow-sm);
+}
+
+.calendar-slot-cell.active-booking {
+    background: linear-gradient(135deg, var(--hc-primary-light), rgba(2, 132, 199, 0.05));
+    border-color: var(--hc-primary);
+}
+
+/* 4. Interactive Feedback & Star System */
+.rating-star-icon {
+    font-size: 1.5rem;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.rating-star-icon:hover {
+    transform: scale(1.15);
+}
+
+.rating-star-icon.filled {
+    color: #f59e0b;
+}
+
+/* 5. Online Billing & Card Layouts */
+.credit-card-mock {
+    background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    border-radius: 16px;
+    color: #ffffff;
+    box-shadow: var(--hc-shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.credit-card-mock::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 140px;
+    height: 140px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+}
+
+/* 6. Permission RBAC Switche Component */
+.form-check-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.form-check-switch input[type="checkbox"] {
+    appearance: none;
+    width: 42px;
+    height: 22px;
+    background: #cbd5e1;
+    border-radius: 20px;
+    position: relative;
+    outline: none;
+    transition: background 0.25s ease;
+    cursor: pointer;
+}
+
+[data-theme="dark"] .form-check-switch input[type="checkbox"] {
+    background: #475569;
+}
+
+.form-check-switch input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.form-check-switch input[type="checkbox"]:checked {
+    background: #10b981;
+}
+
+.form-check-switch input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+}
+
+/* 7. Barcode Design inside Lab Desk */
+.barcode-element {
+    font-family: 'Libre Barcode 39', monospace;
+    font-size: 2.2rem;
+    letter-spacing: 2px;
+    color: #0f172a;
+}
+
+[data-theme="dark"] .barcode-element {
+    color: #f8fafc;
+    filter: invert(1);
+}
+
+/* 8. Registration OTP Input layout */
+.otp-digit-field {
+    width: 48px;
+    height: 52px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: center;
+    border: 2px solid var(--hc-border);
+    border-radius: 10px;
+    background: var(--hc-bg-card-solid);
+    color: var(--hc-text-primary);
+    transition: border-color 0.25s ease;
+}
+
+.otp-digit-field:focus {
+    border-color: var(--hc-primary);
+    outline: none;
+}
+

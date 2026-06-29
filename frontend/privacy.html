@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy & HIPAA Compliance | CurePoint</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        .header-section {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            padding: 80px 0 40px;
+        }
+        .policy-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            padding: 40px;
+            margin-top: -30px;
+            margin-bottom: 60px;
+        }
+        .policy-section-title {
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+        }
+        .back-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+        .back-btn:hover {
+            background-color: #ffffff;
+            color: #0f172a;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="header-section text-center">
+        <div class="container">
+            <a href="index.html" class="btn back-btn mb-4 py-2 px-3"><i class="fa-solid fa-arrow-left me-2"></i> Back to Homepage</a>
+            <h1 class="display-5 fw-bold mb-3">Privacy Policy & HIPAA Compliance</h1>
+            <p class="lead text-white-50 max-width-600 mx-auto">Your medical records and personal information are guarded to enterprise SOC2 and HIPAA standards.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <article class="policy-card">
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <span class="badge bg-primary-subtle text-primary py-2 px-3 fw-semibold">Effective Date: June 2026</span>
+                        <span class="badge bg-success-subtle text-success py-2 px-3 fw-semibold"><i class="fa-solid fa-shield-halved me-1"></i> HIPAA Certified</span>
+                    </div>
+
+                    <p>At CurePoint, we prioritize the protection and security of your protected health info (PHI). This document explains how we collect, protect, share, and utilize patient information, in compliance with the Health Insurance Portability and Accountability Act (HIPAA), SOC2 privacy standards, and local clinical data regulations.</p>
+
+                    <h4 class="policy-section-title">1. Health Information We Collect</h4>
+                    <p>To deliver diagnostic care and medical scheduling services, CurePoint processes several forms of data:</p>
+                    <ul>
+                        <li><strong>Demographics & Contacts:</strong> Full name, national identity indices (Aadhaar or similar), birth dates, gender, residential address, telephone contact, and emergency contact registries.</li>
+                        <li><strong>Clinical Records:</strong> Electronic Health Records (EHR) containing diagnosis logs, consultation timelines, vital signs, drug allergy logs, treatment charts, and e-prescriptions.</li>
+                        <li><strong>Laboratory Diagnostics:</strong> Test orders, lab technician notes, vital reports, PDF compilations, and diagnostic metrics.</li>
+                        <li><strong>Billing & Payments:</strong> Consultation fees, payment logs, UPI transaction details, and invoicing files.</li>
+                    </ul>
+
+                    <h4 class="policy-section-title">2. HIPAA Privacy Rules & Safe Harbor</h4>
+                    <p>In accordance with the HIPAA Privacy Rule, CurePoint enforces administrative, physical, and technical safeguards:</p>
+                    <ul>
+                        <li><strong>Access Controls:</strong> Role-based access ensures that only authenticated and authorized clinicians (doctors, lab technicians) or administrators can view a patient's electronic health records.</li>
+                        <li><strong>Audit Trails:</strong> Every system interaction (login, file view, diagnostic update, prescription release) triggers an immutable entry inside our audit logs to maintain absolute tracking.</li>
+                        <li><strong>Data Minimization:</strong> Any demographic summaries requested by analytics dashboards use aggregate tables, stripping away identifiable indicators where feasible.</li>
+                    </ul>
+
+                    <h4 class="policy-section-title">3. Data Encryption & Security</h4>
+                    <p>All communication inside the CurePoint platform utilizes secure channels:</p>
+                    <ul>
+                        <li><strong>Encryption in Transit:</strong> Secure Sockets Layer/Transport Layer Security (SSL/TLS) tunnels encrypt all inputs submitted from dashboard widgets before they hit our Django backend APIs.</li>
+                        <li><strong>Encryption at Rest:</strong> All PostgreSQL database tables containing clinical charts are encrypted using advanced AES-256 standards.</li>
+                        <li><strong>Regular Audits:</strong> We undergo third-party penetration testing and vulnerability assessments to secure endpoints from registry risks.</li>
+                    </ul>
+
+                    <h4 class="policy-section-title">4. Third-Party Sharing Policies</h4>
+                    <p>We do not sell, rent, or trade your medical data under any circumstances. Information is only shared under clear medical scenarios:</p>
+                    <ul>
+                        <li>With your designated family physicians or referring clinical staff.</li>
+                        <li>With authorized laboratory technicians compiling diagnostic findings.</li>
+                        <li>With insurance companies requesting billing claims (subject to pre-authorization).</li>
+                        <li>When required by statutory public health mandates.</li>
+                    </ul>
+
+                    <h4 class="policy-section-title">5. Patient Rights & Access</h4>
+                    <p>As a patient using the CurePoint portal, you hold several rights regarding your data:</p>
+                    <ul>
+                        <li><strong>Right to Inspect:</strong> You can view all consultation history, vitals, prescriptions, and lab reports directly via your dashboard.</li>
+                        <li><strong>Right to Amend:</strong> You can update demographics, emergency contacts, blood group, and allergies, which will undergo backend validations.</li>
+                        <li><strong>Right to Export:</strong> You can download copies of your diagnostic reports and billing receipts in secure PDF formats.</li>
+                    </ul>
+
+                    <h4 class="policy-section-title">6. Updates to This Policy</h4>
+                    <p>We reserves the right to modify this privacy framework to align with updated clinical compliance codes. Authenticated users will receive immediate dashboard alerts when updates are published.</p>
+
+                    <div class="mt-5 pt-4 border-top text-center text-muted font-size-sm">
+                        <p>© 2026 CurePoint Platform. Smart Healthcare. Connected Care. All rights reserved.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

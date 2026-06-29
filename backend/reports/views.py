@@ -1,10 +1,10 @@
-from django.http import HttpResponse, Http404
-from django.views import View
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework import permissions
 from prescriptions.models import Prescription
 from consultations.models import Consultation
-from laboratory.models import LabRequest, LabResult
+from laboratory.models import LabRequest
+from patients.models import PatientBilling
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -210,6 +210,14 @@ class LabReportPdfView(APIView):
         except LabRequest.DoesNotExist:
             return HttpResponse("Lab report not found", status=404)
 
+        if lab.raw_report_file:
+            try:
+                response = HttpResponse(lab.raw_report_file.read(), content_type='application/pdf')
+                response['Content-Disposition'] = f'inline; filename="{lab.raw_report_file.name.split("/")[-1]}"'
+                return response
+            except Exception:
+                pass
+
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
         story = []
@@ -294,3 +302,158 @@ class LabReportPdfView(APIView):
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="lab_report_{lab_id}.pdf"'
         return response
+
+class ReceiptPdfView(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, billing_id):
+        try:
+            bill = PatientBilling.objects.get(billing_id=billing_id)
+        except PatientBilling.DoesNotExist:
+            return HttpResponse("Billing record not found", status=404)
+
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+        story = []
+
+        styles = getSampleStyleSheet()
+        
+        # Styles
+        title_style = ParagraphStyle(
+            'ReceiptTitleStyle',
+            parent=styles['Heading1'],
+            fontSize=20,
+            leading=24,
+            textColor=colors.HexColor('#0f172a'),
+            spaceAfter=15
+        )
+        subtitle_style = ParagraphStyle(
+            'ReceiptSubtitleStyle',
+            parent=styles['Normal'],
+            fontSize=10,
+            leading=14,
+            textColor=colors.HexColor('#64748b'),
+            spaceAfter=20
+        )
+        section_style = ParagraphStyle(
+            'ReceiptSectionStyle',
+            parent=styles['Heading2'],
+            fontSize=13,
+            leading=16,
+            textColor=colors.HexColor('#0284c7'),
+            spaceBefore=15,
+            spaceAfter=10
+        )
+        body_style = ParagraphStyle(
+            'ReceiptBodyStyle',
+            parent=styles['Normal'],
+            fontSize=10,
+            leading=14,
+            textColor=colors.HexColor('#334155')
+        )
+        header_cell_style = ParagraphStyle(
+            'ReceiptHeaderCell',
+            parent=styles['Normal'],
+            fontSize=10,
+            leading=12,
+            textColor=colors.white,
+            fontName='Helvetica-Bold'
+        )
+
+        # Header
+        story.append(Paragraph("<b>🏥 Smart EHR & Lab Portal Invoice/Receipt</b>", title_style))
+        story.append(Paragraph("CurePoint Clinical Network | Payment Operations", subtitle_style))
+        story.append(Spacer(1, 10))
+
+        # Status badge color
+        status_color = '#10b981' if bill.status == 'paid' else '#ef4444'
+        if bill.status == 'refunded':
+            status_color = '#f97316'
+
+        # Invoice Info Table
+        info_data = [
+            [Paragraph("<b>Billing ID:</b>", body_style), Paragraph(bill.billing_id, body_style),
+             Paragraph("<b>Payment Status:</b>", body_style), Paragraph(f"<font color='{status_color}'><b>{bill.status.upper()}</b></font>", body_style)],
+            [Paragraph("<b>Patient Name:</b>", body_style), Paragraph(bill.patient.user.name, body_style),
+             Paragraph("<b>Payment Method:</b>", body_style), Paragraph(bill.method or 'N/A', body_style)],
+            [Paragraph("<b>Receipt Reference:</b>", body_style), Paragraph(bill.receipt_id or 'N/A', body_style),
+             Paragraph("<b>Transaction Date:</b>", body_style), Paragraph(str(bill.paid_on.date()) if bill.paid_on else 'N/A', body_style)],
+            [Paragraph("<b>Description:</b>", body_style), Paragraph(bill.description, body_style), "", ""]
+        ]
+        info_table = Table(info_data, colWidths=[100, 160, 110, 150])
+        info_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('SPAN', (1,3), (3,3)),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ]))
+        story.append(info_table)
+        story.append(Spacer(1, 20))
+        story.append(Paragraph("Charges breakdown", section_style))
+
+        # Items Table
+        items_data = [[
+            Paragraph("Charge Type", header_cell_style),
+            Paragraph("Item Description", header_cell_style),
+            Paragraph("Amount ($)", header_cell_style)
+        ]]
+
+        if bill.consultation_charge > 0:
+            items_data.append([
+                Paragraph("OPD Consultation", body_style),
+                Paragraph("Professional Consultation Fee", body_style),
+                Paragraph(f"{bill.consultation_charge:.2f}", body_style)
+            ])
+        if bill.laboratory_charge > 0:
+            items_data.append([
+                Paragraph("Laboratory Service", body_style),
+                Paragraph("Clinical Lab Tests / Specimen Analysis", body_style),
+                Paragraph(f"{bill.laboratory_charge:.2f}", body_style)
+            ])
+            
+        other_charge = float(bill.amount) - float(bill.consultation_charge) - float(bill.laboratory_charge)
+        if other_charge > 0.01:
+            items_data.append([
+                Paragraph("Other Services", body_style),
+                Paragraph("Administrative / Pharmacy / Utilities Fee", body_style),
+                Paragraph(f"{other_charge:.2f}", body_style)
+            ])
+
+        # Total Row
+        items_data.append([
+            Paragraph("<b>Total Due / Paid</b>", body_style),
+            Paragraph("", body_style),
+            Paragraph(f"<b>${bill.amount:.2f}</b>", body_style)
+        ])
+
+        items_table = Table(items_data, colWidths=[150, 240, 110])
+        items_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#0284c7')),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('GRID', (0, 0), (-1, -2), 0.5, colors.HexColor('#cbd5e1')),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+            ('LINEABOVE', (0, -1), (-1, -1), 1.5, colors.HexColor('#0284c7')),
+        ]))
+        story.append(items_table)
+        story.append(Spacer(1, 40))
+
+        # Signatures
+        sig_data = [
+            [Paragraph("_____________________________<br/>Billing Coordinator Signature", body_style),
+             Paragraph("_____________________________<br/>Patient Signature", body_style)]
+        ]
+        sig_table = Table(sig_data, colWidths=[270, 270])
+        sig_table.setStyle(TableStyle([
+            ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ]))
+        story.append(sig_table)
+
+        doc.build(story)
+        pdf = buffer.getvalue()
+        buffer.close()
+
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="receipt_{billing_id}.pdf"'
+        return response
+

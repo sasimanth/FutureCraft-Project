@@ -10,6 +10,10 @@ class LabRequest(models.Model):
     )
     STATUS_CHOICES = (
         ('pending', 'Pending'),
+        ('registered', 'Registered'),
+        ('sample_collected', 'Sample Collected'),
+        ('processing', 'Processing'),
+        ('results_ready', 'Results Ready'),
         ('completed', 'Completed'),
     )
 
@@ -27,6 +31,10 @@ class LabRequest(models.Model):
     priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='Medium')
     
     raw_report_file = models.FileField(upload_to='lab_reports/', null=True, blank=True)
+    consultation_id = models.CharField(max_length=50, blank=True, default='')
+    appointment_id = models.CharField(max_length=50, blank=True, default='')
+    doctor_notes = models.TextField(blank=True, default='')
+    tech_comments = models.TextField(blank=True, default='')
 
     class Meta:
         ordering = ['-request_date']

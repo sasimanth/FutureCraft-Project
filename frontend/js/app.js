@@ -6,6 +6,55 @@
  */
 
 // ==========================================
+// Toast Notifications System Helper
+// ==========================================
+window.Toast = {
+    show: function(msg, type = 'info') {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = `toast-notification ${type}`;
+        
+        let icon = 'fa-info-circle';
+        if (type === 'success') icon = 'fa-check-circle';
+        else if (type === 'warning') icon = 'fa-exclamation-triangle';
+        else if (type === 'danger') icon = 'fa-times-circle';
+        
+        toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${msg}</span>`;
+        container.appendChild(toast);
+        
+        // Trigger show slide animation
+        setTimeout(() => toast.classList.add('show'), 50);
+        
+        // Remove toast after 4 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 4000);
+    },
+    success: function(msg) { this.show(msg, 'success'); },
+    warning: function(msg) { this.show(msg, 'warning'); },
+    error: function(msg) { this.show(msg, 'danger'); },
+    info: function(msg) { this.show(msg, 'info'); }
+};
+
+// Overwrite native browser Alert to redirect calls to our Premium Toast System
+window.alert = function(msg) {
+    if (typeof msg !== 'string') msg = String(msg);
+    if (msg && msg.toLowerCase().includes('success')) {
+        window.Toast.success(msg);
+    } else if (msg && (msg.toLowerCase().includes('error') || msg.toLowerCase().includes('failed') || msg.toLowerCase().includes('invalid'))) {
+        window.Toast.error(msg);
+    } else {
+        window.Toast.info(msg);
+    }
+};
+
+// ==========================================
 // 1. MOCK DATABASE INITIALIZATION & SEEDS
 // ==========================================
 
@@ -65,6 +114,69 @@ const DEFAULT_PATIENTS = [
         medicalHistory: [
             { date: '2026-03-05', condition: 'Vitamin D Deficiency', diagnosedBy: 'Dr. Emily Watson', status: 'Active' }
         ]
+    },
+    {
+        id: 'pat-3',
+        name: 'Robert Downey',
+        email: 'robert.downey@ehrmail.com',
+        dob: '1975-04-04',
+        gender: 'Male',
+        bloodGroup: 'A+',
+        phone: '+1 (555) 018-7722',
+        emergencyName: 'Susan Downey',
+        emergencyPhone: '+1 (555) 018-7723',
+        allergies: 'None',
+        vitalsHistory: [
+            { date: '2026-05-10', bpSystolic: 130, bpDiastolic: 85, heartRate: 76, temp: 98.4, weight: 82 },
+            { date: '2026-05-24', bpSystolic: 128, bpDiastolic: 84, heartRate: 74, temp: 98.6, weight: 81.5 },
+            { date: '2026-06-07', bpSystolic: 125, bpDiastolic: 82, heartRate: 72, temp: 98.5, weight: 81.2 },
+            { date: '2026-06-21', bpSystolic: 122, bpDiastolic: 80, heartRate: 70, temp: 98.6, weight: 80.8 }
+        ],
+        medicalHistory: [
+            { date: '2026-05-10', condition: 'Type 2 Diabetes', diagnosedBy: 'Dr. Robert Chen', status: 'Active' }
+        ]
+    },
+    {
+        id: 'pat-4',
+        name: 'Clara Oswald',
+        email: 'clara.oswald@ehrmail.com',
+        dob: '1992-11-23',
+        gender: 'Female',
+        bloodGroup: 'AB-',
+        phone: '+1 (555) 016-1234',
+        emergencyName: 'Danny Pink',
+        emergencyPhone: '+1 (555) 016-1235',
+        allergies: 'Pollen',
+        vitalsHistory: [
+            { date: '2026-05-12', bpSystolic: 112, bpDiastolic: 72, heartRate: 65, temp: 98.7, weight: 54 },
+            { date: '2026-05-26', bpSystolic: 115, bpDiastolic: 75, heartRate: 68, temp: 98.8, weight: 54.2 },
+            { date: '2026-06-09', bpSystolic: 118, bpDiastolic: 76, heartRate: 70, temp: 98.6, weight: 54.5 },
+            { date: '2026-06-23', bpSystolic: 114, bpDiastolic: 74, heartRate: 67, temp: 98.6, weight: 54.1 }
+        ],
+        medicalHistory: [
+            { date: '2026-05-12', condition: 'Chronic Migraine', diagnosedBy: 'Dr. Alice Vance', status: 'Managed' }
+        ]
+    },
+    {
+        id: 'pat-5',
+        name: 'Bruce Banner',
+        email: 'bruce.banner@ehrmail.com',
+        dob: '1979-12-18',
+        gender: 'Male',
+        bloodGroup: 'O-',
+        phone: '+1 (555) 011-9900',
+        emergencyName: 'Betty Ross',
+        emergencyPhone: '+1 (555) 011-9901',
+        allergies: 'None',
+        vitalsHistory: [
+            { date: '2026-05-05', bpSystolic: 145, bpDiastolic: 95, heartRate: 98, temp: 99.1, weight: 85 },
+            { date: '2026-05-19', bpSystolic: 140, bpDiastolic: 90, heartRate: 92, temp: 98.9, weight: 84.5 },
+            { date: '2026-06-02', bpSystolic: 135, bpDiastolic: 88, heartRate: 85, temp: 98.7, weight: 84.2 },
+            { date: '2026-06-16', bpSystolic: 130, bpDiastolic: 84, heartRate: 80, temp: 98.6, weight: 83.8 }
+        ],
+        medicalHistory: [
+            { date: '2026-05-05', condition: 'Elevated Heart Rate', diagnosedBy: 'Dr. Sarah Connor', status: 'Active' }
+        ]
     }
 ];
 
@@ -74,13 +186,22 @@ const DEFAULT_USERS = [
     { email: 'robert.chen@ehrmail.com', password: 'password123', name: 'Dr. Robert Chen', role: 'doctor', doctorId: 'doc-2' },
     { email: 'labtech@ehrmail.com', password: 'password123', name: 'Alex Mercer', role: 'labtech' },
     { email: 'john.doe@ehrmail.com', password: 'password123', name: 'John Doe', role: 'patient', patientId: 'pat-1' },
-    { email: 'emma.watson@ehrmail.com', password: 'password123', name: 'Emma Watson', role: 'patient', patientId: 'pat-2' }
+    { email: 'emma.watson@ehrmail.com', password: 'password123', name: 'Emma Watson', role: 'patient', patientId: 'pat-2' },
+    { email: 'robert.downey@ehrmail.com', password: 'password123', name: 'Robert Downey', role: 'patient', patientId: 'pat-3' },
+    { email: 'clara.oswald@ehrmail.com', password: 'password123', name: 'Clara Oswald', role: 'patient', patientId: 'pat-4' },
+    { email: 'bruce.banner@ehrmail.com', password: 'password123', name: 'Bruce Banner', role: 'patient', patientId: 'pat-5' }
 ];
 
 const DEFAULT_APPOINTMENTS = [
-    { id: 'appt-1', patientId: 'pat-1', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-20', timeSlot: '09:30 AM', symptoms: 'Follow-up on blood pressure regulation.', status: 'confirmed', type: 'Doctor Checkup' },
-    { id: 'appt-2', patientId: 'pat-2', doctorId: 'doc-4', doctorName: 'Dr. Emily Watson', deptName: 'Pediatrics', date: '2026-06-22', timeSlot: '11:00 AM', symptoms: 'Routine health checkup and vitamin consultation.', status: 'confirmed', type: 'Doctor Checkup' },
-    { id: 'appt-3', patientId: 'pat-1', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-25', timeSlot: '10:30 AM', symptoms: 'BP check and medication renewal.', status: 'confirmed', type: 'Doctor Checkup' }
+    { id: 'appt-1', patientId: 'pat-1', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-20', timeSlot: '09:30 AM', symptoms: 'Follow-up on blood pressure regulation.', status: 'completed', type: 'Doctor Checkup' },
+    { id: 'appt-2', patientId: 'pat-2', doctorId: 'doc-4', doctorName: 'Dr. Emily Watson', deptName: 'Pediatrics', date: '2026-06-22', timeSlot: '11:00 AM', symptoms: 'Routine health checkup and vitamin consultation.', status: 'completed', type: 'Doctor Checkup' },
+    { id: 'appt-3', patientId: 'pat-1', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-25', timeSlot: '10:30 AM', symptoms: 'BP check and medication renewal.', status: 'confirmed', type: 'Doctor Checkup' },
+    { id: 'appt-4', patientId: 'pat-3', doctorId: 'doc-2', doctorName: 'Dr. Robert Chen', deptName: 'Cardiology', date: '2026-06-25', timeSlot: '09:00 AM', symptoms: 'Diabetes follow-up and ECG screening.', status: 'confirmed', type: 'Doctor Checkup' },
+    { id: 'appt-5', patientId: 'pat-4', doctorId: 'doc-3', doctorName: 'Dr. Alice Vance', deptName: 'Neurology', date: '2026-06-25', timeSlot: '11:30 AM', symptoms: 'Migraine tracking and reflex check.', status: 'confirmed', type: 'Doctor Checkup' },
+    { id: 'appt-6', patientId: 'pat-5', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-25', timeSlot: '02:00 PM', symptoms: 'Anxiety and heart rate monitoring.', status: 'confirmed', type: 'Doctor Checkup' },
+    { id: 'appt-7', patientId: 'pat-2', doctorId: 'doc-1', doctorName: 'Dr. Sarah Connor', deptName: 'General Medicine', date: '2026-06-25', timeSlot: '03:30 PM', symptoms: 'Mild cough and cold symptoms.', status: 'confirmed', type: 'Doctor Checkup' },
+    { id: 'appt-8', patientId: 'pat-3', doctorId: 'doc-2', doctorName: 'Dr. Robert Chen', deptName: 'Cardiology', date: '2026-06-26', timeSlot: '10:00 AM', symptoms: 'Routine cardiology consult.', status: 'confirmed', type: 'Doctor Checkup' },
+    { id: 'appt-9', patientId: 'pat-4', doctorId: 'doc-3', doctorName: 'Dr. Alice Vance', deptName: 'Neurology', date: '2026-06-26', timeSlot: '01:30 PM', symptoms: 'Follow-up consultation.', status: 'confirmed', type: 'Doctor Checkup' }
 ];
 
 const DEFAULT_PRESCRIPTIONS = [
@@ -93,6 +214,36 @@ const DEFAULT_PRESCRIPTIONS = [
         medicines: [
             { name: 'Lisinopril 10mg', dosage: '1 tablet daily', duration: '30 days', instructions: 'Take in the morning with water' },
             { name: 'Amlodipine 5mg', dosage: '1 tablet daily', duration: '30 days', instructions: 'Take at night if BP is elevated' }
+        ]
+    },
+    {
+        id: 'rx-2',
+        patientId: 'pat-3',
+        doctorName: 'Dr. Robert Chen',
+        date: '2026-05-10',
+        diagnosis: 'Type 2 Diabetes',
+        medicines: [
+            { name: 'Metformin 500mg', dosage: '1 tablet twice daily', duration: '60 days', instructions: 'Take with meals' }
+        ]
+    },
+    {
+        id: 'rx-3',
+        patientId: 'pat-4',
+        doctorName: 'Dr. Alice Vance',
+        date: '2026-05-12',
+        diagnosis: 'Chronic Migraine',
+        medicines: [
+            { name: 'Sumatriptan 50mg', dosage: '1 tablet as needed', duration: '30 days', instructions: 'Take at onset of migraine aura' }
+        ]
+    },
+    {
+        id: 'rx-4',
+        patientId: 'pat-5',
+        doctorName: 'Dr. Sarah Connor',
+        date: '2026-05-05',
+        diagnosis: 'Elevated Heart Rate',
+        medicines: [
+            { name: 'Propranolol 20mg', dosage: '1 tablet daily', duration: '30 days', instructions: 'Take in the morning' }
         ]
     }
 ];
@@ -130,24 +281,75 @@ const DEFAULT_LAB_REQUESTS = [
         technician: '',
         priority: 'Medium',
         results: []
+    },
+    {
+        id: 'lab-3',
+        patientId: 'pat-3',
+        patientName: 'Robert Downey',
+        doctorName: 'Dr. Robert Chen',
+        testCategory: 'Metabolic Panel',
+        testName: 'HbA1c Glucose Test',
+        requestDate: '2026-06-20',
+        status: 'completed',
+        resultDate: '2026-06-21',
+        technician: 'Alex Mercer',
+        priority: 'High',
+        results: [
+            { parameter: 'HbA1c', value: 6.4, unit: '%', refRange: '4.0 - 5.6', flag: 'High' },
+            { parameter: 'Fasting Plasma Glucose', value: 126, unit: 'mg/dL', refRange: '70 - 99', flag: 'High' }
+        ]
+    },
+    {
+        id: 'lab-4',
+        patientId: 'pat-5',
+        patientName: 'Bruce Banner',
+        doctorName: 'Dr. Sarah Connor',
+        testCategory: 'Thyroid Panel',
+        testName: 'TSH & Free T4 Test',
+        requestDate: '2026-06-22',
+        status: 'pending',
+        resultDate: '',
+        technician: '',
+        priority: 'High',
+        results: []
+    },
+    {
+        id: 'lab-5',
+        patientId: 'pat-4',
+        patientName: 'Clara Oswald',
+        doctorName: 'Dr. Alice Vance',
+        testCategory: 'Urine Analysis',
+        testName: 'Urinalysis Screen',
+        requestDate: '2026-06-23',
+        status: 'pending',
+        resultDate: '',
+        technician: '',
+        priority: 'Low',
+        results: []
     }
 ];
 
 const DEFAULT_VISITS = [
     { id: 'v-1', patientId: 'pat-1', date: '2026-05-01', department: 'General Medicine', doctorName: 'Dr. Sarah Connor', reason: 'Initial consult for blood pressure tracking.' },
     { id: 'v-2', patientId: 'pat-1', date: '2026-05-15', department: 'General Medicine', doctorName: 'Dr. Sarah Connor', reason: 'Follow-up visit and prescription adjustment.' },
-    { id: 'v-3', patientId: 'pat-2', date: '2026-06-10', department: 'Pediatrics', doctorName: 'Dr. Emily Watson', reason: 'Routine health assessment & vitamin checkup.' }
+    { id: 'v-3', patientId: 'pat-2', date: '2026-06-10', department: 'Pediatrics', doctorName: 'Dr. Emily Watson', reason: 'Routine health assessment & vitamin checkup.' },
+    { id: 'v-4', patientId: 'pat-3', date: '2026-05-10', department: 'Cardiology', doctorName: 'Dr. Robert Chen', reason: 'Diabetes management review and ECG check.' },
+    { id: 'v-5', patientId: 'pat-4', date: '2026-05-12', department: 'Neurology', doctorName: 'Dr. Alice Vance', reason: 'Consultation regarding frequent cluster migraines.' },
+    { id: 'v-6', patientId: 'pat-5', date: '2026-05-05', department: 'General Medicine', doctorName: 'Dr. Sarah Connor', reason: 'Initial checkup for chronic heart rate spikes.' }
 ];
 
 const DEFAULT_FILES = [
-    { id: 'f-1', patientId: 'pat-1', name: 'Lab_CBC_May_Report.pdf', size: '1.4 MB', type: 'application/pdf', date: '2026-05-16' }
+    { id: 'f-1', patientId: 'pat-1', name: 'Lab_CBC_May_Report.pdf', size: '1.4 MB', type: 'application/pdf', date: '2026-05-16', file: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6goxIDAgb2JqCjw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZXMvS2lkc1szIDAgUl0vQ291bnQgMT4+CmVuZG9iagozIDAgb2JqCjw8L1R5cGUvUGFnZS9QYXJlbnQgMiAwIFIvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PCAvVHlwZSAvRm9udCAvU3VidHlwZSAvVHlwZTEgL0Jhc2VGb250IC9IZWx2ZXRpY2EgPj4KZW5kb2JqCjUgMCBvYmoKPDwvTGVuZ3RoIDcwPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgoxMDAgNzAwIFRkCihDdXJlUG9pbnQgLSBTYW1wbGUgUmVwb3J0KSBUagpETQpCVAovRjEgMTIgVGYKMTAwIDY1MCBUZAooVGhpcyBpcyBhIG1vY2sgcGRmIHJlcG9ydCBkb2N1bWVudC4pIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjAgMDAwMDAgbiAKMDAwMDAwMDEwOSAwMDAwMCBuIAowMDAwMDAwMTk4IDAwMDAwIG4gCjAwMDAwMDAyNjcgMDAwMDAgbiAKdHJhaWxlcgo8PC9TaXplIDYvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgozODgKJSVFT0Y=' },
+    { id: 'f-2', patientId: 'pat-3', name: 'HbA1c_Glucose_Report.pdf', size: '1.2 MB', type: 'application/pdf', date: '2026-06-21', file: 'data:application/pdf;base64,JVBERi0xLjQKJdPr6goxIDAgb2JqCjw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZXMvS2lkc1szIDAgUl0vQ291bnQgMT4+CmVuZG9iagozIDAgb2JqCjw8L1R5cGUvUGFnZS9QYXJlbnQgMiAwIFIvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PCAvVHlwZSAvRm9udCAvU3VidHlwZSAvVHlwZTEgL0Jhc2VGb250IC9IZWx2ZXRpY2EgPj4KZW5kb2JqCjUgMCBvYmoKPDwvTGVuZ3RoIDcwPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgoxMDAgNzAwIFRkCihDdXJlUG9pbnQgLSBTYW1wbGUgUmVwb3J0KSBUagpETQpCVAovRjEgMTIgVGYKMTAwIDY1MCBUZAooVGhpcyBpcyBhIG1vY2sgcGRmIHJlcG9ydCBkb2N1bWVudC4pIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjAgMDAwMDAgbiAKMDAwMDAwMDEwOSAwMDAwMCBuIAowMDAwMDAwMTk4IDAwMDAwIG4gCjAwMDAwMDAyNjcgMDAwMDAgbiAKdHJhaWxlcgo8PC9TaXplIDYvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgozODgKJSVFT0Y=' }
 ];
 
 const DEFAULT_AUDITS = [
-    { timestamp: '2026-06-22 09:30:00', module: 'accounts', initiator: 'admin@ehrmail.com', action: 'Administrator console session started.', flag: 'SECURE' },
-    { timestamp: '2026-06-21 16:15:34', module: 'laboratory', initiator: 'labtech@ehrmail.com', action: 'Authorized results compiled for complete blood count CBC.', flag: 'SECURE' },
-    { timestamp: '2026-06-20 11:22:12', module: 'patients', initiator: 'system', action: 'Patient profile record pat-1 demographics update.', flag: 'SECURE' },
-    { timestamp: '2026-06-20 09:44:22', module: 'doctors', initiator: 'sarah.connor@ehrmail.com', action: 'New digital prescription rx-1 issued.', flag: 'SECURE' }
+    { timestamp: '2026-06-25 11:22:12', module: 'patients', initiator: 'system', action: 'Patient profile record pat-3 demographics update.', flag: 'SECURE' },
+    { timestamp: '2026-06-25 10:44:22', module: 'doctors', initiator: 'robert.chen@ehrmail.com', action: 'New digital prescription rx-2 issued.', flag: 'SECURE' },
+    { timestamp: '2026-06-25 09:30:00', module: 'accounts', initiator: 'admin@ehrmail.com', action: 'Administrator console session started.', flag: 'SECURE' },
+    { timestamp: '2026-06-24 16:15:34', module: 'laboratory', initiator: 'labtech@ehrmail.com', action: 'Authorized results compiled for complete blood count CBC.', flag: 'SECURE' },
+    { timestamp: '2026-06-24 14:02:11', module: 'patients', initiator: 'system', action: 'Patient profile record pat-1 diagnostics history fetched.', flag: 'SECURE' },
+    { timestamp: '2026-06-23 10:15:30', module: 'doctors', initiator: 'alice.vance@ehrmail.com', action: 'Patient pat-4 medical file updated.', flag: 'SECURE' }
 ];
 
 // Seed databases in localStorage if empty
@@ -187,7 +389,7 @@ initializeDatabase();
 
 const ApiService = {
     baseUrl: 'http://127.0.0.1:8000/api', // Django local development server URL
-    useMock: true, // Toggle this to FALSE to direct requests to actual Django backend
+    useMock: false, // Toggle this to FALSE to direct requests to actual Django backend
 
     // Helper wrapper for actual network HTTP fetch requests
     _request: async function (endpoint, options = {}) {
@@ -216,14 +418,17 @@ const ApiService = {
             const activeUser = JSON.parse(sessionStorage.getItem('hc_current_user'));
             if (!activeUser) return;
             
-            const [patients, doctors, appointments, prescriptions, labRequests, audits, departments] = await Promise.all([
+            const [patients, doctors, appointments, prescriptions, labRequests, audits, departments, leaves, reviews, invoices] = await Promise.all([
                 this.getPatients().catch(() => []),
                 this._request('/doctors/').catch(() => []),
                 this.getAppointments().catch(() => []),
                 this.getPrescriptions().catch(() => []),
                 this.getLabTests().catch(() => []),
                 this._request('/audits/').catch(() => []),
-                this._request('/departments/').catch(() => [])
+                this._request('/departments/').catch(() => []),
+                this._request('/leaves/').catch(() => []),
+                this._request('/reviews/').catch(() => []),
+                this._request('/billing/').catch(() => [])
             ]);
 
             setDB('patients', patients);
@@ -233,6 +438,9 @@ const ApiService = {
             setDB('lab_requests', labRequests);
             setDB('audits', audits);
             setDB('departments', departments);
+            setDB('leaves', leaves);
+            setDB('doctor_reviews', reviews);
+            setDB('patient_invoices', invoices);
 
             if (activeUser.role === 'patient' && activeUser.patientId) {
                 const patId = activeUser.patientId;
@@ -245,6 +453,11 @@ const ApiService = {
             if (activeUser.role === 'admin') {
                 const users = await this._request('/users/').catch(() => []);
                 setDB('users', users);
+            }
+
+            // Instantly refresh the UI dashboards with the fresh synced records
+            if (typeof window.triggerDashboardSyncUpdate === 'function') {
+                window.triggerDashboardSyncUpdate();
             }
         } catch (err) {
             console.error("Failed to sync database from Django server:", err);
@@ -431,6 +644,113 @@ const ApiService = {
             consults.push(data);
             setDB('consultations', consults);
             this.addAuditLog('doctors', data.doctorName, `Saved consultation diagnosis for patient: ${data.patientId}`);
+
+            // Sync vitals to mock DB
+            if (data.vitals) {
+                const patients = getDB('patients');
+                const patient = patients.find(p => p.id === data.patientId);
+                if (patient) {
+                    patient.vitalsHistory = patient.vitalsHistory || [];
+                    patient.vitalsHistory.push({
+                        date: data.consultationDate,
+                        bpSystolic: data.vitals.bpSystolic,
+                        bpDiastolic: data.vitals.bpDiastolic,
+                        heartRate: data.vitals.heartRate,
+                        temp: data.vitals.temp,
+                        weight: data.vitals.weight
+                    });
+                    setDB('patients', patients);
+                }
+            }
+
+            // Sync diagnosis to patient medical history in mock DB
+            const patients = getDB('patients');
+            const patient = patients.find(p => p.id === data.patientId);
+            if (patient) {
+                patient.medicalHistory = patient.medicalHistory || [];
+                patient.medicalHistory.push({
+                    date: data.consultationDate,
+                    condition: data.diagnosis,
+                    diagnosedBy: data.doctorName,
+                    status: 'Active'
+                });
+                setDB('patients', patients);
+            }
+
+            // Sync visit to patient visit log in mock DB
+            const visits = getDB('visits') || [];
+            visits.push({
+                id: 'v-' + Date.now(),
+                patientId: data.patientId,
+                date: data.consultationDate,
+                department: 'General Medicine',
+                doctorName: data.doctorName,
+                reason: data.diagnosis
+            });
+            setDB('visits', visits);
+
+            // Sync prescription to mock DB
+            if (data.prescription) {
+                const rx = getDB('prescriptions') || [];
+                rx.push({
+                    id: data.prescription.id,
+                    patientId: data.patientId,
+                    doctorName: data.doctorName,
+                    date: data.consultationDate,
+                    diagnosis: data.diagnosis,
+                    medicines: data.prescription.medicines
+                });
+                setDB('prescriptions', rx);
+            }
+
+            // Sync lab request to mock DB
+            if (data.labRequest) {
+                const labs = getDB('lab_requests') || [];
+                const patients = getDB('patients');
+                const patient = patients.find(p => p.id === data.patientId);
+                labs.push({
+                    id: data.labRequest.id,
+                    patientId: data.patientId,
+                    patientName: patient ? patient.name : 'Unknown',
+                    doctorName: data.doctorName,
+                    testCategory: data.labRequest.testCategory,
+                    testName: data.labRequest.testName,
+                    requestDate: data.consultationDate,
+                    status: 'pending',
+                    resultDate: null,
+                    technician: '',
+                    priority: data.labRequest.priority || 'Medium',
+                    results: []
+                });
+                setDB('lab_requests', labs);
+            }
+
+            // Complete appointment in mock DB
+            if (data.appointmentId) {
+                const appts = getDB('appointments') || [];
+                const appt = appts.find(a => a.id === data.appointmentId || a.appt_id === data.appointmentId);
+                if (appt) appt.status = 'completed';
+                setDB('appointments', appts);
+            }
+
+            // Schedule follow-up in mock DB
+            if (data.followup) {
+                const appts = getDB('appointments') || [];
+                appts.push({
+                    id: data.followup.id,
+                    patientId: data.patientId,
+                    doctorId: 'doc-1',
+                    doctorName: data.doctorName,
+                    deptName: 'General Medicine',
+                    date: data.followup.date,
+                    timeSlot: data.followup.timeSlot,
+                    symptoms: `Scheduled clinical follow-up for: ${data.diagnosis}`,
+                    status: 'confirmed',
+                    type: 'Doctor Checkup'
+                });
+                setDB('appointments', appts);
+            }
+
             return data;
         } else {
             const res = await this._request('/consultations/', { method: 'POST', body: JSON.stringify(data) });
@@ -810,31 +1130,145 @@ function initPatientPortal(patientUser) {
         document.getElementById('profile-emergency-name').value = patient.emergencyName;
         document.getElementById('profile-emergency-phone').value = patient.emergencyPhone;
         document.getElementById('profile-allergies').value = patient.allergies;
+        
+        document.getElementById('profile-card-name').innerText = patient.name;
+        document.getElementById('profile-card-id').innerText = patient.id;
+        
+        if (patient.aadhaar) document.getElementById('profile-aadhaar').value = patient.aadhaar;
+        if (patient.address) document.getElementById('profile-address').value = patient.address;
+        if (patient.insuranceCarrier) document.getElementById('profile-insurance-carrier').value = patient.insuranceCarrier;
+        if (patient.insurancePolicy) document.getElementById('profile-insurance-policy').value = patient.insurancePolicy;
+        if (patient.avatar) document.getElementById('profile-avatar-img').src = patient.avatar;
 
-        profileForm.addEventListener('submit', function (e) {
+        profileForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             const phone = document.getElementById('profile-phone').value;
             if (!FormValidator.validatePhone(phone)) {
-                alert("Please enter a valid 10-digit phone number.");
+                Toast.error("Please enter a valid phone number.");
                 return;
             }
 
-            patient.dob = document.getElementById('profile-dob').value;
-            patient.gender = document.getElementById('profile-gender').value;
-            patient.bloodGroup = document.getElementById('profile-blood').value;
-            patient.phone = phone;
-            patient.emergencyName = document.getElementById('profile-emergency-name').value;
-            patient.emergencyPhone = document.getElementById('profile-emergency-phone').value;
-            patient.allergies = document.getElementById('profile-allergies').value;
+            const updatedData = {
+                dob: document.getElementById('profile-dob').value,
+                gender: document.getElementById('profile-gender').value,
+                bloodGroup: document.getElementById('profile-blood').value,
+                phone: phone,
+                emergencyName: document.getElementById('profile-emergency-name').value,
+                emergencyPhone: document.getElementById('profile-emergency-phone').value,
+                allergies: document.getElementById('profile-allergies').value,
+                nationalId: document.getElementById('profile-aadhaar').value,
+                address: document.getElementById('profile-address').value,
+                insuranceCarrier: document.getElementById('profile-insurance-carrier').value,
+                insurancePolicy: document.getElementById('profile-insurance-policy').value
+            };
 
-            const patIndex = patients.findIndex(p => p.id === patient.id);
-            patients[patIndex] = patient;
-            setDB('patients', patients);
-
-            showToast("Profile settings updated successfully!");
-            renderPatientOverview(patient);
+            try {
+                if (!ApiService.useMock) {
+                    await ApiService.updatePatient(patient.id, updatedData);
+                    await ApiService.syncDataFromServer();
+                } else {
+                    const patIndex = patients.findIndex(p => p.id === patient.id);
+                    patients[patIndex] = { ...patient, ...updatedData };
+                    setDB('patients', patients);
+                }
+                
+                // Refresh local patient reference
+                const freshPatient = getDB('patients').find(p => p.id === patient.id);
+                Toast.success("Profile demographics updated successfully!");
+                renderPatientOverview(freshPatient || patient);
+            } catch (err) {
+                Toast.error("Failed to update profile: " + err.message);
+            }
         });
     }
+
+    // Change Password Handler
+    const changePasswordForm = document.getElementById('profile-change-password-form');
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const newPass = document.getElementById('profile-new-pass').value;
+            const confirmPass = document.getElementById('profile-confirm-pass').value;
+
+            if (newPass !== confirmPass) {
+                Toast.error("Passwords do not match.");
+                return;
+            }
+
+            try {
+                if (!ApiService.useMock && patientUser.id) {
+                    await ApiService.updateUser(patientUser.id, { password: newPass });
+                } else {
+                    let users = getDB('users') || [];
+                    const idx = users.findIndex(u => u.email === patientUser.email);
+                    if (idx !== -1) {
+                        users[idx].password = newPass;
+                        setDB('users', users);
+                    }
+                }
+                Toast.success("Password updated successfully!");
+                changePasswordForm.reset();
+            } catch (err) {
+                Toast.error("Failed to update password: " + err.message);
+            }
+        });
+    }
+
+    // Global Search Listener
+    const searchInput = document.getElementById('patient-dashboard-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', function (e) {
+            const query = e.target.value.toLowerCase().trim();
+            filterPatientDashboardRecords(patient, query);
+        });
+    }
+
+    // Initialize Payments Panel details
+    renderPatientPayments(patient);
+}
+
+function filterPatientDashboardRecords(patient, query) {
+    // 1. Filter appointments cards
+    const apptCards = document.querySelectorAll('#patient-appts-cards .col-12');
+    apptCards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 2. Filter prescriptions table rows
+    const rxRows = document.querySelectorAll('#patient-prescriptions-list tr');
+    rxRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 3. Filter medical records table rows
+    const historyRows = document.querySelectorAll('#patient-history-list tr');
+    historyRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 4. Filter lab reports table rows
+    const labRows = document.querySelectorAll('#patient-labs-list tr');
+    labRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 5. Filter outstanding invoices table rows
+    const invoiceRows = document.querySelectorAll('#patient-invoices-list tr');
+    invoiceRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    // 6. Filter payment history table rows
+    const receiptRows = document.querySelectorAll('#patient-receipts-list tr');
+    receiptRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+    });
 }
 
 function renderPatientOverview(patient) {
@@ -861,16 +1295,20 @@ function renderPatientOverview(patient) {
     }
 }
 
+let patientVitalsChartInstance = null;
+
 function renderPatientVitalsCharts(patient) {
     const ctx = document.getElementById('patientVitalsChart');
     if (!ctx) return;
+
+    if (patientVitalsChartInstance) patientVitalsChartInstance.destroy();
 
     const labels = patient.vitalsHistory.map(v => v.date);
     const sysData = patient.vitalsHistory.map(v => v.bpSystolic);
     const diaData = patient.vitalsHistory.map(v => v.bpDiastolic);
     const hrData = patient.vitalsHistory.map(v => v.heartRate);
 
-    new Chart(ctx, {
+    patientVitalsChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
@@ -907,7 +1345,8 @@ function renderPatientMedicalHistory(patient) {
             <div class="timeline-date">${h.date}</div>
             <div class="timeline-card">
                 <h5 class="timeline-title">${h.condition}</h5>
-                <p class="text-muted mb-0">Diagnosed by: <strong>${h.diagnosedBy}</strong> | Status: <span class="badge bg-success">${h.status}</span></p>
+                <p class="text-muted mb-1">Diagnosed by: <strong>${h.diagnosedBy}</strong> | Status: <span class="badge bg-success">${h.status}</span></p>
+                ${h.notes ? `<p class="font-size-xs mb-0 text-secondary" style="border-left: 2px solid #cbd5e1; padding-left: 8px; margin-top: 4px;"><strong>Doctor Notes:</strong> ${h.notes}</p>` : ''}
             </div>
         </div>`;
     });
@@ -920,7 +1359,7 @@ function renderPatientPrescriptions(patient) {
 
     const prescriptions = getDB('prescriptions').filter(pr => pr.patientId === patient.id);
     if (prescriptions.length === 0) {
-        rxList.innerHTML = `<tr><td colspan="5" class="text-center text-muted">No prescriptions issued.</td></tr>`;
+        rxList.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No prescriptions issued.</td></tr>`;
         return;
     }
 
@@ -932,8 +1371,10 @@ function renderPatientPrescriptions(patient) {
                 <td>${i === 0 ? `<strong>${rx.date}</strong>` : ''}</td>
                 <td>${med.name}</td>
                 <td>${med.dosage}</td>
+                <td>${med.frequency || 'N/A'}</td>
                 <td>${med.duration}</td>
-                <td>${med.instructions}</td>
+                <td>${med.route || 'N/A'}</td>
+                <td>${med.instructions || med.notes || ''}</td>
             </tr>`;
         });
     });
@@ -968,14 +1409,16 @@ function renderPatientLabReports(patient) {
 }
 
 function renderPatientAppointments(patient) {
-    const apptList = document.getElementById('patient-appts-list');
-    if (!apptList) return;
+    const cardsContainer = document.getElementById('patient-appts-cards');
+    if (!cardsContainer) return;
 
     const appts = getDB('appointments').filter(ap => ap.patientId === patient.id);
     if (appts.length === 0) {
-        apptList.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No consultations scheduled.</td></tr>`;
+        cardsContainer.innerHTML = `<div class="col-12 text-center text-muted p-5 bg-white rounded border shadow-sm"><i class="fa-solid fa-calendar-times fs-2 mb-3 text-muted"></i><p class="mb-0 font-size-sm">No consultations scheduled.</p></div>`;
         return;
     }
+
+    const invoices = getDB('patient_invoices') || [];
 
     let html = '';
     appts.forEach(ap => {
@@ -985,17 +1428,66 @@ function renderPatientAppointments(patient) {
         if (ap.status === 'cancelled') badgeClass = 'badge-cancelled';
         if (ap.status === 'completed') badgeClass = 'badge-completed';
 
+        // Est wait time calculation
+        let estWait = ap.status === 'pending' ? '45 mins' : (ap.status === 'confirmed' ? '15 mins' : '--');
+
+        // Check billing/payment status
+        const invoice = invoices.find(inv => inv.description.toLowerCase().includes(ap.doctorName.toLowerCase()) || inv.patientId === patient.id && inv.status === 'unpaid');
+        const paymentStatus = invoice ? invoice.status.toUpperCase() : 'PAID';
+        const paymentBadgeClass = paymentStatus === 'PAID' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning';
+
+        // Generate initials for avatar
+        const initials = ap.doctorName.replace('Dr. ', '').split(' ').map(n => n[0]).join('');
+
         html += `
-        <tr>
-            <td><strong>${ap.date}</strong></td>
-            <td>${ap.timeSlot}</td>
-            <td>${ap.doctorName}</td>
-            <td>${ap.deptName}</td>
-            <td>${ap.symptoms || 'Routine follow-up'}</td>
-            <td><span class="hc-badge-status ${badgeClass}">${ap.status.toUpperCase()}</span></td>
-        </tr>`;
+        <div class="col-12 col-md-12 col-lg-12 mb-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 position-relative overflow-hidden" style="background: #ffffff; border-left: 5px solid ${ap.status === 'cancelled' ? '#ef4444' : '#3b82f6'} !important; transition: transform 0.2s ease;">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="avatar-mock text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 54px; height: 54px; font-size: 1.1rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
+                            ${initials}
+                        </div>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 font-size-sm" style="font-size:1.05rem;">${ap.doctorName}</h6>
+                            <span class="badge bg-secondary-subtle text-secondary font-size-xxs px-2 py-1 mt-1">${ap.deptName}</span>
+                        </div>
+                    </div>
+                    <div class="text-sm-end">
+                        <span class="hc-badge-status ${badgeClass} px-3 py-1.5 font-size-xxs fw-bold text-uppercase rounded-3">${ap.status}</span>
+                        <span class="badge ${paymentBadgeClass} px-3 py-1.5 font-size-xxs fw-bold text-uppercase rounded-3 ms-2">${paymentStatus}</span>
+                    </div>
+                </div>
+
+                <div class="row g-3 bg-light rounded-3 p-3 mb-3 border border-light-subtle">
+                    <div class="col-sm-4 col-6">
+                        <span class="text-muted d-block font-size-xxs text-uppercase fw-bold" style="letter-spacing: 0.5px;">Schedule Date</span>
+                        <strong class="text-dark font-size-xs"><i class="fa-solid fa-calendar text-primary me-2"></i>${ap.date}</strong>
+                    </div>
+                    <div class="col-sm-4 col-6">
+                        <span class="text-muted d-block font-size-xxs text-uppercase fw-bold" style="letter-spacing: 0.5px;">Time Slot</span>
+                        <strong class="text-dark font-size-xs"><i class="fa-solid fa-clock text-success me-2"></i>${ap.timeSlot}</strong>
+                    </div>
+                    <div class="col-sm-4 col-12">
+                        <span class="text-muted d-block font-size-xxs text-uppercase fw-bold" style="letter-spacing: 0.5px;">Queue Tracker</span>
+                        <strong class="text-dark font-size-xs"><i class="fa-solid fa-hourglass-start text-warning me-2"></i>#${ap.id.slice(-4).toUpperCase()} (${estWait})</strong>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    ${ap.status === 'pending' || ap.status === 'confirmed' ? `
+                        <button type="button" class="btn btn-sm btn-outline-danger px-4 rounded-3 py-2 font-size-xs" onclick="cancelAppointment('${ap.id}')"><i class="fa-solid fa-ban me-1.5"></i>Cancel</button>
+                        <button type="button" class="btn btn-sm btn-outline-primary px-4 rounded-3 py-2 font-size-xs" onclick="rescheduleAppointment('${ap.id}')"><i class="fa-solid fa-calendar-alt me-1.5"></i>Reschedule</button>
+                    ` : ''}
+                    ${ap.status === 'completed' ? `
+                        <button type="button" class="btn btn-sm btn-warning text-dark px-4 rounded-3 py-2 font-size-xs fw-bold" onclick="openFeedbackModal('${ap.id}', '${ap.doctorName}')">
+                            <i class="fa-solid fa-star me-1.5"></i>Rate Consultation
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>`;
     });
-    apptList.innerHTML = html;
+    cardsContainer.innerHTML = html;
 }
 
 function renderPatientVisits(patient) {
@@ -1015,11 +1507,28 @@ function renderPatientVisits(patient) {
             <td><strong>${v.date}</strong></td>
             <td>${v.department}</td>
             <td>${v.doctorName}</td>
-            <td>${v.reason}</td>
+            <td>
+                <div>${v.reason}</div>
+                ${v.notes ? `<div class="font-size-xxs text-muted mt-1">Notes: ${v.notes}</div>` : ''}
+            </td>
         </tr>`;
     });
     visitsList.innerHTML = html;
 }
+
+window.viewMockPatientFile = function (fileId) {
+    window.mockFilesMemory = window.mockFilesMemory || {};
+    const fileObj = window.mockFilesMemory[fileId];
+    if (fileObj) {
+        const url = URL.createObjectURL(fileObj);
+        window.open(url, '_blank');
+    } else {
+        const files = getDB('files');
+        const f = files.find(file => file.id === fileId);
+        const fileData = (f && f.file) ? f.file : 'data:application/pdf;base64,JVBERi0xLjQKJdPr6goxIDAgb2JqCjw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZXMvS2lkc1szIDAgUl0vQ291bnQgMT4+CmVuZG9iagozIDAgb2JqCjw8L1R5cGUvUGFnZS9QYXJlbnQgMiAwIFIvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PCAvVHlwZSAvRm9udCAvU3VidHlwZSAvVHlwZTEgL0Jhc2VGb250IC9IZWx2ZXRpY2EgPj4KZW5kb2JqCjUgMCBvYmoKPDwvTGVuZ3RoIDcwPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgoxMDAgNzAwIFRkCihDdXJlUG9pbnQgLSBTYW1wbGUgUmVwb3J0KSBUagpETQpCVAovRjEgMTIgVGYKMTAwIDY1MCBUZAooVGhpcyBpcyBhIG1vY2sgcGRmIHJlcG9ydCBkb2N1bWVudC4pIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjAgMDAwMDAgbiAKMDAwMDAwMDEwOSAwMDAwMCBuIAowMDAwMDAwMTk4IDAwMDAwIG4gCjAwMDAwMDAyNjcgMDAwMDAgbiAKdHJhaWxlcgo8PC9TaXplIDYvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgozODgKJSVFT0Y=';
+        window.open(fileData, '_blank');
+    }
+};
 
 function renderPatientFiles(patient) {
     const fileContainer = document.getElementById('patient-uploaded-files-list');
@@ -1033,16 +1542,26 @@ function renderPatientFiles(patient) {
 
     let html = '';
     files.forEach(f => {
+        let onClickAction = '';
+        if (ApiService.useMock) {
+            onClickAction = `onclick="viewMockPatientFile('${f.id}')" style="cursor: pointer;"`;
+        } else {
+            onClickAction = `onclick="window.open('${f.file || '#'}', '_blank')" style="cursor: pointer;"`;
+        }
+
         html += `
         <div class="hc-file-preview-card">
-            <div class="hc-file-preview-info">
-                <i class="fa-solid fa-file-pdf hc-file-preview-icon"></i>
-                <div>
-                    <h6 class="mb-0 fw-bold font-size-sm text-dark">${f.name}</h6>
+            <div class="hc-file-preview-info" ${onClickAction}>
+                <i class="fa-solid fa-file-pdf hc-file-preview-icon text-primary"></i>
+                <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-bold font-size-sm text-dark file-name-hover" style="text-decoration: underline; color: var(--hc-primary) !important;">${f.name}</h6>
                     <span class="text-muted font-size-xs">${f.size} | Uploaded ${f.date}</span>
                 </div>
             </div>
-            <button class="btn btn-sm btn-link text-danger p-0" onclick="deletePatientFile('${f.id}', '${patient.id}')"><i class="fa-solid fa-trash-can"></i></button>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-link text-primary p-0" ${onClickAction} title="View Document"><i class="fa-solid fa-eye"></i></button>
+                <button class="btn btn-sm btn-link text-danger p-0" onclick="deletePatientFile('${f.id}', '${patient.id}')" title="Delete Document"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
         </div>`;
     });
     fileContainer.innerHTML = html;
@@ -1083,8 +1602,13 @@ async function handlePatientFileUpload(file, patient) {
 
     if (ApiService.useMock) {
         const files = getDB('files');
+        const fileId = 'f-' + (files.length + 1);
+
+        window.mockFilesMemory = window.mockFilesMemory || {};
+        window.mockFilesMemory[fileId] = file;
+
         const newFile = {
-            id: 'f-' + (files.length + 1),
+            id: fileId,
             patientId: patient.id,
             name: file.name,
             size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
@@ -1149,6 +1673,7 @@ window.deletePatientFile = async function (fileId, patientId) {
 
 // --- DOCTOR DASHBOARD WORKFLOWS ---
 let doctorConsultsChartInstance = null;
+let doctorDemographicsChartInstance = null;
 
 function initDoctorPortal(doctorUser) {
     const docId = doctorUser.doctorId;
@@ -1177,20 +1702,33 @@ function initDoctorPortal(doctorUser) {
     renderDoctorCalendarWorkspace(doctor);
     setupDoctorCalendarEvents(doctor);
 
-    renderDoctorAnalytics(doctor);
+    renderDoctorAnalytics(doctor, 'daily');
+    renderDoctorReviews(doctor);
+
+    // Reports Time Frame Filter Selector
+    const reportsFilter = document.getElementById('reports-time-filter');
+    if (reportsFilter) {
+        const filterBtns = reportsFilter.querySelectorAll('button');
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const timeframe = this.getAttribute('data-filter');
+                renderDoctorAnalytics(doctor, timeframe);
+            });
+        });
+    }
 
     // Consultation Med Rows Button
     const addMedBtn = document.getElementById('doc-add-med-btn');
     if (addMedBtn) {
-        addMedBtn.replaceWith(addMedBtn.cloneNode(true)); // remove old listeners
-        document.getElementById('doc-add-med-btn').addEventListener('click', addPrescriptionRowToConsult);
+        addMedBtn.addEventListener('click', addPrescriptionRowToConsult);
     }
 
     // Submit consultation
     const consultForm = document.getElementById('doctor-consult-form');
     if (consultForm) {
-        consultForm.replaceWith(consultForm.cloneNode(true)); // remove old listeners
-        document.getElementById('doctor-consult-form').addEventListener('submit', function (e) {
+        consultForm.addEventListener('submit', function (e) {
             e.preventDefault();
             submitDoctorConsultation(doctor);
         });
@@ -1288,10 +1826,22 @@ function setupDoctorPatientSelectors() {
         const placeholder = document.getElementById('consult-patient-info-placeholder');
         
         if (!patId) {
+            sessionStorage.removeItem('hc_active_appt_consult');
             if (summary) summary.classList.add('d-none');
             document.querySelectorAll('.consult-active-fields').forEach(el => el.classList.add('d-none'));
             if (placeholder) placeholder.classList.remove('d-none');
             return;
+        }
+
+        // Auto-associate the confirmed appointment for this patient with this doctor
+        const activeUser = AuthService.getCurrentUser();
+        const docId = activeUser ? activeUser.doctorId : null;
+        const appointments = getDB('appointments');
+        const activeAppt = appointments.find(a => a.patientId === patId && a.doctorId === docId && a.status === 'confirmed');
+        if (activeAppt) {
+            sessionStorage.setItem('hc_active_appt_consult', activeAppt.id || activeAppt.appt_id);
+        } else {
+            sessionStorage.removeItem('hc_active_appt_consult');
         }
 
         const patient = patients.find(p => p.id === patId);
@@ -1344,6 +1894,28 @@ function setupDoctorPatientSelectors() {
                     historyList.innerHTML = `<p class="text-muted font-size-xs mb-0">No past visits/conditions recorded.</p>`;
                 }
             }
+
+            // Pre-populate a blank medication row so inputs are immediately available to fill
+            const medRowsContainer = document.getElementById('consult-med-rows');
+            if (medRowsContainer) {
+                medRowsContainer.innerHTML = '';
+                addPrescriptionRowToConsult();
+            }
+
+            // Stepper Initialization
+            if (typeof changeConsultStep === 'function') {
+                changeConsultStep(1);
+            }
+
+            // Track input fields for real-time checklist update
+            const fieldsToTrack = ['consult-sys', 'consult-dia', 'consult-hr', 'consult-diagnosis', 'consult-order-lab', 'consult-followup-check'];
+            fieldsToTrack.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', () => { if (typeof updateConsultChecklist === 'function') updateConsultChecklist(); });
+                    el.addEventListener('change', () => { if (typeof updateConsultChecklist === 'function') updateConsultChecklist(); });
+                }
+            });
         }
     });
 }
@@ -1360,171 +1932,219 @@ window.startConsultation = function (patientId, appointmentId = null) {
     }
 };
 
+function checkNoMedsPlaceholder() {
+    const list = document.getElementById('consult-med-rows');
+    if (!list) return;
+    const rows = list.querySelectorAll('.prescription-item-row');
+    let placeholder = document.getElementById('no-meds-placeholder');
+    
+    if (rows.length === 0) {
+        if (!placeholder) {
+            placeholder = document.createElement('div');
+            placeholder.id = 'no-meds-placeholder';
+            placeholder.className = 'text-center py-4 text-muted font-size-xs';
+            placeholder.innerHTML = `
+                <i class="fa-solid fa-pills fs-3 text-secondary mb-2 d-block text-success" style="opacity: 0.7;"></i>
+                No medications prescribed yet. Click "Add Med" to begin.
+            `;
+            list.appendChild(placeholder);
+        }
+    } else {
+        if (placeholder) {
+            placeholder.remove();
+        }
+    }
+}
+
 function addPrescriptionRowToConsult() {
     const list = document.getElementById('consult-med-rows');
     if (!list) return;
 
-    const row = document.createElement('div');
-    row.className = 'row g-3 prescription-item-row animate-slide-up mt-1';
-    row.innerHTML = `
-        <div class="col-md-4">
-            <input type="text" class="form-control form-control-sm med-name" placeholder="Medication Name" required>
+    // Remove placeholder if present
+    const placeholder = document.getElementById('no-meds-placeholder');
+    if (placeholder) placeholder.remove();
+
+    const card = document.createElement('div');
+    card.className = 'prescription-item-row card border border-1 p-3 mb-3 animate-slide-up rounded-3 shadow-sm bg-white';
+    card.style.borderLeft = '4px solid #10b981'; // Vibrant Emerald Green
+    card.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+            <span class="fw-bold text-success font-size-sm"><i class="fa-solid fa-pills me-2"></i>Medication Item</span>
+            <button type="button" class="btn btn-xs btn-outline-danger border-0 font-size-xxs py-1 px-2 rounded-2" onclick="this.closest('.prescription-item-row').remove(); checkNoMedsPlaceholder();">
+                <i class="fa-solid fa-trash-can me-1"></i>Remove
+            </button>
         </div>
-        <div class="col-md-3">
-            <input type="text" class="form-control form-control-sm med-dose" placeholder="Dosage (e.g. 1 tab)" required>
-        </div>
-        <div class="col-md-2">
-            <input type="text" class="form-control form-control-sm med-duration" placeholder="Duration" required>
-        </div>
-        <div class="col-md-2">
-            <input type="text" class="form-control form-control-sm med-instr" placeholder="Instructions">
-        </div>
-        <div class="col-md-1 d-flex align-items-end justify-content-center">
-            <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.prescription-item-row').remove()"><i class="fa-solid fa-trash"></i></button>
+        <div class="row g-2">
+            <div class="col-md-6 col-12">
+                <label class="form-label font-size-xxs text-secondary mb-1 fw-semibold text-uppercase" style="letter-spacing:0.5px;">Medication Name *</label>
+                <input type="text" class="form-control form-control-sm med-name" placeholder="e.g. Lisinopril 10mg" style="border-radius:6px; border:1px solid #cbd5e1;">
+            </div>
+            <div class="col-md-6 col-12">
+                <label class="form-label font-size-xxs text-secondary mb-1 fw-semibold text-uppercase" style="letter-spacing:0.5px;">Dosage *</label>
+                <input type="text" class="form-control form-control-sm med-dose" placeholder="e.g. 1 tablet" style="border-radius:6px; border:1px solid #cbd5e1;">
+            </div>
+            <div class="col-md-4 col-6 mt-2">
+                <label class="form-label font-size-xxs text-secondary mb-1 fw-semibold text-uppercase" style="letter-spacing:0.5px;">Frequency *</label>
+                <input type="text" class="form-control form-control-sm med-freq" placeholder="e.g. Once daily" style="border-radius:6px; border:1px solid #cbd5e1;">
+            </div>
+            <div class="col-md-4 col-6 mt-2">
+                <label class="form-label font-size-xxs text-secondary mb-1 fw-semibold text-uppercase" style="letter-spacing:0.5px;">Duration *</label>
+                <input type="text" class="form-control form-control-sm med-duration" placeholder="e.g. 30 days" style="border-radius:6px; border:1px solid #cbd5e1;">
+            </div>
+            <div class="col-md-4 col-12 mt-2">
+                <label class="form-label font-size-xxs text-secondary mb-1 fw-semibold text-uppercase" style="letter-spacing:0.5px;">Route *</label>
+                <input type="text" class="form-control form-control-sm med-route" placeholder="e.g. Oral" style="border-radius:6px; border:1px solid #cbd5e1;">
+            </div>
+            <div class="col-12 mt-2">
+                <label class="form-label font-size-xxs text-secondary mb-1 fw-semibold text-uppercase" style="letter-spacing:0.5px;">Notes / Special Instructions</label>
+                <input type="text" class="form-control form-control-sm med-notes" placeholder="e.g. Take in morning with water" style="border-radius:6px; border:1px solid #cbd5e1;">
+            </div>
         </div>`;
-    list.appendChild(row);
+    list.appendChild(card);
 }
 
 async function submitDoctorConsultation(doctor) {
-    const patientId = document.getElementById('consult-patient-select').value;
-    if (!patientId) {
-        Toast.warning('Please choose a patient.');
-        return;
-    }
-
-    const bpSystolic = parseInt(document.getElementById('consult-sys').value);
-    const bpDiastolic = parseInt(document.getElementById('consult-dia').value);
-    const heartRate = parseInt(document.getElementById('consult-hr').value);
-    const temp = parseFloat(document.getElementById('consult-temp').value) || 98.6;
-    const weight = parseFloat(document.getElementById('consult-weight').value) || 70;
-
-    const diagnosis = document.getElementById('consult-diagnosis').value;
-    const clinicalNotes = document.getElementById('consult-notes').value;
-    const symptomsNotes = document.getElementById('consult-symptoms').value;
-
-    const requestLabTest = document.getElementById('consult-order-lab').checked;
-    const labTestName = document.getElementById('consult-lab-name').value;
-    const labTestCategory = document.getElementById('consult-lab-cat').value;
-
-    const followupCheck = document.getElementById('consult-followup-check').checked;
-    const followupDate = document.getElementById('consult-followup-date').value;
-    const followupTime = document.getElementById('consult-followup-time').value;
-
-    if (isNaN(bpSystolic) || isNaN(bpDiastolic) || isNaN(heartRate) || !diagnosis || !diagnosis.trim()) {
-        Toast.warning("Please complete all required vitals (Systolic, Diastolic, Heart Rate) and diagnosis details.");
-        return;
-    }
-
-    const patient = getDB('patients').find(p => p.id === patientId);
-    if (!patient) return;
-
-    const todayStr = new Date().toISOString().split('T')[0];
-
     try {
-        // 1. Add Vitals via dedicated endpoint
-        const vitalData = { date: todayStr, bpSystolic, bpDiastolic, heartRate, temp, weight };
-        await ApiService.addPatientVitals(patientId, vitalData);
+        const patientId = document.getElementById('consult-patient-select').value;
+        if (!patientId) {
+            Toast.warning('Please choose a patient.');
+            return;
+        }
 
-        // 2. Add Diagnosis via dedicated endpoint
-        const historyData = { date: todayStr, condition: diagnosis, diagnosedBy: doctor.name, status: 'Active' };
-        await ApiService.addPatientMedicalHistory(patientId, historyData);
+        const bpSystolicVal = document.getElementById('consult-sys').value;
+        const bpDiastolicVal = document.getElementById('consult-dia').value;
+        const heartRateVal = document.getElementById('consult-hr').value;
 
-        // 2a. Save explicit Consultation record
-        const newConsultation = {
+        const bpSystolic = bpSystolicVal ? parseInt(bpSystolicVal) : 120;
+        const bpDiastolic = bpDiastolicVal ? parseInt(bpDiastolicVal) : 80;
+        const heartRate = heartRateVal ? parseInt(heartRateVal) : 72;
+        const temp = parseFloat(document.getElementById('consult-temp').value) || 98.6;
+        const weight = parseFloat(document.getElementById('consult-weight').value) || 70;
+
+        const diagnosis = document.getElementById('consult-diagnosis').value;
+        const clinicalNotes = document.getElementById('consult-notes').value;
+        const symptomsNotes = document.getElementById('consult-symptoms').value;
+
+        const requestLabTest = document.getElementById('consult-order-lab').checked;
+        const labTestName = document.getElementById('consult-lab-name').value;
+        const labTestCategory = document.getElementById('consult-lab-cat').value;
+
+        const followupCheck = document.getElementById('consult-followup-check').checked;
+        const followupDate = document.getElementById('consult-followup-date').value;
+        const followupTime = document.getElementById('consult-followup-time').value;
+
+        if (!diagnosis || !diagnosis.trim()) {
+            Toast.warning("Please enter a Diagnosis details.");
+            return;
+        }
+
+        const patient = getDB('patients').find(p => p.id === patientId);
+        if (!patient) {
+            Toast.error("Patient profile not found in database cache.");
+            return;
+        }
+
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        const payload = {
             id: 'con-' + Date.now(),
             patientId: patientId,
             doctorName: doctor.name,
             diagnosis: diagnosis,
             consultationDate: todayStr,
             symptoms: symptomsNotes || 'N/A',
-            recommendations: clinicalNotes || 'N/A'
+            recommendations: clinicalNotes || 'N/A',
+            vitals: {
+                bpSystolic,
+                bpDiastolic,
+                heartRate,
+                temp,
+                weight
+            }
         };
-        await ApiService.createConsultation(newConsultation);
 
-        // 2b. Log the Patient Visit record
-        const depts = getDB('departments') || [];
-        const deptObj = depts.find(d => d.id === doctor.deptId);
-        const deptName = deptObj ? deptObj.name : 'General Medicine';
-        const newVisit = {
-            date: todayStr,
-            department: deptName,
-            doctorName: doctor.name,
-            reason: diagnosis
-        };
-        await ApiService.addPatientVisit(patientId, newVisit);
-
-        // 3. Add Prescription
+        // Validate and gather medications
         const medRows = document.querySelectorAll('.prescription-item-row');
         if (medRows.length > 0) {
             const medicines = [];
-            medRows.forEach(row => {
+            for (let i = 0; i < medRows.length; i++) {
+                const row = medRows[i];
+                const name = row.querySelector('.med-name').value.trim();
+                const dosage = row.querySelector('.med-dose').value.trim();
+                const frequency = row.querySelector('.med-freq').value.trim();
+                const duration = row.querySelector('.med-duration').value.trim();
+                const route = row.querySelector('.med-route').value.trim();
+                const notesVal = row.querySelector('.med-notes').value.trim() || 'Take as directed';
+
+                if (!name && !dosage && !frequency && !duration && !route) {
+                    // Completely blank row, skip it
+                    continue;
+                }
+
+                if (!name || !dosage || !frequency || !duration || !route) {
+                    Toast.warning("Please fill out all required medication fields (Name, Dosage, Frequency, Duration, Route).");
+                    return;
+                }
+
                 medicines.push({
-                    name: row.querySelector('.med-name').value,
-                    dosage: row.querySelector('.med-dose').value,
-                    duration: row.querySelector('.med-duration').value,
-                    instructions: row.querySelector('.med-instr').value || 'Take as directed'
+                    name,
+                    dosage,
+                    frequency,
+                    duration,
+                    route,
+                    instructions: notesVal,
+                    notes: notesVal
                 });
-            });
+            }
 
-            const newRx = {
-                id: 'rx-' + Date.now(),
-                patientId: patient.id,
-                doctorName: doctor.name,
-                date: todayStr,
-                diagnosis: diagnosis,
-                medicines: medicines
-            };
-            await ApiService.createPrescription(newRx);
+            if (medicines.length > 0) {
+                payload.prescription = {
+                    id: 'rx-' + Date.now(),
+                    medicines: medicines
+                };
+            }
         }
 
-        // 4. Order Lab Request
-        if (requestLabTest && labTestName) {
-            const labReq = {
-                id: 'lab-' + (getDB('lab_requests').length + 1),
-                patientId: patient.id,
-                patientName: patient.name,
-                doctorName: doctor.name,
+        // Validate and gather lab requests
+        if (requestLabTest) {
+            if (!labTestName || !labTestName.trim()) {
+                Toast.warning("Please provide a Lab Test Name.");
+                return;
+            }
+            payload.labRequest = {
+                id: 'lab-' + Date.now(),
                 testCategory: labTestCategory,
-                testName: labTestName,
-                requestDate: todayStr,
-                status: 'pending',
-                resultDate: null,
-                technician: '',
-                priority: 'Medium',
-                results: []
+                testName: labTestName.trim(),
+                priority: 'Medium'
             };
-            await ApiService.createLabTest(labReq);
         }
 
-        // 4a. Handle Follow-up scheduling
+        // Follow-up scheduling details
         if (followupCheck && followupDate) {
-            const newAppt = {
+            payload.followup = {
                 id: 'appt-' + (getDB('appointments').length + Date.now()),
-                patientId: patientId,
-                doctorId: doctor.id,
-                doctorName: doctor.name,
-                deptName: deptName,
                 date: followupDate,
-                timeSlot: followupTime,
-                symptoms: `Scheduled clinical follow-up for: ${diagnosis}`,
-                status: 'confirmed',
-                type: 'Doctor Checkup'
+                timeSlot: followupTime
             };
-            await ApiService.createAppointment(newAppt);
         }
 
-        // 5. Update appointment status to completed
+        // Current active appointment ID to complete
         const activeApptId = sessionStorage.getItem('hc_active_appt_consult');
         if (activeApptId) {
-            await ApiService.updateAppointmentStatus(activeApptId, 'completed');
-            sessionStorage.removeItem('hc_active_appt_consult');
-        } else {
-            await ApiService.syncDataFromServer();
+            payload.appointmentId = activeApptId;
         }
+
+        // Submit unified request (creates consultation, vitals, medical history, visit, prescription, lab request, completes appointment, schedules follow-up)
+        await ApiService.createConsultation(payload);
+        sessionStorage.removeItem('hc_active_appt_consult');
 
         Toast.success('Consultation completed successfully! EHR updated.');
         document.getElementById('doctor-consult-form').reset();
         document.getElementById('consult-med-rows').innerHTML = '';
+        checkNoMedsPlaceholder();
+        if (typeof changeConsultStep === 'function') {
+            changeConsultStep(1);
+        }
         
         // Hide summary cards
         const summary = document.getElementById('consult-patient-summary');
@@ -1545,9 +2165,43 @@ async function submitDoctorConsultation(doctor) {
         renderDoctorAnalytics(doctor);
         document.querySelector('[data-panel="panel-dashboard"]').click();
     } catch (err) {
-        Toast.error("Failed to submit consultation: " + err.message);
+        console.error("Critical error in submitDoctorConsultation:", err);
+        alert("Failed to submit consultation:\n\n" + err.stack);
     }
 }
+window.setupDoctorPatientDirectoryFilters = function () {
+    const searchInput = document.getElementById('patient-search');
+    const genderSelect = document.getElementById('patient-filter-gender');
+    const bloodSelect = document.getElementById('patient-filter-blood');
+    const viewGridBtn = document.getElementById('btn-patient-grid');
+    const viewListBtn = document.getElementById('btn-patient-list');
+
+    if (searchInput) {
+        searchInput.addEventListener('input', renderDoctorPatientDirectory);
+    }
+    if (genderSelect) {
+        genderSelect.addEventListener('change', renderDoctorPatientDirectory);
+    }
+    if (bloodSelect) {
+        bloodSelect.addEventListener('change', renderDoctorPatientDirectory);
+    }
+    if (viewGridBtn) {
+        viewGridBtn.addEventListener('click', () => {
+            patientDirectoryView = 'grid';
+            viewGridBtn.classList.add('active');
+            if (viewListBtn) viewListBtn.classList.remove('active');
+            renderDoctorPatientDirectory();
+        });
+    }
+    if (viewListBtn) {
+        viewListBtn.addEventListener('click', () => {
+            patientDirectoryView = 'list';
+            viewListBtn.classList.add('active');
+            if (viewGridBtn) viewGridBtn.classList.remove('active');
+            renderDoctorPatientDirectory();
+        });
+    }
+};
 
 function renderDoctorPatientDirectory() {
     const gridView = document.getElementById('patient-grid-view');
@@ -1565,7 +2219,22 @@ function renderDoctorPatientDirectory() {
 
     // Filter patients
     const filtered = patients.filter(p => {
-        const matchesQuery = p.id.toLowerCase().includes(query) || p.name.toLowerCase().includes(query);
+        const patVisits = visits.filter(v => v.patientId === p.id);
+        const matchesHistory = (p.medicalHistory || []).some(h => 
+            h.condition.toLowerCase().includes(query) || 
+            h.diagnosedBy.toLowerCase().includes(query)
+        );
+        const matchesVisits = patVisits.some(v => 
+            v.department.toLowerCase().includes(query) || 
+            v.reason.toLowerCase().includes(query)
+        );
+        
+        const matchesQuery = p.id.toLowerCase().includes(query) || 
+                             p.name.toLowerCase().includes(query) || 
+                             (p.allergies || '').toLowerCase().includes(query) || 
+                             matchesHistory || 
+                             matchesVisits;
+
         const matchesGender = genderFilter === '' || p.gender === genderFilter;
         const matchesBlood = bloodFilter === '' || p.bloodGroup === bloodFilter;
         return matchesQuery && matchesGender && matchesBlood;
@@ -1718,12 +2387,14 @@ window.viewPatientEHR = function (patientId) {
                     <td>${rx.date}</td>
                     <td><strong>${m.name}</strong></td>
                     <td>${m.dosage}</td>
+                    <td>${m.frequency || 'N/A'}</td>
                     <td>${m.duration}</td>
+                    <td>${m.route || 'N/A'}</td>
                 </tr>`;
             });
         });
     } else {
-        rxList.innerHTML = '<tr><td colspan="4" class="text-center text-muted font-size-xs">No active prescriptions.</td></tr>';
+        rxList.innerHTML = '<tr><td colspan="6" class="text-center text-muted font-size-xs">No active prescriptions.</td></tr>';
     }
 
     // Populate laboratory results
@@ -1987,23 +2658,39 @@ function renderDoctorCalendarWorkspace(doctor) {
     // Attach Drag and Drop handlers to the grid
     setupCalendarDragDrop(doctor);
 }
-async function renderDoctorAnalytics(doctor) {
+
+async function renderDoctorAnalytics(doctor, timeframe = 'daily') {
     let totalConsults = getDB('prescriptions').filter(p => p.doctorName === doctor.name).length;
     let patients = getDB('patients').length;
     let labsOrdered = getDB('lab_requests').filter(l => l.doctorName === doctor.name).length;
-    let chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-    let chartData = [18, 22, 28, 20, 24, totalConsults + 5];
+
+    // Timeframe filters for consultations chart
+    let chartLabels = [];
+    let chartData = [];
+
+    if (timeframe === 'daily') {
+        chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        chartData = [5, 8, 12, 7, 10, 4, 1];
+    } else if (timeframe === 'weekly') {
+        chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+        chartData = [24, 32, 28, 35];
+    } else {
+        // Monthly
+        chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        chartData = [65, 82, 95, 78, 90, totalConsults + 10];
+    }
 
     if (!ApiService.useMock) {
         try {
             const data = await ApiService.getDoctorAnalytics();
             totalConsults = data.totalConsultations;
             patients = data.totalPatients;
-            // todayAppointments is also returned, but totalConsults and patients map directly
-            // For the load chart, use weeklyLoad if available from server
-            if (data.weeklyLoad) {
-                chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            if (timeframe === 'daily' && data.dailyLoad) {
+                chartData = data.dailyLoad;
+            } else if (timeframe === 'weekly' && data.weeklyLoad) {
                 chartData = data.weeklyLoad;
+            } else if (timeframe === 'monthly' && data.monthlyLoad) {
+                chartData = data.monthlyLoad;
             }
         } catch (err) {
             console.error("Failed to fetch doctor analytics from server:", err);
@@ -2018,28 +2705,80 @@ async function renderDoctorAnalytics(doctor) {
     if (elUnique) elUnique.innerText = patients;
     if (elLabs) elLabs.innerText = labsOrdered;
 
+    // 1. Consultations Volume Chart
     const canvas = document.getElementById('doctorConsultsChart');
-    if (!canvas) return;
+    if (canvas) {
+        if (doctorConsultsChartInstance) doctorConsultsChartInstance.destroy();
+        doctorConsultsChartInstance = new Chart(canvas, {
+            type: timeframe === 'monthly' ? 'line' : 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Consultation Load',
+                    data: chartData,
+                    backgroundColor: timeframe === 'monthly' ? 'rgba(59, 130, 246, 0.2)' : '#3b82f6',
+                    borderColor: '#3b82f6',
+                    borderWidth: 2.5,
+                    fill: true,
+                    borderRadius: timeframe === 'monthly' ? 0 : 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+            }
+        });
+    }
 
-    if (doctorConsultsChartInstance) doctorConsultsChartInstance.destroy();
-
-    doctorConsultsChartInstance = new Chart(canvas, {
-        type: 'bar',
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                label: 'Consultation Load',
-                data: chartData,
-                backgroundColor: '#0f52ba',
-                borderRadius: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+    // 2. Patient Demographics Doughnut Chart
+    const demoCanvas = document.getElementById('doctorDemographicsChart');
+    if (demoCanvas) {
+        const patientsList = getDB('patients') || [];
+        let under18 = 0, youngAdult = 0, adult = 0, senior = 0;
+        patientsList.forEach(p => {
+            const age = new Date().getFullYear() - new Date(p.dob).getFullYear();
+            if (age < 18) under18++;
+            else if (age <= 35) youngAdult++;
+            else if (age <= 55) adult++;
+            else senior++;
+        });
+        
+        // Fallback default values
+        if (under18 + youngAdult + adult + senior === 0) {
+            under18 = 2; youngAdult = 8; adult = 6; senior = 4;
         }
-    });
+
+        if (doctorDemographicsChartInstance) doctorDemographicsChartInstance.destroy();
+        doctorDemographicsChartInstance = new Chart(demoCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['< 18', '18-35', '36-55', '55+'],
+                datasets: [{
+                    data: [under18, youngAdult, adult, senior],
+                    backgroundColor: ['#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 10,
+                            font: { size: 9 }
+                        }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    }
 }
 
 
@@ -2055,6 +2794,12 @@ function initLabPortal(labUser) {
     renderLabDashboardCharts();
     setupLabWalkinSelectors();
     updateLabTechStats();
+
+    // Register search input filter
+    const searchInput = document.getElementById('lab-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', renderLabRequests);
+    }
 
     // Results Submitter
     const labEntryForm = document.getElementById('lab-entry-form');
@@ -2126,24 +2871,101 @@ function initLabPortal(labUser) {
     setupLabFileUploader();
 }
 
+window.activeLabTab = 'pending';
+
+window.filterLabOrders = function(status) {
+    window.activeLabTab = status;
+    document.querySelectorAll('#lab-orders-tabs .nav-link').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const activeBtn = document.getElementById(`tab-${status}-btn`);
+    if (activeBtn) activeBtn.classList.add('active');
+    
+    renderLabRequests();
+};
+
+window.scanBarcode = function(reqId) {
+    let requests = getDB('lab_requests') || [];
+    let req = requests.find(r => r.id === reqId);
+    if (req) {
+        let oldStatus = req.status;
+        let newStatus = '';
+        if (oldStatus === 'pending') {
+            newStatus = 'registered';
+            Toast.success(`Barcode scanned: Order accepted/registered for ${reqId}!`);
+        } else if (oldStatus === 'registered' || oldStatus === 'accepted') {
+            newStatus = 'sample_collected';
+            Toast.success(`Barcode scanned: Specimen collected for ${reqId}!`);
+        } else if (oldStatus === 'sample_collected') {
+            newStatus = 'processing';
+            Toast.success(`Barcode scanned: Specimen processing started for ${reqId}.`);
+        } else if (oldStatus === 'processing') {
+            newStatus = 'results_ready';
+            Toast.success(`Barcode scanned: Specimen processing complete. Results ready for ${reqId}.`);
+        } else if (oldStatus === 'results_ready') {
+            Toast.info(`Results are ready. Please fill in test parameter values in the Results tab to authorize.`);
+            return;
+        } else if (oldStatus === 'completed') {
+            Toast.info(`Lab Report ${reqId} has already been completed and authorized.`);
+            return;
+        }
+        
+        if (newStatus) {
+            req.status = newStatus;
+            setDB('lab_requests', requests);
+            renderLabRequests();
+            if (typeof renderLabDashboardCharts === 'function') {
+                renderLabDashboardCharts();
+            }
+        }
+    }
+};
+
 function renderLabRequests() {
-    const requests = getDB('lab_requests');
+    const requests = getDB('lab_requests') || [];
     const pendingList = document.getElementById('lab-pending-requests');
     const completedList = document.getElementById('lab-completed-requests');
 
-    const pending = requests.filter(r => r.status !== 'completed');
-    const completed = requests.filter(r => r.status === 'completed');
+    if (!window.activeLabTab) window.activeLabTab = 'pending';
+
+    // Segment based on active sub-tab
+    let filtered = [];
+    if (window.activeLabTab === 'pending') {
+        filtered = requests.filter(r => r.status === 'pending');
+    } else if (window.activeLabTab === 'accepted') {
+        filtered = requests.filter(r => r.status === 'registered' || r.status === 'accepted');
+    } else if (window.activeLabTab === 'sample_collection') {
+        filtered = requests.filter(r => r.status === 'sample_collected');
+    } else if (window.activeLabTab === 'in_progress') {
+        filtered = requests.filter(r => r.status === 'processing' || r.status === 'results_ready');
+    } else if (window.activeLabTab === 'completed') {
+        filtered = requests.filter(r => r.status === 'completed');
+    }
+
+    // Apply Search query filter
+    const searchInput = document.getElementById('lab-search-input');
+    const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    if (searchQuery) {
+        filtered = filtered.filter(r => {
+            const testName = String(r.testName || '').toLowerCase();
+            const patId = String(r.patientId || '').toLowerCase();
+            const reqId = String(r.id || '').toLowerCase();
+            return testName.includes(searchQuery) || patId.includes(searchQuery) || reqId.includes(searchQuery);
+        });
+    }
 
     if (document.getElementById('lab-stat-pending')) {
-        document.getElementById('lab-stat-pending').innerText = `${pending.length} pending orders`;
+        const totalPending = requests.filter(r => r.status !== 'completed').length;
+        document.getElementById('lab-stat-pending').innerText = `${totalPending} pending requests`;
     }
 
     if (pendingList) {
-        if (pending.length === 0) {
-            pendingList.innerHTML = `<tr><td colspan="7" class="text-center text-muted">No pending laboratory orders.</td></tr>`;
+        if (filtered.length === 0) {
+            pendingList.innerHTML = `<tr><td colspan="8" class="text-center text-muted font-size-xs p-4">No orders found in this workspace filter.</td></tr>`;
         } else {
             let html = '';
-            pending.forEach(p => {
+            filtered.forEach(p => {
                 let priorityClass = 'badge-low';
                 if (p.priority === 'Critical') priorityClass = 'badge-critical';
                 if (p.priority === 'High') priorityClass = 'badge-high';
@@ -2152,8 +2974,11 @@ function renderLabRequests() {
                 let statusBadge = '';
                 let actionBtn = '';
 
-                if (p.status === 'pending' || p.status === 'registered') {
-                    statusBadge = `<span class="badge bg-info text-white font-size-xxs py-1 px-2">REGISTERED</span>`;
+                if (p.status === 'pending') {
+                    statusBadge = `<span class="badge bg-warning text-dark font-size-xxs py-1 px-2">PENDING</span>`;
+                    actionBtn = `<button class="btn btn-xs btn-primary text-white" onclick="advanceLabStatus('${p.id}', 'registered')"><i class="fa-solid fa-check me-1"></i>Accept</button>`;
+                } else if (p.status === 'registered' || p.status === 'accepted') {
+                    statusBadge = `<span class="badge bg-info text-white font-size-xxs py-1 px-2">ACCEPTED</span>`;
                     actionBtn = `<button class="btn btn-xs btn-success text-white" onclick="advanceLabStatus('${p.id}', 'sample_collected')"><i class="fa-solid fa-vial me-1"></i>Collect Sample</button>`;
                 } else if (p.status === 'sample_collected') {
                     statusBadge = `<span class="badge bg-primary text-white font-size-xxs py-1 px-2">SAMPLE COLLECTED</span>`;
@@ -2164,17 +2989,57 @@ function renderLabRequests() {
                 } else if (p.status === 'results_ready') {
                     statusBadge = `<span class="badge bg-danger text-white font-size-xxs py-1 px-2">RESULTS READY</span>`;
                     actionBtn = `<button class="btn btn-xs btn-hc-secondary text-white" onclick="enterLabResults('${p.id}')"><i class="fa-solid fa-file-shield me-1"></i>Compile & Authorize</button>`;
+                } else if (p.status === 'completed') {
+                    statusBadge = `<span class="badge bg-success text-white font-size-xxs py-1 px-2">COMPLETED</span>`;
+                    actionBtn = `<button class="btn btn-xs btn-outline-primary" onclick="viewLabReportModal('${p.id}')"><i class="fa-solid fa-file-invoice me-1"></i> View Report</button>`;
                 } else {
                     statusBadge = `<span class="badge bg-secondary text-white font-size-xxs py-1 px-2">${p.status.toUpperCase()}</span>`;
                     actionBtn = `<button class="btn btn-xs btn-hc-secondary text-white" onclick="enterLabResults('${p.id}')"><i class="fa-solid fa-edit me-1"></i>Enter Results</button>`;
                 }
 
+                // Barcode simulation SVG graphics
+                const barcodeSvg = `
+                <div class="d-flex align-items-center gap-1.5" onclick="scanBarcode('${p.id}')" style="cursor:pointer;" title="Click to Scan / Advance status">
+                    <svg width="55" height="20">
+                        <rect width="55" height="20" fill="#f8fafc" rx="2" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <g fill="#0f172a">
+                            <rect x="4" y="3" width="1.5" height="14" />
+                            <rect x="7" y="3" width="0.7" height="14" />
+                            <rect x="9" y="3" width="2" height="14" />
+                            <rect x="13" y="3" width="0.7" height="14" />
+                            <rect x="15" y="3" width="1.5" height="14" />
+                            <rect x="18" y="3" width="2" height="14" />
+                            <rect x="22" y="3" width="0.7" height="14" />
+                            <rect x="24" y="3" width="1.5" height="14" />
+                            <rect x="27" y="3" width="3" height="14" />
+                            <rect x="31" y="3" width="0.7" height="14" />
+                            <rect x="33" y="3" width="1.5" height="14" />
+                            <rect x="36" y="3" width="0.7" height="14" />
+                            <rect x="38" y="3" width="2" height="14" />
+                            <rect x="42" y="3" width="0.7" height="14" />
+                            <rect x="44" y="3" width="1.5" height="14" />
+                            <rect x="47" y="3" width="0.7" height="14" />
+                            <rect x="49" y="3" width="2" height="14" />
+                        </g>
+                    </svg>
+                    <i class="fa-solid fa-barcode text-muted font-size-xxs"></i>
+                </div>`;
+
                 html += `
                 <tr>
                     <td><strong>${p.id}</strong></td>
-                    <td>${p.patientName}</td>
-                    <td>${p.testName}</td>
+                    <td>
+                        <span class="fw-semibold text-dark font-size-xs">${p.patientName}</span>
+                        <span class="text-muted font-size-xxs d-block">UID: ${p.patientId}</span>
+                    </td>
+                    <td>
+                        <span class="fw-semibold text-dark font-size-xs">${p.testName}</span>
+                        ${p.doctorNotes ? `<span class="text-muted font-size-xxs d-block">Notes: ${p.doctorNotes}</span>` : ''}
+                        ${p.appointmentId ? `<span class="text-muted font-size-xxs d-block">Appt ID: ${p.appointmentId}</span>` : ''}
+                        ${p.consultationId ? `<span class="text-muted font-size-xxs d-block">Consult ID: ${p.consultationId}</span>` : ''}
+                    </td>
                     <td><span class="hc-badge-status ${priorityClass}">${p.priority || 'Medium'}</span></td>
+                    <td>${barcodeSvg}</td>
                     <td>${p.requestDate}</td>
                     <td>${statusBadge}</td>
                     <td>
@@ -2189,6 +3054,7 @@ function renderLabRequests() {
     }
 
     if (completedList) {
+        const completed = requests.filter(r => r.status === 'completed');
         if (completed.length === 0) {
             completedList.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No completed diagnostic reports archived.</td></tr>`;
         } else {
@@ -2301,7 +3167,7 @@ async function submitLabWalkin() {
     }
 
     const newRequest = {
-        id: 'lab-' + (getDB('lab_requests').length + 1),
+        id: 'lab-' + Date.now(),
         patientId: patientId,
         patientName: patient.name,
         doctorName: doctor,
@@ -2333,6 +3199,10 @@ window.enterLabResults = function (requestId) {
         document.getElementById('entry-request-id').value = req.id;
         document.getElementById('entry-patient-name').value = req.patientName;
         document.getElementById('entry-test-name').value = req.testName;
+        document.getElementById('entry-priority').value = req.priority || 'Medium';
+        document.getElementById('entry-appointment-id').value = req.appointmentId || 'N/A';
+        document.getElementById('entry-consultation-id').value = req.consultationId || 'N/A';
+        document.getElementById('entry-doctor-notes').value = req.doctorNotes || 'No notes provided';
 
         const container = document.getElementById('dynamic-param-rows');
         container.innerHTML = '';
@@ -2432,7 +3302,7 @@ async function submitLabResults(technician) {
     const reqIndex = reqs.findIndex(r => r.id === reqId);
 
     if (reqIndex === -1) {
-        alert("Please enter results for a valid request ID.");
+        Toast.error("Please enter results for a valid request ID.");
         return;
     }
 
@@ -2463,12 +3333,15 @@ async function submitLabResults(technician) {
         results.push({ parameter, value, unit, refRange, flag });
     });
 
+    const comments = document.getElementById('entry-tech-comments')?.value || '';
+
     if (!ApiService.useMock) {
         const formData = new FormData();
         formData.append('status', 'completed');
         formData.append('resultDate', new Date().toISOString().split('T')[0]);
         formData.append('technician', technician.name);
         formData.append('results', JSON.stringify(results));
+        formData.append('techComments', comments);
         
         if (labScannedFileObj) {
             formData.append('rawReportFile', labScannedFileObj);
@@ -2487,7 +3360,7 @@ async function submitLabResults(technician) {
                 const errData = await res.json().catch(() => ({}));
                 throw new Error(errData.message || "Failed to submit results.");
             }
-            alert('Lab results authorized and report compiled successfully!');
+            Toast.success('Lab report authorized and compiled successfully!');
             document.getElementById('lab-entry-form').reset();
             document.getElementById('dynamic-param-rows').innerHTML = '';
             const preview = document.getElementById('lab-uploaded-file-preview');
@@ -2501,7 +3374,7 @@ async function submitLabResults(technician) {
             document.querySelector('[data-panel="panel-dashboard"]').click();
             return;
         } catch (err) {
-            alert("Submission failed: " + err.message);
+            Toast.error("Submission failed: " + err.message);
             return;
         }
     }
@@ -2510,7 +3383,8 @@ async function submitLabResults(technician) {
         status: 'completed',
         resultDate: new Date().toISOString().split('T')[0],
         technician: technician.name,
-        results: results
+        results: results,
+        techComments: comments
     };
 
     if (labScannedFileRecord) {
@@ -2528,7 +3402,7 @@ async function submitLabResults(technician) {
     }
 
     await ApiService.updateLabTest(reqId, updateData);
-    alert('Lab results authorized and report compiled successfully!');
+    Toast.success('Lab report authorized and compiled successfully!');
     document.getElementById('lab-entry-form').reset();
     document.getElementById('dynamic-param-rows').innerHTML = '';
     const preview = document.getElementById('lab-uploaded-file-preview');
@@ -2600,15 +3474,67 @@ function initAdminPortal(adminUser) {
 }
 
 function renderAdminDashboard() {
-    const users = getDB('users');
-    const labs = getDB('lab_requests');
-    const depts = getDB('departments');
-    const appointments = getDB('appointments');
+    const users = getDB('users') || [];
+    const labs = getDB('lab_requests') || [];
+    const depts = getDB('departments') || [];
+    const appointments = getDB('appointments') || [];
 
     document.getElementById('admin-stat-patients').innerText = users.filter(u => u.role === 'patient').length;
     document.getElementById('admin-stat-doctors').innerText = users.filter(u => u.role === 'doctor').length;
     document.getElementById('admin-stat-labs').innerText = labs.length;
     document.getElementById('admin-stat-depts').innerText = depts.length;
+
+    // Calculate dynamic revenue stats (Today, Week, Month, Year)
+    const invoices = getDB('patient_invoices') || [];
+    const paidInvoices = invoices.filter(inv => inv.status === 'paid' && inv.paidOn);
+    const todayStr = new Date().toISOString().split('T')[0];
+    const todayMs = new Date(todayStr).getTime();
+
+    let revToday = 0;
+    let revWeek = 0;
+    let revMonth = 0;
+    let revYear = 0;
+
+    paidInvoices.forEach(inv => {
+        const paidMs = new Date(inv.paidOn).getTime();
+        const diffDays = (todayMs - paidMs) / (1000 * 3600 * 24);
+        const amount = parseFloat(inv.amount) || 0;
+
+        if (inv.paidOn === todayStr) {
+            revToday += amount;
+        }
+        if (diffDays <= 7) {
+            revWeek += amount;
+        }
+        if (diffDays <= 30) {
+            revMonth += amount;
+        }
+        if (diffDays <= 365) {
+            revYear += amount;
+        }
+    });
+
+    // Fallbacks if no invoices exist or mock data is empty
+    if (revYear === 0) {
+        revToday = 180.00;
+        revWeek = 1450.00;
+        revMonth = 5820.00;
+        revYear = 68400.00;
+    }
+
+    const formatCurrency = (val) => {
+        return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+    };
+
+    const elRevToday = document.getElementById('admin-rev-today');
+    const elRevWeek = document.getElementById('admin-rev-week');
+    const elRevMonth = document.getElementById('admin-rev-month');
+    const elRevYear = document.getElementById('admin-rev-year');
+
+    if (elRevToday) elRevToday.innerText = formatCurrency(revToday);
+    if (elRevWeek) elRevWeek.innerText = formatCurrency(revWeek);
+    if (elRevMonth) elRevMonth.innerText = formatCurrency(revMonth);
+    if (elRevYear) elRevYear.innerText = formatCurrency(revYear);
 
     // Populate global appointments list
     const apptsTable = document.getElementById('admin-appointments-list');
@@ -2644,15 +3570,21 @@ function renderAdminUserTable() {
     const table = document.getElementById('admin-users-list');
     if (!table) return;
 
-    const users = getDB('users');
+    const users = getDB('users') || [];
     let html = '';
     users.forEach(u => {
+        const deptText = u.department || 'None / General';
+        const statusBadge = u.status === 'Suspended' 
+            ? `<span class="badge bg-danger px-2 py-1">Suspended</span>` 
+            : `<span class="badge bg-success px-2 py-1">Active</span>`;
+
         html += `
         <tr>
             <td><strong>${u.name}</strong></td>
             <td>${u.email}</td>
             <td><span class="badge bg-secondary px-2 py-1">${u.role.toUpperCase()}</span></td>
-            <td><code>${u.patientId || u.doctorId || 'System Admin'}</code></td>
+            <td><code>${deptText}</code></td>
+            <td>${statusBadge}</td>
             <td class="d-flex gap-2">
                 <button class="btn btn-xs btn-outline-primary" onclick="openAdminUserEditModal('${u.email}')"><i class="fa-solid fa-edit"></i></button>
                 <button class="btn btn-xs btn-outline-danger" onclick="deleteUser('${u.email}')"><i class="fa-solid fa-trash"></i></button>
@@ -2708,7 +3640,9 @@ window.openAdminUserEditModal = function (email) {
     document.getElementById('edit-user-name').value = user.name;
     document.getElementById('edit-user-email').value = user.email;
     document.getElementById('edit-user-role').value = user.role;
-    document.getElementById('edit-user-password').value = user.password || '';
+    document.getElementById('edit-user-password').value = '';
+    document.getElementById('edit-user-status').value = user.status || 'Active';
+    document.getElementById('edit-user-dept').value = user.department || 'None';
     document.getElementById('editUserModal').setAttribute('data-user-id', user.id || '');
 
     const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
@@ -2721,15 +3655,22 @@ async function submitAdminUserEdit() {
     const email = document.getElementById('edit-user-email').value;
     const role = document.getElementById('edit-user-role').value;
     const password = document.getElementById('edit-user-password').value;
+    const status = document.getElementById('edit-user-status').value;
+    const department = document.getElementById('edit-user-dept').value;
     const userId = document.getElementById('editUserModal').getAttribute('data-user-id');
+
+    const updatePayload = { name, email, role, status, department };
+    if (password) {
+        updatePayload.password = password;
+    }
 
     if (!ApiService.useMock && userId) {
         try {
-            await ApiService.updateUser(userId, { name, email, role, password });
+            await ApiService.updateUser(userId, updatePayload);
             await ApiService.syncDataFromServer();
-            alert("User profile updated successfully in database!");
+            Toast.success("User profile updated successfully in database!");
         } catch (err) {
-            alert("Failed to update user: " + err.message);
+            Toast.error("Failed to update user: " + err.message);
             return;
         }
     } else {
@@ -2739,9 +3680,13 @@ async function submitAdminUserEdit() {
             users[idx].name = name;
             users[idx].email = email;
             users[idx].role = role;
-            users[idx].password = password;
+            users[idx].status = status;
+            users[idx].department = department;
+            if (password) {
+                users[idx].password = password;
+            }
             setDB('users', users);
-            alert("User profile updated successfully!");
+            Toast.success("User profile updated successfully!");
         }
     }
 
@@ -2908,107 +3853,331 @@ async function renderAdminAnalyticsCharts() {
 // 5. VIEW REPORT PDF MODAL GENERATOR
 // ==========================================
 
-window.viewLabReportModal = function (reportId) {
-    const reqs = getDB('lab_requests');
-    const req = reqs.find(r => r.id === reportId);
-    if (!req) return;
+// ==========================================
+// 5. VIEW REPORT PDF MODAL GENERATOR
+// ==========================================
 
-    let modalEl = document.getElementById('labReportModal');
-    if (!modalEl) {
-        modalEl = document.createElement('div');
-        modalEl.id = 'labReportModal';
-        modalEl.className = 'modal fade';
-        modalEl.setAttribute('tabindex', '-1');
-        document.body.appendChild(modalEl);
+function base64ToBlob(base64, mimeType = 'application/pdf') {
+    const byteCharacters = atob(base64);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
+    const byteArray = new Uint8Array(byteNumbers);
+    return new Blob([byteArray], { type: mimeType });
+}
 
-    let resultsHtml = '';
-    req.results.forEach(res => {
-        const isNormal = res.flag === 'Normal';
-        resultsHtml += `
-        <tr>
-            <td>${res.parameter}</td>
-            <td><strong>${res.value}</strong></td>
-            <td>${res.unit}</td>
-            <td>${res.refRange}</td>
-            <td><span class="badge ${isNormal ? 'bg-success' : 'bg-danger'}">${res.flag}</span></td>
-        </tr>`;
-    });
+window.viewLabReportModal = async function (reportId) {
+    try {
+        console.log("viewLabReportModal called with reportId:", reportId);
+        if (!reportId) {
+            console.error("No reportId provided to viewLabReportModal");
+            return;
+        }
 
-    modalEl.innerHTML = `
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0 no-print">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-5 animate-fade-in" id="printable-report-body">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2 class="text-primary mb-1 fw-bold">CurePoint</h2>
-                        <p class="text-muted mb-0 font-size-sm">Clinical Diagnostics & Lab Platform</p>
-                    <div class="text-end">
-                        <h4 class="fw-bold">LABORATORY DIAGNOSTIC REPORT</h4>
-                        <p class="mb-0">Report ID: <strong>${req.id}</strong></p>
-                    </div>
-                </div>
-                <hr>
-                <div class="row mb-4">
-                    <div class="col-6">
-                        <p class="mb-1 text-muted font-size-xs">PATIENT DETAILS</p>
-                        <h5><strong>${req.patientName}</strong></h5>
-                        <p class="mb-0 text-muted font-size-xs">Patient ID: ${req.patientId}</p>
-                    </div>
-                    <div class="col-6 text-end">
-                        <p class="mb-1 text-muted font-size-xs">REPORT DETAILS</p>
-                        <p class="mb-1 font-size-sm">Requested By: <strong>${req.doctorName}</strong></p>
-                        <p class="mb-1 font-size-sm">Request Date: ${req.requestDate}</p>
-                        <p class="mb-0 font-size-sm">Result Date: ${req.resultDate}</p>
-                    </div>
-                </div>
-                <h5 class="text-secondary fw-bold mb-3">${req.testCategory} - ${req.testName}</h5>
-                <div class="table-responsive">
-                    <table class="table table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Test Parameter</th>
-                                <th>Result</th>
-                                <th>Unit</th>
-                                <th>Reference Range</th>
-                                <th>Status Flag</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${resultsHtml || `<tr><td colspan="5" class="text-center text-muted py-3">No parameter results entered. Scanned file attached.</td></tr>`}
-                        </tbody>
-                    </table>
-                </div>
-                ${req.rawReportFile ? `
-                <div class="alert alert-info mt-3 font-size-xs">
-                    <i class="fa-solid fa-paperclip me-2"></i>Attached Raw Scanned Document: <strong>${req.rawReportFile.name}</strong>
-                </div>` : ''}
-                <div class="row mt-5">
-                    <div class="col-6">
-                        <p class="text-muted mb-0 font-size-xs">Technician Signature</p>
-                        <h6 class="mt-3 border-bottom d-inline-block pb-1 pe-5 font-size-sm"><strong>${req.technician || 'Pending'}</strong></h6>
-                    </div>
-                    <div class="col-6 text-end">
-                        <p class="text-muted mb-0 font-size-xs">Approved By Pathologist</p>
-                        <h6 class="mt-3 border-bottom d-inline-block pb-1 ps-5 font-size-sm"><strong>Dr. Gregory House</strong></h6>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0 no-print">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                ${!ApiService.useMock ? `<button type="button" class="btn btn-success text-white" onclick="downloadPdfReport('lab-report', '${req.id}')"><i class="fa-solid fa-download me-1"></i> Download PDF</button>` : ''}
-                <button type="button" class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print me-1"></i> Print / Save PDF</button>
-            </div>
-        </div>
-    </div>`;
+        const reqs = getDB('lab_requests') || [];
+        const req = reqs.find(r => String(r.id).trim() === String(reportId).trim());
+        if (!req) {
+            console.error("Lab request not found in database for reportId:", reportId);
+            alert("Report record not found in local cache.");
+            return;
+        }
 
-    const bsModal = new bootstrap.Modal(modalEl);
-    bsModal.show();
+        let modalEl = document.getElementById('labReportModal');
+        if (modalEl) {
+            // Safely dispose of existing bootstrap instance to prevent state corruption
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const existingInstance = bootstrap.Modal.getInstance(modalEl);
+                if (existingInstance) {
+                    try {
+                        existingInstance.dispose();
+                    } catch (e) {
+                        console.warn("Error disposing bootstrap modal instance:", e);
+                    }
+                }
+            }
+            modalEl.innerHTML = '';
+        } else {
+            modalEl = document.createElement('div');
+            modalEl.id = 'labReportModal';
+            modalEl.className = 'modal fade';
+            modalEl.setAttribute('tabindex', '-1');
+            document.body.appendChild(modalEl);
+        }
+
+        let resultsHtml = '';
+        if (req.results && Array.isArray(req.results)) {
+            req.results.forEach(res => {
+                const isNormal = res.flag === 'Normal';
+                resultsHtml += `
+                <tr>
+                    <td>${res.parameter || ''}</td>
+                    <td><strong>${res.value !== undefined ? res.value : ''}</strong></td>
+                    <td>${res.unit || ''}</td>
+                    <td>${res.refRange || ''}</td>
+                    <td><span class="badge ${isNormal ? 'bg-success' : 'bg-danger'}">${res.flag || 'Normal'}</span></td>
+                </tr>`;
+            });
+        }
+
+        modalEl.innerHTML = `
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom no-print pb-2 pt-3 px-4 d-flex align-items-center">
+                    <ul class="nav nav-tabs border-0 flex-grow-1" id="labReportTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-semibold" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdf-panel" type="button" role="tab" aria-controls="pdf-panel" aria-selected="true" style="border: none; border-bottom: 3px solid var(--bs-primary); border-radius: 0; padding-bottom: 8px;">
+                                <i class="fa-solid fa-file-pdf text-danger me-1"></i> PDF Document Report
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-semibold text-secondary" id="data-tab" data-bs-toggle="tab" data-bs-target="#data-panel" type="button" role="tab" aria-controls="data-panel" aria-selected="false" style="border: none; border-bottom: 3px solid transparent; border-radius: 0; padding-bottom: 8px;">
+                                <i class="fa-solid fa-table me-1"></i> Structured Data Table
+                            </button>
+                        </li>
+                    </ul>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0 animate-fade-in" id="printable-report-body" style="background-color: #f8fafc;">
+                    <div class="tab-content" id="labReportTabContent">
+                        <!-- PDF Panel -->
+                        <div class="tab-pane fade show active" id="pdf-panel" role="tabpanel" aria-labelledby="pdf-tab" style="height: 680px; position: relative;">
+                            <div id="pdf-loading-spinner" class="d-flex justify-content-center align-items-center h-100 w-100 flex-column" style="position: absolute; background-color: #fff; z-index: 10;">
+                                <div class="spinner-border text-primary mb-2" role="status">
+                                    <span class="visually-hidden">Generating and Loading PDF...</span>
+                                </div>
+                                <p class="text-secondary fw-semibold mb-0">Generating Diagnostics PDF Report...</p>
+                                <p class="text-muted font-size-xs">Please wait a moment...</p>
+                            </div>
+                            <iframe id="report-pdf-iframe" class="w-100 h-100 border-0 d-none"></iframe>
+                        </div>
+                        
+                        <!-- Structured Data Panel -->
+                        <div class="tab-pane fade p-5 bg-white" id="data-panel" role="tabpanel" aria-labelledby="data-tab">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h2 class="text-primary mb-1 fw-bold">CurePoint</h2>
+                                    <p class="text-muted mb-0 font-size-sm">Clinical Diagnostics & Lab Platform</p>
+                                </div>
+                                <div class="text-end">
+                                    <h4 class="fw-bold text-dark">LABORATORY DIAGNOSTIC REPORT</h4>
+                                    <p class="mb-0 text-secondary">Report ID: <strong>${req.id}</strong></p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <p class="mb-1 text-muted font-size-xs uppercase fw-bold">Patient Details</p>
+                                    <h5 class="text-dark"><strong>${req.patientName}</strong></h5>
+                                    <p class="mb-0 text-muted font-size-xs">Patient ID: ${req.patientId}</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1 text-muted font-size-xs uppercase fw-bold">Report Details</p>
+                                    <p class="mb-1 font-size-sm text-dark">Requested By: <strong>${req.doctorName}</strong></p>
+                                    <p class="mb-1 font-size-sm text-secondary">Request Date: ${req.requestDate}</p>
+                                    <p class="mb-0 font-size-sm text-secondary">Result Date: ${req.resultDate || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <h5 class="text-secondary fw-bold mb-3">${req.testCategory} - ${req.testName}</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Test Parameter</th>
+                                            <th>Result</th>
+                                            <th>Unit</th>
+                                            <th>Reference Range</th>
+                                            <th>Status Flag</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${resultsHtml || `<tr><td colspan="5" class="text-center text-muted py-3">No parameter results entered. Scanned file attached.</td></tr>`}
+                                    </tbody>
+                                </table>
+                            </div>
+                            ${req.rawReportFile ? `
+                            <div class="alert alert-info mt-3 font-size-xs">
+                                <i class="fa-solid fa-paperclip me-2"></i>Attached Raw Scanned Document: <strong>${req.rawReportFile.name || 'scanned_report.pdf'}</strong>
+                            </div>` : ''}
+                            <div class="row mt-5">
+                                <div class="col-6">
+                                    <p class="text-muted mb-0 font-size-xs">Technician Signature</p>
+                                    <h6 class="mt-3 border-bottom d-inline-block pb-1 pe-5 font-size-sm"><strong>${req.technician || 'Pending'}</strong></h6>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 font-size-xs">Approved By Pathologist</p>
+                                    <h6 class="mt-3 border-bottom d-inline-block pb-1 ps-5 font-size-sm"><strong>Dr. Gregory House</strong></h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top no-print py-2 px-4 d-flex justify-content-between align-items-center">
+                    <span class="text-muted font-size-xs"><i class="fa-solid fa-circle-info me-1"></i> Interactive PDF viewer enabled</span>
+                    <div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success text-white" onclick="downloadPdfReport('lab-report', '${req.id}')"><i class="fa-solid fa-download me-1"></i> Download PDF</button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        // Hook tab switches to adjust borders
+        modalEl.querySelectorAll('#labReportTabs button').forEach(btn => {
+            btn.addEventListener('shown.bs.tab', (e) => {
+                modalEl.querySelectorAll('#labReportTabs button').forEach(b => {
+                    b.style.borderBottom = '3px solid transparent';
+                    b.classList.add('text-secondary');
+                });
+                e.target.style.borderBottom = '3px solid var(--bs-primary)';
+                e.target.classList.remove('text-secondary');
+            });
+        });
+
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            const bsModal = new bootstrap.Modal(modalEl);
+            bsModal.show();
+        } else {
+            console.warn("Bootstrap library is not loaded. Showing simple browser view fallback.");
+            alert(`Bootstrap library is not loaded.\n\nReport ID: ${req.id}\nPatient: ${req.patientName}\nTest: ${req.testCategory} - ${req.testName}\nStatus: ${req.status}`);
+            return;
+        }
+
+        // Load PDF asynchronously
+        try {
+            if (ApiService.useMock || window.location.protocol === 'file:') {
+                // Local file system fallback or mock mode: browser security blocks iframe Blobs or mock PDF is generic.
+                // Display a high-fidelity paper preview document sheet instead.
+                const pdfPanel = document.getElementById('pdf-panel');
+                if (pdfPanel) {
+                    pdfPanel.style.overflowY = 'auto';
+                    pdfPanel.innerHTML = `
+                        <div class="alert alert-info font-size-xs mx-auto my-3 d-flex align-items-center" style="max-width: 800px; border-left: 4px solid var(--bs-info);">
+                            <i class="fa-solid fa-circle-info fa-lg me-2 text-info"></i>
+                            <div>
+                                <strong>Showcase Note:</strong> Local file protocol (<code>file://</code>) detected. Browser security blocks local iframe Blobs. Displaying a high-fidelity HTML printable sheet preview.
+                            </div>
+                        </div>
+                        
+                        <div class="paper-preview p-5 mx-auto bg-white mb-4 shadow-sm" style="max-width: 800px; border: 1px solid #e2e8f0; border-radius: 4px; color: #334155; min-height: 800px; font-family: 'Outfit', sans-serif;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h3 class="text-primary mb-1 fw-bold">🏥 CurePoint Lab Desk</h3>
+                                    <p class="text-muted mb-0 font-size-sm">Clinical Diagnostics & Lab Platform</p>
+                                </div>
+                                <div class="text-end">
+                                    <h5 class="fw-bold text-dark mb-1">LABORATORY FINDINGS REPORT</h5>
+                                    <p class="mb-0 text-secondary font-size-xs">Report ID: <strong>${req.id}</strong></p>
+                                </div>
+                            </div>
+                            <hr style="border-top: 2px solid #e2e8f0; margin-bottom: 20px; margin-top: 10px;">
+                            
+                            <div class="row mb-4 bg-light p-3 rounded mx-0">
+                                <div class="col-6">
+                                    <p class="mb-1 text-muted font-size-xs uppercase fw-bold" style="letter-spacing: 0.5px;">PATIENT DETAILS</p>
+                                    <h6 class="text-dark mb-1">Name: <strong>${req.patientName}</strong></h6>
+                                    <p class="mb-0 text-muted font-size-xs">Patient ID: ${req.patientId}</p>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="mb-1 text-muted font-size-xs uppercase fw-bold" style="letter-spacing: 0.5px;">ORDER DETAILS</p>
+                                    <p class="mb-1 font-size-xs text-dark">Requested By: <strong>${req.doctorName}</strong></p>
+                                    <p class="mb-1 font-size-xs text-secondary">Request Date: ${req.requestDate}</p>
+                                    <p class="mb-0 font-size-xs text-secondary">Result Date: ${req.resultDate || 'N/A'}</p>
+                                </div>
+                            </div>
+                            
+                            <h6 class="text-secondary fw-bold mb-3 border-bottom pb-2">${req.testCategory} - ${req.testName}</h6>
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered align-middle font-size-sm">
+                                    <thead class="table-light text-secondary">
+                                        <tr>
+                                            <th>Test Parameter</th>
+                                            <th>Result</th>
+                                            <th>Unit</th>
+                                            <th>Reference Range</th>
+                                            <th>Status Flag</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${resultsHtml || `<tr><td colspan="5" class="text-center text-muted py-3">No parameter results entered. Scanned file attached.</td></tr>`}
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            ${req.rawReportFile ? `
+                            <div class="alert alert-info mt-3 font-size-xs py-2 px-3">
+                                <i class="fa-solid fa-paperclip me-2"></i>Attached Raw Scanned Document: <strong>${req.rawReportFile.name || 'scanned_report.pdf'}</strong>
+                            </div>` : ''}
+                            
+                            <div style="margin-top: 100px;" class="row">
+                                <div class="col-6">
+                                    <p class="text-muted mb-0 font-size-xs">Technician Signature</p>
+                                    <h6 class="mt-4 border-bottom d-inline-block pb-1 pe-5 font-size-sm text-dark"><strong>${req.technician || 'Pending'}</strong></h6>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 font-size-xs">Approved By Pathologist</p>
+                                    <h6 class="mt-4 border-bottom d-inline-block pb-1 ps-5 font-size-sm text-dark"><strong>Dr. Gregory House</strong></h6>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    const spinner = document.getElementById('pdf-loading-spinner');
+                    if (spinner) spinner.classList.add('d-none');
+                }
+                return;
+            }
+
+            let pdfUrl = '';
+            const currentUser = JSON.parse(sessionStorage.getItem('hc_current_user')) || {};
+            const token = currentUser.token || '';
+            const res = await fetch(`${ApiService.baseUrl}/reports/lab-report/${req.id}/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!res.ok) throw new Error("Failed to load PDF report from backend server.");
+            const blob = await res.blob();
+            pdfUrl = URL.createObjectURL(blob);
+
+            const iframe = document.getElementById('report-pdf-iframe');
+            if (iframe) {
+                iframe.src = pdfUrl;
+                iframe.onload = () => {
+                    const spinner = document.getElementById('pdf-loading-spinner');
+                    if (spinner) spinner.classList.add('d-none');
+                    iframe.classList.remove('d-none');
+                };
+            }
+        } catch (err) {
+            console.error("PDF loading error: ", err);
+            const spinner = document.getElementById('pdf-loading-spinner');
+            if (spinner) {
+                spinner.innerHTML = `
+                    <div class="text-danger mb-2"><i class="fa-solid fa-triangle-exclamation fa-2x"></i></div>
+                    <p class="text-danger fw-bold mb-1">Failed to load Report PDF</p>
+                    <p class="text-muted font-size-xs px-4 text-center">${err.message || 'Check server connection.'}</p>
+                `;
+            }
+        }
+    } catch (outerErr) {
+        console.error("Critical error in viewLabReportModal:", outerErr);
+        alert("An error occurred while opening the report preview modal:\n\n" + outerErr.stack);
+    }
 };
 
 window.downloadPdfReport = async function (type, id) {
+    if (ApiService.useMock) {
+        const dummyPdf = 'data:application/pdf;base64,JVBERi0xLjQKJdPr6goxIDAgb2JqCjw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+CmVuZG9iagoyIDAgb2JqCjw8L1R5cGUvUGFnZXMvS2lkc1szIDAgUl0vQ291bnQgMT4+CmVuZG9iagozIDAgb2JqCjw8L1R5cGUvUGFnZS9QYXJlbnQgMiAwIFIvTWVkaWFCb3hbMCAwIDU5NSA4NDJdL1Jlc291cmNlczw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4vQ29udGVudHMgNSAwIFI+PgplbmRvYmoKNCAwIG9iago8PCAvVHlwZSAvRm9udCAvU3VidHlwZSAvVHlwZTEgL0Jhc2VGb250IC9IZWx2ZXRpY2EgPj4KZW5kb2JqCjUgMCBvYmoKPDwvTGVuZ3RoIDcwPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgoxMDAgNzAwIFRkCihDdXJlUG9pbnQgLSBTYW1wbGUgUmVwb3J0KSBUagpFVApCVAovRjEgMTIgVGYKMTAwIDY1MCBUZAooVGhpcyBpcyBhIG1vY2sgcGRmIHJlcG9ydCBkb2N1bWVudC4pIFRqCkVUCmVuZHN0cmVhbQplbmRvYmoKeHJlZgowIDYKMDAwMDAwMDAwMCA2NTUzNSBmIAowMDAwMDAwMDE1IDAwMDAwIG4gCjAwMDAwMDAwNjAgMDAwMDAgbiAKMDAwMDAwMDEwOSAwMDAwMCBuIAowMDAwMDAwMTk4IDAwMDAwIG4gCjAwMDAwMDAyNjcgMDAwMDAgbiAKdHJhaWxlcgo8PC9TaXplIDYvUm9vdCAxIDAgUj4+CnN0YXJ0eHJlZgozODgKJSVFT0Y=';
+        const a = document.createElement('a');
+        a.href = dummyPdf;
+        a.download = `${type}_${id}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        showToast("Mock Report PDF downloaded successfully.");
+        return;
+    }
+
     try {
         const token = JSON.parse(sessionStorage.getItem('hc_current_user')).token;
         const res = await fetch(`${ApiService.baseUrl}/reports/${type}/${id}/`, {
@@ -3135,20 +4304,32 @@ window.renderDoctorLeaves = function (doctor) {
     }).join('');
 };
 
-window.deleteDoctorLeave = function (leaveId) {
-    let leaves = getDB('leaves') || [];
-    leaves = leaves.filter(l => l.id !== leaveId);
-    setDB('leaves', leaves);
-    Toast.success('Leave cancelled successfully.');
-    
-    const currentUser = AuthService.getCurrentUser();
-    if (currentUser && currentUser.role === 'doctor') {
-        const doctors = getDB('doctors');
-        const doctor = doctors.find(d => d.id === currentUser.doctorId);
-        if (doctor) {
-            renderDoctorLeaves(doctor);
-            renderDoctorCalendarWorkspace(doctor);
+window.deleteDoctorLeave = async function (leaveId) {
+    try {
+        if (!ApiService.useMock) {
+            await ApiService._request(`/leaves/${leaveId}/`, {
+                method: 'DELETE'
+            });
+            await ApiService.syncDataFromServer();
+        } else {
+            let leaves = getDB('leaves') || [];
+            leaves = leaves.filter(l => l.id !== leaveId);
+            setDB('leaves', leaves);
         }
+        
+        Toast.success('Leave cancelled successfully.');
+        
+        const currentUser = AuthService.getCurrentUser();
+        if (currentUser && currentUser.role === 'doctor') {
+            const doctors = getDB('doctors');
+            const doctor = doctors.find(d => d.id === currentUser.doctorId);
+            if (doctor) {
+                renderDoctorLeaves(doctor);
+                renderDoctorCalendarWorkspace(doctor);
+            }
+        }
+    } catch (err) {
+        Toast.error("Failed to cancel leave request: " + err.message);
     }
 };
 
@@ -3159,7 +4340,7 @@ window.setupDoctorLeaveForm = function (doctor) {
     form.replaceWith(form.cloneNode(true));
     const newForm = document.getElementById('doctor-leave-form');
 
-    newForm.addEventListener('submit', function (e) {
+    newForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         const start = document.getElementById('leave-start').value;
         const end = document.getElementById('leave-end').value;
@@ -3171,25 +4352,42 @@ window.setupDoctorLeaveForm = function (doctor) {
             return;
         }
 
-        const leaves = getDB('leaves') || [];
-        const newLeave = {
-            id: 'leave-' + Date.now(),
-            doctorId: doctor.id,
-            doctorName: doctor.name,
-            startDate: start,
-            endDate: end,
-            type: type,
-            reason: reason,
-            status: 'Approved' // auto-approved
-        };
+        try {
+            if (!ApiService.useMock) {
+                await ApiService._request('/leaves/', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        startDate: start,
+                        endDate: end,
+                        leaveType: type,
+                        reason: reason
+                    })
+                });
+                await ApiService.syncDataFromServer();
+            } else {
+                const leaves = getDB('leaves') || [];
+                const newLeave = {
+                    id: 'leave-' + Date.now(),
+                    doctorId: doctor.id,
+                    doctorName: doctor.name,
+                    startDate: start,
+                    endDate: end,
+                    leaveType: type,
+                    reason: reason,
+                    status: 'Pending'
+                };
+                leaves.push(newLeave);
+                setDB('leaves', leaves);
+            }
 
-        leaves.push(newLeave);
-        setDB('leaves', leaves);
-        Toast.success('Leave requested and approved successfully!');
-        newForm.reset();
-        
-        renderDoctorLeaves(doctor);
-        renderDoctorCalendarWorkspace(doctor);
+            Toast.success('Leave request submitted successfully as PENDING!');
+            newForm.reset();
+            
+            renderDoctorLeaves(doctor);
+            renderDoctorCalendarWorkspace(doctor);
+        } catch (err) {
+            Toast.error("Failed to submit leave request: " + err.message);
+        }
     });
 };
 
@@ -3312,16 +4510,28 @@ function setupCalendarDragDrop(doctor) {
                 const newSlot = cell.getAttribute('data-slot') || '09:00 AM';
 
                 if (apptId && newDate) {
-                    const appointments = getDB('appointments');
-                    const appt = appointments.find(a => a.id === apptId);
-                    if (appt) {
-                        appt.date = newDate;
-                        appt.timeSlot = newSlot;
-                        setDB('appointments', appointments);
-                        
-                        Toast.success(`Appointment rescheduled to ${newDate} at ${newSlot}`);
-                        renderDoctorCalendarWorkspace(doctor);
+                    try {
+                        if (!ApiService.useMock) {
+                            await ApiService._request(`/appointments/${apptId}/`, {
+                                method: 'PATCH',
+                                body: JSON.stringify({ date: newDate, timeSlot: newSlot })
+                            });
+                            await ApiService.syncDataFromServer();
+                            Toast.success(`Appointment rescheduled to ${newDate} at ${newSlot}`);
+                        } else {
+                            const appointments = getDB('appointments');
+                            const appt = appointments.find(a => a.id === apptId);
+                            if (appt) {
+                                appt.date = newDate;
+                                appt.timeSlot = newSlot;
+                                setDB('appointments', appointments);
+                                Toast.success(`Appointment rescheduled to ${newDate} at ${newSlot}`);
+                            }
+                        }
+                    } catch (err) {
+                        Toast.error("Failed to reschedule: " + err.message);
                     }
+                    renderDoctorCalendarWorkspace(doctor);
                 }
             }
         });
@@ -3335,7 +4545,7 @@ window.initBookingWizard = function (patient) {
 
     const depts = getDB('departments');
     specGrid.innerHTML = depts.map(dept => `
-        <div class="spec-card p-3 border rounded text-center cursor-pointer hover-shadow" data-dept-id="${dept.id}" data-dept-name="${dept.name}">
+        <div class="spec-card p-3 border rounded text-center cursor-pointer hover-shadow position-relative" data-dept-id="${dept.id}" data-dept-name="${dept.name}" style="transition: all 0.2s ease;">
             <i class="fa-solid fa-notes-medical fs-3 text-primary mb-2"></i>
             <div class="fw-bold font-size-sm">${dept.name}</div>
             <div class="text-muted font-size-xxs">${dept.staffCount} staff</div>
@@ -3345,8 +4555,21 @@ window.initBookingWizard = function (patient) {
     const cards = specGrid.querySelectorAll('.spec-card');
     cards.forEach(card => {
         card.addEventListener('click', function () {
-            cards.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
+            cards.forEach(c => {
+                c.classList.remove('active', 'border-primary', 'bg-primary-subtle');
+                const existingCheck = c.querySelector('.spec-check-icon');
+                if (existingCheck) existingCheck.remove();
+            });
+            this.classList.add('active', 'border-primary', 'bg-primary-subtle');
+
+            // Add small green check mark icon
+            const checkEl = document.createElement('div');
+            checkEl.className = 'spec-check-icon position-absolute';
+            checkEl.style.top = '8px';
+            checkEl.style.right = '8px';
+            checkEl.style.color = '#10b981';
+            checkEl.innerHTML = '<i class="fa-solid fa-circle-check fs-6"></i>';
+            this.appendChild(checkEl);
             const deptId = this.getAttribute('data-dept-id');
             const deptName = this.getAttribute('data-dept-name');
             document.getElementById('booking-specialization').value = deptName;
@@ -3437,24 +4660,25 @@ window.initBookingWizard = function (patient) {
             const bookedSlots = existingAppts.map(a => a.timeSlot);
             const availableSlots = allSlots.filter(slot => !bookedSlots.includes(slot));
 
-            if (availableSlots.length === 0) {
-                slotsGrid.innerHTML = `<div class="alert alert-info font-size-xs col-12 py-2">No available time slots on this date.</div>`;
-            } else {
-                slotsGrid.innerHTML = availableSlots.map(slot => `
-                    <div class="slot-btn" data-slot="${slot}">${slot}</div>
-                `).join('');
+            slotsGrid.innerHTML = allSlots.map(slot => {
+                const isBooked = bookedSlots.includes(slot);
+                if (isBooked) {
+                    return `<div class="slot-btn disabled opacity-50 bg-secondary-subtle border-0 text-muted" style="cursor: not-allowed;" data-slot="${slot}">${slot} (Booked)</div>`;
+                } else {
+                    return `<div class="slot-btn" data-slot="${slot}">${slot}</div>`;
+                }
+            }).join('');
 
-                const slotBtns = slotsGrid.querySelectorAll('.slot-btn');
-                slotBtns.forEach(btn => {
-                    btn.addEventListener('click', function () {
-                        slotBtns.forEach(b => b.classList.remove('active'));
-                        this.classList.add('active');
-                        const selectedSlot = this.getAttribute('data-slot');
-                        document.getElementById('booking-time-slot').value = selectedSlot;
-                        document.getElementById('btn-to-step4').removeAttribute('disabled');
-                    });
+            const slotBtns = slotsGrid.querySelectorAll('.slot-btn:not(.disabled)');
+            slotBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    slotsGrid.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const selectedSlot = this.getAttribute('data-slot');
+                    document.getElementById('booking-time-slot').value = selectedSlot;
+                    document.getElementById('btn-to-step4').removeAttribute('disabled');
                 });
-            }
+            });
         });
     }
 };
@@ -3562,13 +4786,31 @@ window.resetBookingWizard = function () {
 
 // --- LAB TECH WORKFLOW EXTENSIONS ---
 window.updateLabTechStats = function () {
-    const requests = getDB('lab_requests');
+    const requests = getDB('lab_requests') || [];
     const todayStr = new Date().toISOString().split('T')[0];
     const todayRequests = requests.filter(r => r.requestDate === todayStr);
 
     const delayedCount = requests.filter(r => r.status !== 'completed' && r.requestDate < todayStr).length;
     const criticalCount = requests.filter(r => (r.priority === 'Critical' || r.priority === 'High') && r.status !== 'completed').length;
-    let avgTatText = "04 hr 15 mins";
+    
+    // Dynamic Turnaround Time (TAT) Calculation
+    const completedRequests = requests.filter(r => r.status === 'completed' && r.resultDate && r.requestDate);
+    let avgTatHours = 4.25; // default 4 hr 15 mins
+    if (completedRequests.length > 0) {
+        let totalDiff = 0;
+        completedRequests.forEach(r => {
+            const reqTime = new Date(r.requestDate).getTime();
+            const resTime = new Date(r.resultDate).getTime();
+            // Fallback to 2 hours if processed same day
+            const diff = Math.max(2 * 3600 * 1000, resTime - reqTime);
+            totalDiff += diff;
+        });
+        avgTatHours = (totalDiff / completedRequests.length) / (1000 * 3600);
+    }
+
+    const hours = Math.floor(avgTatHours);
+    const minutes = Math.round((avgTatHours - hours) * 60);
+    const avgTatText = `${String(hours).padStart(2, '0')} hr ${String(minutes).padStart(2, '0')} mins`;
 
     const todayCount = todayRequests.length;
     const completedToday = todayRequests.filter(r => r.status === 'completed').length;
@@ -3590,12 +4832,22 @@ window.updateLabTechStats = function () {
     if (detailsEl) detailsEl.innerText = `Completed: ${completedToday} | Need Test: ${pendingToday}`;
 };
 
-window.advanceLabStatus = function (reqId, newStatus) {
+window.advanceLabStatus = async function (reqId, newStatus) {
     const requests = getDB('lab_requests');
     const req = requests.find(r => r.id === reqId);
     if (req) {
         req.status = newStatus;
         setDB('lab_requests', requests);
+        
+        if (!ApiService.useMock) {
+            try {
+                await ApiService.updateLabTest(reqId, { status: newStatus });
+            } catch (err) {
+                Toast.error(`Failed to update backend status: ${err.message}`);
+                return;
+            }
+        }
+        
         Toast.success(`Lab request status updated to: ${newStatus.replace('_', ' ').toUpperCase()}`);
         
         const currentUser = AuthService.getCurrentUser();
@@ -3640,6 +4892,59 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else if (currentPageRole === 'admin') {
             initAdminPortal(activeUser);
         }
+
+        // Helper function to trigger updates when storage or sync event occurs
+        window.triggerDashboardSyncUpdate = function () {
+            const freshUser = AuthService.getCurrentUser();
+            if (!freshUser) return;
+            if (currentPageRole === 'doctor') {
+                const docId = freshUser.doctorId;
+                const doctor = getDB('doctors').find(d => d.id === docId);
+                if (doctor) {
+                    renderDoctorDashboard(doctor);
+                    renderDoctorCalendarWorkspace(doctor);
+                    renderDoctorAnalytics(doctor);
+                }
+            } else if (currentPageRole === 'labtech') {
+                renderLabRequests();
+                renderLabDashboardCharts();
+                updateLabTechStats();
+            } else if (currentPageRole === 'patient') {
+                const patId = freshUser.patientId;
+                const patient = getDB('patients').find(p => p.id === patId);
+                if (patient) {
+                    renderPatientOverview(patient);
+                    renderPatientVitalsCharts(patient);
+                    renderPatientMedicalHistory(patient);
+                    renderPatientPrescriptions(patient);
+                    renderPatientLabReports(patient);
+                    renderPatientAppointments(patient);
+                    renderPatientVisits(patient);
+                    renderPatientFiles(patient);
+                }
+            } else if (currentPageRole === 'admin') {
+                renderAdminDashboard();
+                renderAdminUserTable();
+                renderAdminDepartments();
+                renderAdminAudits();
+                renderAdminAnalyticsCharts();
+            }
+        };
+
+        // 1. Cross-tab synchronization via local storage changes (ideal for Mock Mode)
+        window.addEventListener('storage', (e) => {
+            if (e.key && e.key.startsWith('hc_')) {
+                window.triggerDashboardSyncUpdate();
+            }
+        });
+
+        // 2. Periodic polling for remote DB updates (ideal for Server Mode)
+        setInterval(async () => {
+            if (!ApiService.useMock) {
+                await ApiService.syncDataFromServer();
+                window.triggerDashboardSyncUpdate();
+            }
+        }, 5000); // Poll every 5 seconds
     }
 
     // LOGIN ROUTING
@@ -3895,3 +5200,570 @@ window.applyChartThemeDefaults = function (theme) {
 
 // Auto-run theme initialization
 window.initTheme();
+
+// --- PATIENT PORTAL UPGRADE FUNCTIONS ---
+function ensurePaymentsSeeded(patientId) {
+    let invoices = getDB('patient_invoices') || [];
+    if (invoices.filter(i => i.patientId === patientId).length === 0) {
+        invoices.push(
+            { id: 'INV-2841', patientId: patientId, description: 'Consultation Fee - Dr. Sarah Connor', amount: 50.00, status: 'unpaid' },
+            { id: 'INV-2842', patientId: patientId, description: 'Laboratory Analysis - Lipid Profile', amount: 75.00, status: 'unpaid' },
+            { id: 'INV-2843', patientId: patientId, description: 'Consultation Fee - Dr. Neil Tyson', amount: 60.00, status: 'paid', paidOn: '2026-06-25', method: 'UPI', receiptId: 'REC-5501' }
+        );
+        setDB('patient_invoices', invoices);
+    }
+    return invoices;
+}
+
+window.renderPatientPayments = function(patient) {
+    const invList = document.getElementById('patient-invoices-list');
+    const recList = document.getElementById('patient-receipts-list');
+    if (!invList || !recList) return;
+
+    const invoices = ensurePaymentsSeeded(patient.id).filter(i => i.patientId === patient.id);
+
+    // Unpaid
+    let invHtml = '';
+    const unpaid = invoices.filter(i => i.status === 'unpaid');
+    if (unpaid.length === 0) {
+        invHtml = `<tr><td colspan="5" class="text-center text-muted font-size-xs">No outstanding invoices.</td></tr>`;
+    } else {
+        unpaid.forEach(inv => {
+            invHtml += `
+            <tr>
+                <td><strong>${inv.id}</strong></td>
+                <td>${inv.description}</td>
+                <td>$${inv.amount.toFixed(2)}</td>
+                <td><span class="hc-badge-status badge-pending">UNPAID</span></td>
+                <td><button type="button" class="btn btn-xs btn-hc-primary font-size-xxs py-1 px-2.5" onclick="selectInvoiceToPay('${inv.id}', '${inv.description}', ${inv.amount})">Select</button></td>
+            </tr>`;
+        });
+    }
+    invList.innerHTML = invHtml;
+
+    // Paid Receipts
+    let recHtml = '';
+    const paid = invoices.filter(i => i.status === 'paid');
+    if (paid.length === 0) {
+        recHtml = `<tr><td colspan="5" class="text-center text-muted font-size-xs">No payment history found.</td></tr>`;
+    } else {
+        paid.forEach(inv => {
+            recHtml += `
+            <tr>
+                <td><strong>${inv.receiptId || 'REC-0000'}</strong></td>
+                <td>${inv.description}</td>
+                <td>${inv.method || 'Card'}</td>
+                <td>${inv.paidOn}</td>
+                <td><button type="button" class="btn btn-xs btn-outline-secondary font-size-xxs py-1 px-2" onclick="downloadReceipt('${inv.id}')"><i class="fa-solid fa-download"></i> Receipt</button></td>
+            </tr>`;
+        });
+    }
+    recList.innerHTML = recHtml;
+};
+
+window.selectInvoiceToPay = function(id, desc, amount) {
+    document.getElementById('payment-active-id').value = id;
+    document.getElementById('payment-active-desc').innerText = desc;
+    document.getElementById('payment-active-amount').innerText = `$${amount.toFixed(2)}`;
+    
+    // Clear select radios
+    document.querySelectorAll('input[name="payment-method"]').forEach(r => r.checked = false);
+    document.getElementById('btn-pay-now').disabled = true;
+};
+
+window.selectPaymentMethod = function(method) {
+    if (method === 'UPI') document.getElementById('pay-upi').checked = true;
+    if (method === 'Card') document.getElementById('pay-card').checked = true;
+    if (method === 'NetBanking') document.getElementById('pay-nb').checked = true;
+    
+    document.getElementById('btn-pay-now').disabled = false;
+};
+
+window.executeSecurePayment = async function() {
+    const activeId = document.getElementById('payment-active-id').value;
+    const methodEl = document.querySelector('input[name="payment-method"]:checked');
+    if (!activeId || !methodEl) return;
+
+    const method = methodEl.value;
+    
+    if (ApiService.useMock) {
+        let invoices = getDB('patient_invoices') || [];
+        let inv = invoices.find(i => i.id === activeId);
+        if (inv) {
+            inv.status = 'paid';
+            inv.paidOn = new Date().toISOString().split('T')[0];
+            inv.method = method;
+            inv.receiptId = 'REC-' + Math.floor(1000 + Math.random() * 9000);
+            setDB('patient_invoices', invoices);
+            
+            Toast.success(`Payment of $${inv.amount.toFixed(2)} completed successfully via ${method}!`);
+            resetPaymentUI();
+            refreshPaymentsUI();
+        }
+    } else {
+        try {
+            const res = await ApiService._request(`/billing/${activeId}/pay/`, {
+                method: 'POST',
+                body: JSON.stringify({ method })
+            });
+            Toast.success(`Payment of $${parseFloat(res.amount).toFixed(2)} completed successfully via ${method}!`);
+            
+            // Sync with server to get updated billing list
+            await ApiService.syncDataFromServer();
+            
+            resetPaymentUI();
+            refreshPaymentsUI();
+        } catch (err) {
+            Toast.error(`Payment failed: ${err.message}`);
+        }
+    }
+};
+
+function resetPaymentUI() {
+    const elId = document.getElementById('payment-active-id');
+    const elDesc = document.getElementById('payment-active-desc');
+    const elAmt = document.getElementById('payment-active-amount');
+    const elBtn = document.getElementById('btn-pay-now');
+    if (elId) elId.value = '';
+    if (elDesc) elDesc.innerText = 'Select an invoice to proceed...';
+    if (elAmt) elAmt.innerText = '$0.00';
+    if (elBtn) elBtn.disabled = true;
+}
+
+function refreshPaymentsUI() {
+    const currentUser = JSON.parse(sessionStorage.getItem('hc_current_user'));
+    if (currentUser) {
+        const patients = getDB('patients') || [];
+        const patient = patients.find(p => p.id === currentUser.patientId);
+        if (patient) renderPatientPayments(patient);
+    }
+}
+
+window.downloadReceipt = function(invId) {
+    if (ApiService.useMock) {
+        Toast.success(`Receipt for invoice ${invId} downloaded successfully (Mock).`);
+    } else {
+        window.downloadPdfReport('receipt', invId);
+    }
+};
+
+window.cancelAppointment = async function(apptId) {
+    let appointments = getDB('appointments') || [];
+    let appt = appointments.find(a => a.id === apptId);
+    if (appt) {
+        appt.status = 'cancelled';
+        setDB('appointments', appointments);
+
+        if (!ApiService.useMock) {
+            try {
+                await ApiService.updateAppointmentStatus(apptId, 'cancelled');
+            } catch (err) {
+                Toast.error(`Failed to cancel appointment: ${err.message}`);
+                return;
+            }
+        }
+        
+        Toast.success("Appointment cancelled successfully.");
+        
+        // Re-render
+        const patients = getDB('patients');
+        const currentUser = AuthService.getCurrentUser();
+        if (currentUser) {
+            const patient = patients.find(p => p.id === currentUser.patientId);
+            if (patient) renderPatientAppointments(patient);
+        }
+    }
+};
+
+window.rescheduleAppointment = async function(apptId) {
+    const newDate = prompt("Enter new Date (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
+    if (!newDate) return;
+    const newTime = prompt("Enter new Time Slot (e.g., 09:30 AM, 11:00 AM, 02:00 PM):", "09:30 AM");
+    if (!newTime) return;
+
+    if (!ApiService.useMock) {
+        try {
+            await ApiService._request(`/appointments/${apptId}/`, {
+                method: 'PATCH',
+                body: JSON.stringify({ date: newDate, timeSlot: newTime })
+            });
+            await ApiService.syncDataFromServer();
+            Toast.success("Appointment rescheduled successfully!");
+        } catch (err) {
+            Toast.error(`Failed to reschedule appointment: ${err.message}`);
+            return;
+        }
+    } else {
+        let appts = getDB('appointments') || [];
+        let appt = appts.find(a => a.id === apptId);
+        if (appt) {
+            appt.date = newDate;
+            appt.timeSlot = newTime;
+            setDB('appointments', appts);
+            Toast.success("Appointment rescheduled successfully!");
+        }
+    }
+
+    const patients = getDB('patients');
+    const currentUser = AuthService.getCurrentUser();
+    if (currentUser) {
+        const patient = patients.find(p => p.id === currentUser.patientId);
+        if (patient) renderPatientAppointments(patient);
+    }
+};
+
+window.openFeedbackModal = function(apptId, doctorName) {
+    document.getElementById('feedback-appt-id').value = apptId;
+    document.getElementById('feedback-doctor-name').innerText = doctorName;
+    document.getElementById('feedback-rating-value').value = '0';
+    document.getElementById('feedback-comments').value = '';
+    
+    // Clear active star highlights
+    document.querySelectorAll('.rating-star-icon').forEach(s => s.style.color = '#cbd5e1'); // gray-300
+    
+    const modalEl = document.getElementById('feedbackRatingModal');
+    if (modalEl) {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+};
+
+window.selectRatingStar = function(rating) {
+    document.getElementById('feedback-rating-value').value = rating;
+    document.querySelectorAll('.rating-star-icon').forEach(s => {
+        const rVal = parseInt(s.getAttribute('data-rating'));
+        if (rVal <= rating) {
+            s.style.color = '#eab308'; // yellow-500
+        } else {
+            s.style.color = '#cbd5e1'; // gray-300
+        }
+    });
+};
+
+window.submitPatientFeedback = async function() {
+    const apptId = document.getElementById('feedback-appt-id').value;
+    const rating = parseInt(document.getElementById('feedback-rating-value').value);
+    const comments = document.getElementById('feedback-comments').value;
+    
+    if (rating === 0) {
+        Toast.warning("Please select a star rating before submitting.");
+        return;
+    }
+
+    const doctorName = document.getElementById('feedback-doctor-name').innerText;
+    const doctorObj = getDB('doctors').find(d => d.name.toLowerCase().includes(doctorName.toLowerCase()) || doctorName.toLowerCase().includes(d.name.toLowerCase()));
+    const doctorId = doctorObj ? doctorObj.id : 'doc-1';
+
+    if (!ApiService.useMock) {
+        try {
+            const currentUser = AuthService.getCurrentUser();
+            const patientName = currentUser ? currentUser.name : 'Patient';
+            await ApiService._request('/reviews/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    doctorId: doctorId,
+                    patientName: patientName,
+                    apptId: apptId,
+                    rating: rating,
+                    comments: comments
+                })
+            });
+            Toast.success("Thank you for your rating! Feedback submitted successfully.");
+        } catch (err) {
+            Toast.error(`Failed to submit feedback to backend: ${err.message}`);
+            return;
+        }
+    } else {
+        let reviews = getDB('doctor_reviews') || [];
+        reviews.push({
+            id: 'REV-' + Math.floor(1000 + Math.random() * 9000),
+            apptId: apptId,
+            doctorName: doctorName,
+            rating: rating,
+            comments: comments,
+            date: new Date().toISOString().split('T')[0]
+        });
+        setDB('doctor_reviews', reviews);
+        Toast.success("Thank you for your rating! Feedback submitted successfully.");
+    }
+    
+    const modalEl = document.getElementById('feedbackRatingModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+};
+
+window.uploadProfileAvatar = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const dataUrl = e.target.result;
+            document.getElementById('profile-avatar-img').src = dataUrl;
+            
+            // Sync with Patient Profile in DB
+            const patients = getDB('patients');
+            const currentUser = getDB('users').find(u => u.username === localStorage.getItem('hc_username'));
+            if (currentUser) {
+                const patient = patients.find(p => p.id === currentUser.patientId);
+                if (patient) {
+                    patient.avatar = dataUrl;
+                    const patIndex = patients.findIndex(p => p.id === patient.id);
+                    patients[patIndex] = patient;
+                    setDB('patients', patients);
+                    
+                    // Sync the sidebar avatar
+                    const sidebarAvatar = document.getElementById('avatar-letters');
+                    if (sidebarAvatar) {
+                        sidebarAvatar.innerHTML = `<img src="${dataUrl}" class="rounded-circle" style="width:100%; height:100%; object-fit:cover;">`;
+                    }
+                    Toast.success("Profile avatar uploaded successfully!");
+                }
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+};
+window.renderDoctorReviews = function(doctor) {
+    const container = document.getElementById('doc-reviews-feed-container');
+    if (!container) return;
+
+    let reviews = getDB('doctor_reviews') || [];
+    let docReviews = reviews.filter(r => r.doctorName.toLowerCase().includes(doctor.name.toLowerCase()));
+
+    // Seed mock data if none exist
+    if (docReviews.length === 0) {
+        docReviews = [
+            { id: 'REV-101', doctorName: doctor.name, rating: 5, comments: 'Extremely professional and polite. Explained my symptoms in detail.', date: '2026-06-27', patientName: 'Amit Sharma' },
+            { id: 'REV-102', doctorName: doctor.name, rating: 4, comments: 'Good advice and checkup. Waiting queue was a bit long.', date: '2026-06-26', patientName: 'Priyanka Patel' },
+            { id: 'REV-103', doctorName: doctor.name, rating: 5, comments: 'Highly qualified! The digital prescriptions were generated immediately.', date: '2026-06-24', patientName: 'Vikram Singh' }
+        ];
+        reviews = reviews.concat(docReviews);
+        setDB('doctor_reviews', reviews);
+    }
+
+    // Calculate rating averages
+    const total = docReviews.reduce((sum, r) => sum + r.rating, 0);
+    const avg = docReviews.length > 0 ? (total / docReviews.length).toFixed(1) : '5.0';
+    document.getElementById('doc-review-avg').innerText = `Average: ${avg} / 5.0 (${docReviews.length} Reviews)`;
+
+    let html = '';
+    docReviews.forEach(r => {
+        let starsHtml = '';
+        for (let i = 1; i <= 5; i++) {
+            starsHtml += `<i class="fa-solid fa-star" style="color: ${i <= r.rating ? '#eab308' : '#cbd5e1'}; font-size: 0.9rem;"></i>`;
+        }
+        
+        const initials = (r.patientName || 'Patient').split(' ').map(n=>n[0]).join('');
+
+        html += `
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="hc-card p-3 shadow-sm border border-light h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold font-size-xs" style="width: 32px; height: 32px;">
+                                ${initials}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark font-size-xs">${r.patientName || 'Verified Patient'}</h6>
+                                <span class="text-muted font-size-xxs">${r.date}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-2 d-flex gap-1">${starsHtml}</div>
+                    <p class="text-secondary font-size-xs mb-0 italic" style="line-height: 1.5;">"${r.comments}"</p>
+                </div>
+                <div>
+                    ${r.response ? `
+                        <div class="mt-3 p-2 bg-light rounded border border-light-subtle font-size-xxs text-secondary">
+                            <strong>My Response:</strong> "${r.response}"
+                        </div>
+                    ` : `
+                        <div class="mt-3">
+                            <div class="input-group input-group-sm">
+                                <input type="text" class="form-control font-size-xxs" id="reply-input-${r.id}" placeholder="Type a reply...">
+                                <button class="btn btn-hc-primary font-size-xxs py-1" onclick="submitReviewReply('${r.id}')">Reply</button>
+                            </div>
+                        </div>
+                    `}
+                </div>
+            </div>
+        </div>`;
+    });
+    container.innerHTML = html;
+};
+
+window.submitReviewReply = async function(reviewId) {
+    const input = document.getElementById(`reply-input-${reviewId}`);
+    if (!input) return;
+    const responseText = input.value.trim();
+    if (!responseText) {
+        Toast.warning("Reply cannot be empty.");
+        return;
+    }
+
+    try {
+        if (!ApiService.useMock) {
+            await ApiService._request(`/reviews/${reviewId}/respond/`, {
+                method: 'POST',
+                body: JSON.stringify({ response: responseText })
+            });
+            await ApiService.syncDataFromServer();
+        } else {
+            let reviews = getDB('doctor_reviews') || [];
+            const idx = reviews.findIndex(r => r.id === reviewId);
+            if (idx !== -1) {
+                reviews[idx].response = responseText;
+                setDB('doctor_reviews', reviews);
+            }
+        }
+        Toast.success("Reply submitted successfully!");
+        
+        const currentUser = AuthService.getCurrentUser();
+        if (currentUser && currentUser.role === 'doctor') {
+            const doctors = getDB('doctors');
+            const doctor = doctors.find(d => d.id === currentUser.doctorId);
+            if (doctor) renderDoctorReviews(doctor);
+        }
+    } catch (err) {
+        Toast.error("Failed to submit reply: " + err.message);
+    }
+};
+
+let consultCurrentStep = 1;
+
+window.changeConsultStep = function(step) {
+    if (step < 1 || step > 4) return;
+    
+    // Validate fields before proceeding forward
+    if (step > consultCurrentStep) {
+        if (consultCurrentStep === 1) {
+            const sys = document.getElementById('consult-sys').value;
+            const dia = document.getElementById('consult-dia').value;
+            const hr = document.getElementById('consult-hr').value;
+            if (!sys || !dia || !hr) {
+                Toast.warning("Please fill in systolic/diastolic BP and Pulse Rate before continuing.");
+                return;
+            }
+        }
+        if (consultCurrentStep === 2) {
+            const diag = document.getElementById('consult-diagnosis').value;
+            if (!diag || !diag.trim()) {
+                Toast.warning("Please specify a primary diagnosis / ICD-10 code before continuing.");
+                return;
+            }
+        }
+    }
+
+    consultCurrentStep = step;
+    
+    // Show active step pane, hide others
+    for (let i = 1; i <= 4; i++) {
+        const pane = document.getElementById('step-pane-' + i);
+        const indicator = document.getElementById('step-ind-' + i);
+        if (pane) {
+            if (i === step) {
+                pane.classList.remove('d-none');
+            } else {
+                pane.classList.add('d-none');
+            }
+        }
+        if (indicator) {
+            if (i === step) {
+                indicator.classList.add('active');
+                indicator.style.opacity = '1';
+                indicator.querySelector('.badge').className = 'badge bg-primary rounded-circle px-2.5 py-1.5 font-size-xs';
+                indicator.querySelector('span:last-child').className = 'fw-bold font-size-sm text-primary';
+            } else if (i < step) {
+                indicator.classList.remove('active');
+                indicator.style.opacity = '0.8';
+                indicator.querySelector('.badge').className = 'badge bg-success rounded-circle px-2.5 py-1.5 font-size-xs';
+                indicator.querySelector('span:last-child').className = 'fw-semibold font-size-sm text-success';
+            } else {
+                indicator.classList.remove('active');
+                indicator.style.opacity = '0.5';
+                indicator.querySelector('.badge').className = 'badge bg-secondary rounded-circle px-2.5 py-1.5 font-size-xs';
+                indicator.querySelector('span:last-child').className = 'fw-semibold font-size-sm text-muted';
+            }
+        }
+    }
+
+    // Toggle navigation buttons
+    const prevBtn = document.getElementById('consult-prev-btn');
+    const nextBtn = document.getElementById('consult-next-btn');
+    const saveBtn = document.getElementById('consult-save-btn');
+    
+    if (prevBtn) prevBtn.disabled = (step === 1);
+    if (nextBtn) {
+        if (step === 4) {
+            nextBtn.classList.add('d-none');
+            if (saveBtn) saveBtn.classList.remove('d-none');
+        } else {
+            nextBtn.classList.remove('d-none');
+            if (saveBtn) saveBtn.classList.add('d-none');
+        }
+    }
+
+    // Update Checklist tasks
+    updateConsultChecklist();
+};
+
+window.nextConsultStep = function(dir) {
+    changeConsultStep(consultCurrentStep + dir);
+};
+
+window.updateConsultChecklist = function() {
+    const chkVitals = document.getElementById('chk-vitals');
+    const chkDiag = document.getElementById('chk-diagnosis');
+    const chkRx = document.getElementById('chk-rx');
+    const chkLab = document.getElementById('chk-lab');
+
+    // 1. Vitals Check
+    const sys = document.getElementById('consult-sys').value;
+    const dia = document.getElementById('consult-dia').value;
+    const hr = document.getElementById('consult-hr').value;
+    if (chkVitals) {
+        if (sys && dia && hr) {
+            chkVitals.className = 'fa-solid fa-circle-check text-success';
+        } else {
+            chkVitals.className = 'fa-solid fa-circle-notch text-muted';
+        }
+    }
+
+    // 2. Diagnosis Check
+    const diag = document.getElementById('consult-diagnosis').value;
+    if (chkDiag) {
+        if (diag && diag.trim()) {
+            chkDiag.className = 'fa-solid fa-circle-check text-success';
+        } else {
+            chkDiag.className = 'fa-solid fa-circle-notch text-muted';
+        }
+    }
+
+    // 3. Rx Check
+    const medRows = document.querySelectorAll('#consult-med-rows .prescription-item-row');
+    if (chkRx) {
+        if (medRows.length > 0) {
+            chkRx.className = 'fa-solid fa-circle-check text-success';
+        } else {
+            chkRx.className = 'fa-solid fa-circle-notch text-muted';
+        }
+    }
+
+    // 4. Lab Check
+    const labChecked = document.getElementById('consult-order-lab').checked;
+    const followupChecked = document.getElementById('consult-followup-check').checked;
+    if (chkLab) {
+        if (labChecked || followupChecked) {
+            chkLab.className = 'fa-solid fa-circle-check text-success';
+        } else {
+            chkLab.className = 'fa-solid fa-circle-notch text-muted';
+        }
+    }
+};
+
+window.triggerConsultationSave = function() {
+    const form = document.getElementById('doctor-consult-form');
+    if (form) {
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+    }
+};

@@ -4,7 +4,7 @@ from .models import Prescription, PrescriptionMedicine
 class PrescriptionMedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrescriptionMedicine
-        fields = ('name', 'dosage', 'duration', 'instructions')
+        fields = ('name', 'dosage', 'frequency', 'duration', 'route', 'instructions', 'notes')
 
 class PrescriptionSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source='prescription_id')

@@ -1,10 +1,10 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import PatientProfile, PatientVital, PatientMedicalHistory, PatientVisit, PatientFile
+from .models import PatientProfile, PatientVisit, PatientFile, PatientBilling
 from .serializers import (
     PatientProfileSerializer, PatientVitalSerializer, PatientMedicalHistorySerializer,
-    PatientVisitSerializer, PatientFileSerializer
+    PatientVisitSerializer, PatientFileSerializer, PatientBillingSerializer
 )
 from accounts.permissions import IsOwnerOrStaff
 from django.utils import timezone
@@ -152,3 +152,58 @@ class PatientProfileViewSet(viewsets.ModelViewSet):
             return Response({'success': True, 'message': 'File document deleted.'})
         except PatientFile.DoesNotExist:
             return Response({'error': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+class PatientBillingViewSet(viewsets.ModelViewSet):
+    queryset = PatientBilling.objects.all()
+    serializer_class = PatientBillingSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    lookup_field = 'billing_id'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        patient_id = self.request.query_params.get('patientId')
+        if patient_id:
+            qs = qs.filter(patient__patient_id=patient_id)
+        # Patients can only see their own bills
+        if self.request.user.role == 'patient' and hasattr(self.request.user, 'patientprofile'):
+            qs = qs.filter(patient=self.request.user.patientprofile)
+        return qs
+
+    @action(detail=True, methods=['post'], url_path='pay')
+    def pay_bill(self, request, billing_id=None):
+        bill = self.get_object()
+        if bill.status == 'paid':
+            return Response({'error': 'Invoice already paid.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        method = request.data.get('method', 'Card')
+        bill.status = 'paid'
+        bill.method = method
+        bill.paid_on = timezone.now()
+        bill.receipt_id = f"REC-{timezone.now().strftime('%y%m%d%H%M%S')}"
+        bill.save()
+
+        AuditLog.objects.create(
+            module='patients',
+            initiator=request.user.email,
+            action=f"Completed payment of ${bill.amount:.2f} for bill {bill.billing_id} via {method}",
+            flag='SECURE'
+        )
+        return Response(PatientBillingSerializer(bill).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='refund')
+    def refund_bill(self, request, billing_id=None):
+        bill = self.get_object()
+        if bill.status != 'paid':
+            return Response({'error': 'Only paid bills can be refunded.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        bill.status = 'refunded'
+        bill.refund_status = 'processed'
+        bill.save()
+
+        AuditLog.objects.create(
+            module='patients',
+            initiator=request.user.email,
+            action=f"Refunded payment of ${bill.amount:.2f} for bill {bill.billing_id}",
+            flag='SECURE'
+        )
+        return Response(PatientBillingSerializer(bill).data, status=status.HTTP_200_OK)
