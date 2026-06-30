@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import CustomUser, AuditLog
 from .serializers import UserSerializer, AuditLogSerializer, RegisterSerializer
-from .permissions import IsAdminUser
+from .permissions import IsAdminUser, IsOwnerOrStaff
 
 class RegisterView(views.APIView):
     permission_classes = (permissions.AllowAny,)
@@ -82,9 +82,14 @@ class AuditLogViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminUser,)
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAdminUser,)
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrStaff)
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'patient':
+            return CustomUser.objects.filter(id=user.id)
+        return CustomUser.objects.all()
 
     def update(self, request, *args, **kwargs):
         user = self.get_object()
@@ -92,8 +97,21 @@ class UserViewSet(viewsets.ModelViewSet):
         
         user.name = data.get('name', user.name)
         user.email = data.get('email', user.email)
-        user.role = data.get('role', user.role)
-        user.is_active = data.get('is_active', user.is_active)
+        # Prevent non-admin users from changing their own role/active status
+        if request.user.role == 'admin' or request.user.is_superuser:
+            user.role = data.get('role', user.role)
+            user.is_active = data.get('is_active', user.is_active)
+            if 'emailVerified' in data:
+                user.email_verified = data.get('emailVerified')
+            if 'phoneVerified' in data:
+                user.phone_verified = data.get('phoneVerified')
+        else:
+            # Patients/doctors/techs can verify their own details if they trigger it
+            if 'emailVerified' in data:
+                user.email_verified = data.get('emailVerified')
+            if 'phoneVerified' in data:
+                user.phone_verified = data.get('phoneVerified')
+                
         if 'password' in data and data['password']:
             user.set_password(data['password'])
         user.save()

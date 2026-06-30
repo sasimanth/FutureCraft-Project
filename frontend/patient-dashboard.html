@@ -9,7 +9,7 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <!-- Custom Style -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -568,69 +568,84 @@
                 <!-- PANEL 6: MY PROFILE -->
                 <section class="dashboard-panel text-start" id="panel-profile">
                     <div class="row g-4">
-                        <!-- Left Column: Avatar & Security Logs -->
+                        <!-- Left Column: Avatar & Security Settings -->
                         <div class="col-lg-4">
                             <!-- Avatar Card -->
-                            <div class="hc-card text-center mb-4">
-                                <div class="position-relative mx-auto mb-3" style="width: 110px; height: 110px;">
-                                    <img src="assets/images/logo.jpg" id="profile-avatar-img" class="rounded-circle border shadow-sm" style="width: 100%; height: 100%; object-fit: cover;">
-                                    <label for="avatar-file-upload" class="position-absolute bottom-0 end-0 bg-primary text-white p-2 rounded-circle shadow border cursor-pointer hover-lift" style="width:34px; height:34px; display:flex; align-items:center; justify-content:center;">
+                            <div class="hc-card text-center mb-4 border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);">
+                                <div class="position-relative mx-auto mb-3" style="width: 120px; height: 120px;">
+                                    <img src="assets/images/logo.jpg" id="profile-avatar-img" class="rounded-circle border border-primary border-3 shadow-sm" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <label for="avatar-file-upload" class="position-absolute bottom-0 end-0 bg-primary text-white p-2 rounded-circle shadow border cursor-pointer hover-lift" style="width:36px; height:36px; display:flex; align-items:center; justify-content:center;">
                                         <i class="fa-solid fa-camera font-size-xs"></i>
                                     </label>
                                     <input type="file" id="avatar-file-upload" class="d-none" accept="image/*" onchange="uploadProfileAvatar(this)">
                                 </div>
-                                <h6 class="fw-bold mb-0 text-dark" id="profile-card-name">Patient Name</h6>
-                                <span class="text-muted font-size-xs">Patient UID: <span id="profile-card-id">pat-1</span></span>
+                                <h5 class="fw-bold mb-1 text-dark" id="profile-card-name">Patient Name</h5>
+                                <div class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill font-size-xxs px-2.5 py-1 mb-2">UID: <span id="profile-card-id">pat-1</span></div>
+                                <div class="text-muted font-size-xxs" style="letter-spacing:0.5px;">
+                                    <i class="fa-solid fa-calendar-day text-primary me-1"></i>Member since <span id="profile-card-created">June 2026</span>
+                                </div>
                             </div>
 
                              <!-- Security & Verification Status -->
                              <div class="hc-card mb-4">
-                                 <h6 class="fw-bold mb-3"><i class="fa-solid fa-shield-halved text-success me-2"></i>Security & Status</h6>
-                                 <div class="d-flex flex-column gap-2.5 font-size-xs">
-                                     <div class="d-flex justify-content-between align-items-center">
-                                         <span class="text-secondary"><i class="fa-solid fa-envelope me-1.5 text-muted"></i>Email Verification</span>
-                                         <span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i>Verified</span>
+                                 <h6 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-shield-halved text-success me-2"></i>Identity Verification</h6>
+                                 <div class="d-flex flex-column gap-3 font-size-xs">
+                                     <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-light">
+                                         <span class="text-secondary"><i class="fa-solid fa-envelope me-2 text-muted"></i>Email Address</span>
+                                         <div class="d-flex align-items-center gap-2">
+                                             <span id="email-badge" class="badge bg-success-subtle text-success fw-bold font-size-xxs py-1 px-2">Verified</span>
+                                             <button type="button" id="btn-verify-email" class="btn btn-xxs btn-outline-primary py-0.5 px-2 font-size-xxs border-0" onclick="triggerOtpVerification('email')">Verify</button>
+                                         </div>
                                      </div>
                                      <div class="d-flex justify-content-between align-items-center">
-                                         <span class="text-secondary"><i class="fa-solid fa-phone me-1.5 text-muted"></i>Phone Verification</span>
-                                         <span class="badge bg-success-subtle text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i>Verified</span>
+                                         <span class="text-secondary"><i class="fa-solid fa-phone me-2 text-muted"></i>Phone Number</span>
+                                         <div class="d-flex align-items-center gap-2">
+                                             <span id="phone-badge" class="badge bg-warning-subtle text-warning fw-bold font-size-xxs py-1 px-2">Unverified</span>
+                                             <button type="button" id="btn-verify-phone" class="btn btn-xxs btn-outline-primary py-0.5 px-2 font-size-xxs" onclick="triggerOtpVerification('phone')"><i class="fa-solid fa-shield-check me-1"></i>Verify</button>
+                                         </div>
                                      </div>
                                  </div>
                              </div>
 
                              <!-- Change Password Form -->
                              <div class="hc-card">
-                                 <h6 class="fw-bold mb-3"><i class="fa-solid fa-key text-primary me-2"></i>Change Password</h6>
+                                 <h6 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-key text-primary me-2"></i>Credentials Manager</h6>
                                  <form id="profile-change-password-form">
                                      <div class="mb-2">
-                                         <label class="form-label font-size-xxs fw-semibold text-secondary mb-1">New Password</label>
-                                         <input type="password" class="form-control form-control-sm" id="profile-new-pass" required>
+                                         <label class="form-label font-size-xxs fw-semibold text-secondary mb-1">New Secure Password</label>
+                                         <div class="input-group input-group-sm">
+                                             <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-lock"></i></span>
+                                             <input type="password" class="form-control form-control-sm border-start-0" id="profile-new-pass" placeholder="••••••••" required>
+                                         </div>
                                      </div>
                                      <div class="mb-3">
-                                         <label class="form-label font-size-xxs fw-semibold text-secondary mb-1">Confirm New Password</label>
-                                         <input type="password" class="form-control form-control-sm" id="profile-confirm-pass" required>
+                                         <label class="form-label font-size-xxs fw-semibold text-secondary mb-1">Confirm Password</label>
+                                         <div class="input-group input-group-sm">
+                                             <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-lock"></i></span>
+                                             <input type="password" class="form-control form-control-sm border-start-0" id="profile-confirm-pass" placeholder="••••••••" required>
+                                         </div>
                                      </div>
-                                     <button type="submit" class="btn btn-sm btn-hc-primary w-100 py-1.5 font-size-xs">Update Password</button>
+                                     <button type="submit" class="btn btn-sm btn-hc-primary w-100 py-2 font-size-xs shadow-sm"><i class="fa-solid fa-key me-1.5"></i>Update Account Password</button>
                                  </form>
                              </div>
                         </div>
 
-                        <!-- Right Column: Demographics & Insurance Form -->
+                        <!-- Right Column: Demographics & Medical Form -->
                         <div class="col-lg-8">
                             <div class="hc-card">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-user-circle text-primary me-2"></i>Demographics & Emergency Settings</h5>
+                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-user-circle text-primary me-2"></i>Personal & Medical Record Demographics</h5>
                                 <form id="patient-profile-form">
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-6">
-                                            <label class="form-label fw-semibold font-size-sm">Full Name</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Full Legal Name</label>
                                             <input type="text" class="form-control" id="profile-name" disabled>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label fw-semibold font-size-sm">Date of Birth</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Date of Birth</label>
                                             <input type="date" class="form-control" id="profile-dob" required>
                                         </div>
                                         <div class="col-md-3">
-                                            <label class="form-label fw-semibold font-size-sm">Gender</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Gender Identity</label>
                                             <select class="form-select" id="profile-gender" required>
                                                 <option value="Male">Male</option>
                                                 <option value="Female">Female</option>
@@ -638,7 +653,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label fw-semibold font-size-sm">Blood Group</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Blood Group</label>
                                             <select class="form-select" id="profile-blood" required>
                                                 <option value="A+">A+</option>
                                                 <option value="A-">A-</option>
@@ -651,47 +666,49 @@
                                             </select>
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label fw-semibold font-size-sm">Phone Number</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Primary Phone Number</label>
                                             <input type="tel" class="form-control" id="profile-phone" required>
                                         </div>
                                         <div class="col-md-4">
-                                            <label class="form-label fw-semibold font-size-sm">Aadhaar / National ID</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Aadhaar / National ID</label>
                                             <input type="text" class="form-control" id="profile-aadhaar" placeholder="XXXX-XXXX-XXXX">
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label fw-semibold font-size-sm">Residential Address</label>
-                                            <input type="text" class="form-control" id="profile-address" placeholder="123 Main St, Apartment 4B...">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Residential Address</label>
+                                            <textarea class="form-control" id="profile-address" rows="2" placeholder="123 Main St, Apartment 4B..."></textarea>
                                         </div>
                                         <div class="col-12">
-                                            <label class="form-label fw-semibold font-size-sm">Allergies (Comma separated)</label>
-                                            <input type="text" class="form-control" id="profile-allergies" placeholder="Penicillin, Peanuts...">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Active Allergies & Specimen Flags</label>
+                                            <input type="text" class="form-control" id="profile-allergies" placeholder="Penicillin, Peanuts, Latex...">
                                         </div>
                                     </div>
 
-                                    <h5 class="fw-bold my-4 text-secondary"><i class="fa-solid fa-file-shield me-2"></i>Medical Insurance Policies</h5>
+                                    <h5 class="fw-bold my-4 text-secondary border-bottom pb-2"><i class="fa-solid fa-file-shield me-2"></i>Medical Insurance Policies</h5>
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-6">
-                                            <label class="form-label fw-semibold font-size-sm">Insurance Provider</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Insurance Provider</label>
                                             <input type="text" class="form-control" id="profile-insurance-carrier" placeholder="HDFC ERGO, Star Health...">
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label fw-semibold font-size-sm">Policy / Certificate Number</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Policy / Certificate Number</label>
                                             <input type="text" class="form-control" id="profile-insurance-policy" placeholder="POL-9908123-X">
                                         </div>
                                     </div>
 
-                                    <h5 class="fw-bold my-4 text-secondary"><i class="fa-solid fa-phone-volume me-2"></i>Emergency Contact Details</h5>
+                                    <h5 class="fw-bold my-4 text-secondary border-bottom pb-2"><i class="fa-solid fa-phone-volume me-2"></i>Emergency Contact Details</h5>
                                     <div class="row g-3 mb-4">
                                         <div class="col-md-6">
-                                            <label class="form-label fw-semibold font-size-sm">Emergency Contact Name</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Emergency Contact Name</label>
                                             <input type="text" class="form-control" id="profile-emergency-name" required>
                                         </div>
                                         <div class="col-md-6">
-                                            <label class="form-label fw-semibold font-size-sm">Emergency Phone Number</label>
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Emergency Phone Number</label>
                                             <input type="tel" class="form-control" id="profile-emergency-phone" required>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-hc-primary py-2 px-5 shadow-sm">Update Information</button>
+                                    <div class="text-end mt-4">
+                                        <button type="submit" class="btn btn-hc-primary py-2 px-5 shadow-sm font-size-sm"><i class="fa-solid fa-user-check me-2"></i>Update Demographics Settings</button>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -708,6 +725,28 @@
 
     <!-- Lab Report Modal Container -->
     <div class="modal fade" id="labReportModal" tabindex="-1" aria-hidden="true"></div>
+
+    <!-- OTP VERIFICATION MODAL -->
+    <div class="modal fade" id="otpVerificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header py-2.5">
+                    <h6 class="modal-title fw-bold" id="otpModalTitle">Verify Details</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="font-size-xs text-muted mb-3" id="otpModalInstructions">Enter the 4-digit verification code sent to your registered address.</p>
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <input type="text" class="otp-digit-field" id="otp-1" maxlength="1" onkeyup="moveOtpFocus(this, 'otp-2')" style="width: 48px; height: 52px; font-size: 1.5rem; font-weight: 800; text-align: center; border: 2px solid var(--hc-border); border-radius: 10px; background: var(--hc-bg-card-solid); color: var(--hc-text-primary); transition: border-color 0.25s ease;">
+                        <input type="text" class="otp-digit-field" id="otp-2" maxlength="1" onkeyup="moveOtpFocus(this, 'otp-3')" style="width: 48px; height: 52px; font-size: 1.5rem; font-weight: 800; text-align: center; border: 2px solid var(--hc-border); border-radius: 10px; background: var(--hc-bg-card-solid); color: var(--hc-text-primary); transition: border-color 0.25s ease;">
+                        <input type="text" class="otp-digit-field" id="otp-3" maxlength="1" onkeyup="moveOtpFocus(this, 'otp-4')" style="width: 48px; height: 52px; font-size: 1.5rem; font-weight: 800; text-align: center; border: 2px solid var(--hc-border); border-radius: 10px; background: var(--hc-bg-card-solid); color: var(--hc-text-primary); transition: border-color 0.25s ease;">
+                        <input type="text" class="otp-digit-field" id="otp-4" maxlength="1" style="width: 48px; height: 52px; font-size: 1.5rem; font-weight: 800; text-align: center; border: 2px solid var(--hc-border); border-radius: 10px; background: var(--hc-bg-card-solid); color: var(--hc-text-primary); transition: border-color 0.25s ease;">
+                    </div>
+                    <button type="button" class="btn btn-hc-primary w-100 py-2 font-size-sm" onclick="confirmOtpVerification()">Submit Verification Code</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Doctor/Consultation Feedback Rating Modal -->
     <div class="modal fade" id="feedbackRatingModal" tabindex="-1" aria-hidden="true">

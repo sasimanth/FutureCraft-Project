@@ -9,7 +9,7 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <!-- Custom Style -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -63,13 +63,19 @@
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-users">
                         <i class="fa-solid fa-users-gear"></i>
-                        <span>User Management</span>
+                        <span>User & Approvals</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-departments">
                         <i class="fa-solid fa-sitemap"></i>
                         <span>Departments</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-leaves">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Leaves & Alerts</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -81,7 +87,13 @@
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-audits">
                         <i class="fa-solid fa-shield-halved"></i>
-                        <span>System Audits</span>
+                        <span>System Logs & Backups</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-settings">
+                        <i class="fa-solid fa-gears"></i>
+                        <span>Hospital Settings</span>
                     </a>
                 </li>
             </ul>
@@ -128,18 +140,28 @@
                 
                 <!-- PANEL 1: ADMIN CONSOLE OVERVIEW -->
                 <section class="dashboard-panel active" id="panel-dashboard">
-                    <div class="row g-4 mb-4">
+                    <!-- KPI SUMMARY GRID ROW 1 -->
+                    <div class="row g-3 mb-3">
                         <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget">
+                            <div class="stat-widget admin-premium-widget">
                                 <div>
-                                    <p class="stat-title">Total Patients</p>
+                                    <p class="stat-title">Today's Patients</p>
                                     <h3 class="stat-value" id="admin-stat-patients">--</h3>
                                 </div>
                                 <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-user-injured"></i></div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Today's Appointments</p>
+                                    <h3 class="stat-value" id="admin-stat-appointments">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-teal mb-0"><i class="fa-solid fa-calendar-check"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="stat-widget admin-premium-widget">
                                 <div>
                                     <p class="stat-title">Active Doctors</p>
                                     <h3 class="stat-value" id="admin-stat-doctors">--</h3>
@@ -148,21 +170,52 @@
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget">
+                            <div class="stat-widget admin-premium-widget">
                                 <div>
-                                    <p class="stat-title">Lab Assessments</p>
-                                    <h3 class="stat-value" id="admin-stat-labs">--</h3>
+                                    <p class="stat-title">Active Technicians</p>
+                                    <h3 class="stat-value" id="admin-stat-techs">--</h3>
                                 </div>
-                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-flask"></i></div>
+                                <div class="hc-icon-wrapper hc-icon-info mb-0"><i class="fa-solid fa-user-gear"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- KPI SUMMARY GRID ROW 2 -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Today's Revenue</p>
+                                    <h3 class="stat-value" id="admin-stat-revenue-today">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-green mb-0"><i class="fa-solid fa-wallet"></i></div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget">
+                            <div class="stat-widget admin-premium-widget">
                                 <div>
-                                    <p class="stat-title">Departments</p>
-                                    <h3 class="stat-value" id="admin-stat-depts">--</h3>
+                                    <p class="stat-title">Pending Approvals</p>
+                                    <h3 class="stat-value" id="admin-stat-pending-approvals">--</h3>
                                 </div>
-                                <div class="hc-icon-wrapper hc-icon-red mb-0"><i class="fa-solid fa-sitemap"></i></div>
+                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-user-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Pending Leaves</p>
+                                    <h3 class="stat-value" id="admin-stat-pending-leaves">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-red mb-0"><i class="fa-solid fa-clipboard-question"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Completed Reports</p>
+                                    <h3 class="stat-value" id="admin-stat-reports-completed">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-file-invoice"></i></div>
                             </div>
                         </div>
                     </div>
@@ -222,7 +275,21 @@
 
                 <!-- PANEL 2: USER MANAGEMENT (CRUD) -->
                 <section class="dashboard-panel" id="panel-users">
-                    <div class="hc-card">
+                    <!-- Segmented Sub-Tabs -->
+                    <ul class="nav nav-tabs mb-4 border-light-subtle" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active fw-semibold font-size-sm" id="subtab-registry-btn" onclick="switchUserSubTab('registry')" type="button">Role Manager</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-semibold font-size-sm" id="subtab-approvals-btn" onclick="switchUserSubTab('approvals')" type="button">Staff Approvals <span class="badge bg-danger rounded-pill font-size-xxs ms-1" id="admin-pending-approval-badge">0</span></button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-semibold font-size-sm" id="subtab-verifications-btn" onclick="switchUserSubTab('verifications')" type="button">Identity Verifications</button>
+                        </li>
+                    </ul>
+
+                    <!-- SUB-PANEL 1: ROLE REGISTRY -->
+                    <div class="hc-card" id="user-subpanel-registry">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="fw-bold mb-0"><i class="fa-solid fa-users text-primary me-2"></i>Access Control Registry</h5>
                             <button type="button" class="btn btn-hc-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fa-solid fa-user-plus me-1"></i> Register New User</button>
@@ -241,6 +308,53 @@
                                 </thead>
                                 <tbody id="admin-users-list">
                                     <!-- Dynamic list of users from localStorage -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- SUB-PANEL 2: STAFF APPROVALS -->
+                    <div class="hc-card d-none" id="user-subpanel-approvals">
+                        <h5 class="fw-bold mb-4 text-secondary"><i class="fa-solid fa-user-shield text-warning me-2"></i>Doctor & Technician Signing Approvals</h5>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Full Name</th>
+                                        <th>Email Address</th>
+                                        <th>Role Requested</th>
+                                        <th>Department / Clinic</th>
+                                        <th>Application Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-approvals-list">
+                                    <!-- Dynamic list of pending users -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- SUB-PANEL 3: IDENTITY VERIFICATIONS -->
+                    <div class="hc-card d-none" id="user-subpanel-verifications">
+                        <h5 class="fw-bold mb-4 text-secondary"><i class="fa-solid fa-circle-check text-success me-2"></i>Patient Identity & Contact Verification</h5>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Patient UID</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Email Status</th>
+                                        <th>Phone</th>
+                                        <th>Phone Status</th>
+                                        <th>Registration Date</th>
+                                        <th>Verification Control</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-verifications-list">
+                                    <!-- Dynamic list of patients for verification -->
                                 </tbody>
                             </table>
                         </div>
@@ -295,57 +409,56 @@
 
                 <!-- PANEL 4: AUDIT LOGS -->
                 <section class="dashboard-panel" id="panel-audits">
-                    <div class="hc-card">
-                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-file-shield text-primary me-2"></i>Database Action Audits</h5>
-                        <div class="table-responsive hc-table-container">
-                            <table class="table hc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Timestamp</th>
-                                        <th>Module</th>
-                                        <th>Initiator</th>
-                                        <th>Action Description</th>
-                                        <th>Security Flag</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><code>2026-06-19 08:31:02</code></td>
-                                        <td><span class="badge bg-secondary">accounts</span></td>
-                                        <td><code>admin@ehrmail.com</code></td>
-                                        <td>Admin console login successful from IP 192.168.1.52.</td>
-                                        <td><span class="badge bg-success">SECURE</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><code>2026-06-19 08:15:34</code></td>
-                                        <td><span class="badge bg-secondary">laboratory</span></td>
-                                        <td><code>labtech@ehrmail.com</code></td>
-                                        <td>Completed report compiled for Request lab-1.</td>
-                                        <td><span class="badge bg-success">SECURE</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><code>2026-06-19 07:54:12</code></td>
-                                        <td><span class="badge bg-secondary">patients</span></td>
-                                        <td><code>system</code></td>
-                                        <td>Patient profile pat-1 successfully updated.</td>
-                                        <td><span class="badge bg-success">SECURE</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><code>2026-06-19 07:44:22</code></td>
-                                        <td><span class="badge bg-secondary">doctors</span></td>
-                                        <td><code>sarah.connor@ehrmail.com</code></td>
-                                        <td>E-Prescription rx-1 created for patient pat-1.</td>
-                                        <td><span class="badge bg-success">SECURE</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><code>2026-06-19 07:30:00</code></td>
-                                        <td><span class="badge bg-secondary">appointments</span></td>
-                                        <td><code>john.doe@ehrmail.com</code></td>
-                                        <td>Appointment scheduled with Dr. Sarah Connor.</td>
-                                        <td><span class="badge bg-success">SECURE</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    <div class="row g-4">
+                        <!-- Left: Audit Table -->
+                        <div class="col-lg-8">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-file-shield text-primary me-2"></i>Database Action Audits</h5>
+                                <div class="table-responsive hc-table-container" style="max-height: 480px; overflow-y: auto;">
+                                    <table class="table hc-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Timestamp</th>
+                                                <th>Module</th>
+                                                <th>Initiator</th>
+                                                <th>Action Description</th>
+                                                <th>Security Flag</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-audits-list">
+                                            <!-- Dynamically populated from audits DB -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right: Backups & System logs -->
+                        <div class="col-lg-4">
+                            <div class="hc-card mb-4">
+                                <h5 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-database text-success me-2"></i>Database Backups</h5>
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="text-muted d-block font-size-xxs fw-bold mb-1">DATABASE DRIVER</span>
+                                    <span class="fw-bold text-dark font-size-xs"><i class="fa-solid fa-server me-1.5 text-primary"></i>PostgreSQL 15 Enterprise</span>
+                                </div>
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="text-muted d-block font-size-xxs fw-bold mb-1">LAST BACKUP TIMESTAMP</span>
+                                    <span class="fw-bold text-secondary font-size-xs" id="admin-last-backup"><i class="fa-solid fa-clock-rotate-left me-1.5"></i>Today at 04:00 AM</span>
+                                </div>
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="text-muted d-block font-size-xxs fw-bold mb-1">DATABASE STORAGE SIZE</span>
+                                    <span class="fw-bold text-dark font-size-xs"><i class="fa-solid fa-chart-pie me-1.5 text-info"></i>42.8 MB / 500 MB (9.5%)</span>
+                                </div>
+                                <button class="btn btn-sm btn-hc-primary w-100 py-2.5 font-size-xs mb-2" onclick="triggerDbBackup()"><i class="fa-solid fa-cloud-arrow-up me-1.5"></i>Create Instant Backup</button>
+                                <button class="btn btn-sm btn-outline-success w-100 py-2.5 font-size-xs" onclick="checkDbHealth()"><i class="fa-solid fa-heart-pulse me-1.5"></i>Run Diagnostics Integrity Check</button>
+                            </div>
+                            
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-envelope-open-text text-info me-2"></i>Email Notifications Log</h5>
+                                <div class="d-flex flex-column gap-2 font-size-xxs" id="admin-email-logs" style="max-height: 180px; overflow-y: auto;">
+                                    <!-- Dynamic email status logs populated by JS -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -489,6 +602,111 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 6: LEAVES & ALERTS -->
+                <section class="dashboard-panel" id="panel-leaves">
+                    <div class="row g-4">
+                        <!-- Left Pane: Staff Leave Approval -->
+                        <div class="col-lg-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-hospital-user text-danger me-2"></i>Staff Leave Requests & Absences</h5>
+                                <div class="table-responsive hc-table-container">
+                                    <table class="table hc-table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Staff Details</th>
+                                                <th>Leave Dates</th>
+                                                <th>Reason</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-leaves-list">
+                                            <!-- Dynamically populated leave requests -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Pane: Broadcast Notifications -->
+                        <div class="col-lg-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-bullhorn text-primary me-2"></i>Global Broadcast Notifications Console</h5>
+                                <form id="admin-broadcast-form" onsubmit="triggerGlobalBroadcast(event)">
+                                    <div class="mb-3">
+                                        <label for="broadcast-title" class="form-label fw-semibold font-size-sm text-secondary">Announcement Headline</label>
+                                        <input type="text" class="form-control" id="broadcast-title" placeholder="e.g. Scheduled Downtime Alert" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="broadcast-message" class="form-label fw-semibold font-size-sm text-secondary">Detailed Announcement Message</label>
+                                        <textarea class="form-control" id="broadcast-message" rows="4" placeholder="Enter notification message details..." required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="broadcast-target" class="form-label fw-semibold font-size-sm text-secondary">Target Portals</label>
+                                        <select class="form-select" id="broadcast-target">
+                                            <option value="all">All Portals (Patients, Doctors, Techs)</option>
+                                            <option value="patient">Patients Only</option>
+                                            <option value="doctor">Doctors Only</option>
+                                            <option value="labtech">Lab Technicians Only</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-hc-primary w-100 py-2.5 font-size-sm shadow-sm"><i class="fa-solid fa-paper-plane me-1.5"></i>Broadcast Alert Immediately</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 7: HOSPITAL SETTINGS -->
+                <section class="dashboard-panel" id="panel-settings">
+                    <div class="hc-card">
+                        <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-gears text-primary me-2"></i>Hospital General Settings & Config</h5>
+                        <form id="admin-settings-form" onsubmit="saveHospitalSettings(event)">
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold font-size-sm text-secondary">Clinic / Hospital Name</label>
+                                    <input type="text" class="form-control" id="settings-hospital-name" value="CurePoint Healthcare System">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold font-size-sm text-secondary">Support Email Desk</label>
+                                    <input type="email" class="form-control" id="settings-hospital-email" value="support@curepoint.org">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold font-size-sm text-secondary">Support Phone Line</label>
+                                    <input type="tel" class="form-control" id="settings-hospital-phone" value="+1 (555) 019-2834">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold font-size-sm text-secondary">National Clinic License Ref</label>
+                                    <input type="text" class="form-control" id="settings-hospital-license" value="LIC-990812-US">
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold mb-3 text-secondary border-bottom pb-2"><i class="fa-solid fa-envelope-circle-check me-2"></i>Email Server API (SMTP) Setup</h5>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold font-size-sm text-secondary">SMTP Host</label>
+                                    <input type="text" class="form-control" id="settings-smtp-host" value="smtp.sendgrid.net">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold font-size-sm text-secondary">SMTP Port</label>
+                                    <input type="text" class="form-control" id="settings-smtp-port" value="587">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold font-size-sm text-secondary">Encryption Protocol</label>
+                                    <select class="form-select" id="settings-smtp-enc">
+                                        <option value="tls" selected>STARTTLS (Secure)</option>
+                                        <option value="ssl">SSL / TLS</option>
+                                        <option value="none">Unsecured</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-hc-primary py-2.5 px-5 shadow-sm font-size-sm"><i class="fa-solid fa-floppy-disk me-2"></i>Save Configurations</button>
+                            </div>
+                        </form>
                     </div>
                 </section>
 

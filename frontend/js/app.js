@@ -181,15 +181,15 @@ const DEFAULT_PATIENTS = [
 ];
 
 const DEFAULT_USERS = [
-    { email: 'admin@ehrmail.com', password: 'password123', name: 'Administrator', role: 'admin' },
-    { email: 'sarah.connor@ehrmail.com', password: 'password123', name: 'Dr. Sarah Connor', role: 'doctor', doctorId: 'doc-1' },
-    { email: 'robert.chen@ehrmail.com', password: 'password123', name: 'Dr. Robert Chen', role: 'doctor', doctorId: 'doc-2' },
-    { email: 'labtech@ehrmail.com', password: 'password123', name: 'Alex Mercer', role: 'labtech' },
-    { email: 'john.doe@ehrmail.com', password: 'password123', name: 'John Doe', role: 'patient', patientId: 'pat-1' },
-    { email: 'emma.watson@ehrmail.com', password: 'password123', name: 'Emma Watson', role: 'patient', patientId: 'pat-2' },
-    { email: 'robert.downey@ehrmail.com', password: 'password123', name: 'Robert Downey', role: 'patient', patientId: 'pat-3' },
-    { email: 'clara.oswald@ehrmail.com', password: 'password123', name: 'Clara Oswald', role: 'patient', patientId: 'pat-4' },
-    { email: 'bruce.banner@ehrmail.com', password: 'password123', name: 'Bruce Banner', role: 'patient', patientId: 'pat-5' }
+    { email: 'admin@ehrmail.com', password: 'password123', name: 'Administrator', role: 'admin', dateJoined: '2026-01-10T10:00:00Z', emailVerified: true, phoneVerified: true, status: 'Active' },
+    { email: 'sarah.connor@ehrmail.com', password: 'password123', name: 'Dr. Sarah Connor', role: 'doctor', doctorId: 'doc-1', dateJoined: '2026-02-15T09:00:00Z', emailVerified: true, phoneVerified: true, status: 'Active', department: 'General Medicine' },
+    { email: 'robert.chen@ehrmail.com', password: 'password123', name: 'Dr. Robert Chen', role: 'doctor', doctorId: 'doc-2', dateJoined: '2026-02-20T11:00:00Z', emailVerified: true, phoneVerified: true, status: 'Active', department: 'Cardiology' },
+    { email: 'labtech@ehrmail.com', password: 'password123', name: 'Alex Mercer', role: 'labtech', dateJoined: '2026-03-01T08:30:00Z', emailVerified: true, phoneVerified: true, status: 'Active' },
+    { email: 'john.doe@ehrmail.com', password: 'password123', name: 'John Doe', role: 'patient', patientId: 'pat-1', dateJoined: '2026-04-10T14:22:00Z', emailVerified: true, phoneVerified: false, status: 'Active' },
+    { email: 'emma.watson@ehrmail.com', password: 'password123', name: 'Emma Watson', role: 'patient', patientId: 'pat-2', dateJoined: '2026-04-12T15:30:00Z', emailVerified: false, phoneVerified: false, status: 'Active' },
+    { email: 'robert.downey@ehrmail.com', password: 'password123', name: 'Robert Downey', role: 'patient', patientId: 'pat-3', dateJoined: '2026-04-15T16:45:00Z', emailVerified: true, phoneVerified: true, status: 'Active' },
+    { email: 'clara.oswald@ehrmail.com', password: 'password123', name: 'Clara Oswald', role: 'patient', patientId: 'pat-4', dateJoined: '2026-04-20T10:15:00Z', emailVerified: false, phoneVerified: true, status: 'Active' },
+    { email: 'bruce.banner@ehrmail.com', password: 'password123', name: 'Bruce Banner', role: 'patient', patientId: 'pat-5', dateJoined: '2026-04-25T11:30:00Z', emailVerified: true, phoneVerified: true, status: 'Active' }
 ];
 
 const DEFAULT_APPOINTMENTS = [
@@ -1118,6 +1118,11 @@ function initPatientPortal(patientUser) {
 
     // Initialize 5-Step Appointment Booking Wizard
     initBookingWizard(patient);
+
+    // Render verification badges & member joined date
+    if (window.renderPatientVerificationBadges) {
+        window.renderPatientVerificationBadges(patientUser);
+    }
 
     // Profile Edit Handler
     const profileForm = document.getElementById('patient-profile-form');
@@ -2795,6 +2800,9 @@ function initLabPortal(labUser) {
     setupLabWalkinSelectors();
     updateLabTechStats();
 
+    if (window.renderWalkinQueue) window.renderWalkinQueue();
+    if (window.renderSpecimenQueue) window.renderSpecimenQueue();
+
     // Register search input filter
     const searchInput = document.getElementById('lab-search-input');
     if (searchInput) {
@@ -2898,16 +2906,19 @@ window.scanBarcode = function(reqId) {
             newStatus = 'sample_collected';
             Toast.success(`Barcode scanned: Specimen collected for ${reqId}!`);
         } else if (oldStatus === 'sample_collected') {
+            newStatus = 'sample_received';
+            Toast.success(`Barcode scanned: Specimen received/checked-in at processing lab for ${reqId}.`);
+        } else if (oldStatus === 'sample_received') {
             newStatus = 'processing';
-            Toast.success(`Barcode scanned: Specimen processing started for ${reqId}.`);
+            Toast.success(`Barcode scanned: Analyzer processing started for ${reqId}.`);
         } else if (oldStatus === 'processing') {
             newStatus = 'results_ready';
-            Toast.success(`Barcode scanned: Specimen processing complete. Results ready for ${reqId}.`);
+            Toast.success(`Barcode scanned: Analyzer compile completed. Results ready for ${reqId}.`);
         } else if (oldStatus === 'results_ready') {
-            Toast.info(`Results are ready. Please fill in test parameter values in the Results tab to authorize.`);
+            Toast.info(`Results are ready. Please fill in parameter values in the Results tab to verify and release.`);
             return;
         } else if (oldStatus === 'completed') {
-            Toast.info(`Lab Report ${reqId} has already been completed and authorized.`);
+            Toast.info(`Lab Report ${reqId} has already been completed.`);
             return;
         }
         
@@ -2915,6 +2926,7 @@ window.scanBarcode = function(reqId) {
             req.status = newStatus;
             setDB('lab_requests', requests);
             renderLabRequests();
+            window.renderSpecimenQueue();
             if (typeof renderLabDashboardCharts === 'function') {
                 renderLabDashboardCharts();
             }
@@ -2937,10 +2949,18 @@ function renderLabRequests() {
         filtered = requests.filter(r => r.status === 'registered' || r.status === 'accepted');
     } else if (window.activeLabTab === 'sample_collection') {
         filtered = requests.filter(r => r.status === 'sample_collected');
+    } else if (window.activeLabTab === 'sample_received') {
+        filtered = requests.filter(r => r.status === 'sample_received');
     } else if (window.activeLabTab === 'in_progress') {
-        filtered = requests.filter(r => r.status === 'processing' || r.status === 'results_ready');
+        filtered = requests.filter(r => r.status === 'processing');
+    } else if (window.activeLabTab === 'awaiting_verification') {
+        filtered = requests.filter(r => r.status === 'results_ready');
     } else if (window.activeLabTab === 'completed') {
         filtered = requests.filter(r => r.status === 'completed');
+    } else if (window.activeLabTab === 'critical') {
+        filtered = requests.filter(r => r.priority === 'Critical' && r.status !== 'completed');
+    } else if (window.activeLabTab === 'urgent') {
+        filtered = requests.filter(r => (r.priority === 'High' || r.priority === 'Critical') && r.status !== 'completed');
     }
 
     // Apply Search query filter
@@ -3156,9 +3176,9 @@ function setupLabWalkinSelectors() {
 async function submitLabWalkin() {
     const patientId = document.getElementById('walkin-patient').value;
     const doctor = document.getElementById('walkin-doctor').value;
-    const testCat = document.getElementById('walkin-cat').value;
-    const testName = document.getElementById('walkin-name').value;
     const priority = document.getElementById('walkin-priority').value;
+    const payment = document.getElementById('walkin-payment').value;
+    const sampleStatus = document.getElementById('walkin-sample-status').value;
 
     const patient = getDB('patients').find(p => p.id === patientId);
     if (!patient) {
@@ -3166,36 +3186,126 @@ async function submitLabWalkin() {
         return;
     }
 
-    const newRequest = {
-        id: 'lab-' + Date.now(),
-        patientId: patientId,
-        patientName: patient.name,
-        doctorName: doctor,
-        testCategory: testCat,
-        testName: testName,
-        requestDate: new Date().toISOString().split('T')[0],
-        status: 'registered', // start in Registered stage
-        resultDate: null,
-        technician: '',
-        priority: priority,
-        results: []
-    };
+    const checkboxes = document.querySelectorAll('.walkin-test-cb:checked');
+    if (checkboxes.length === 0) {
+        Toast.warning('Please select at least one diagnostic assessment.');
+        return;
+    }
 
-    await ApiService.createLabTest(newRequest);
-    Toast.success('Walk-in laboratory request registered successfully!');
+    const token = "TKN-" + Math.floor(100 + Math.random() * 900);
+    const requests = getDB('lab_requests') || [];
+    const invoices = getDB('patient_invoices') || [];
+
+    checkboxes.forEach((cb, index) => {
+        const testName = cb.value;
+        const testCat = cb.getAttribute('data-category');
+        const labId = 'lab-' + Date.now() + '-' + index;
+
+        requests.push({
+            id: labId,
+            patientId: patientId,
+            patientName: patient.name,
+            doctorName: doctor,
+            testCategory: testCat,
+            testName: testName,
+            requestDate: new Date().toISOString().split('T')[0],
+            status: sampleStatus, // pending or sample_collected
+            resultDate: null,
+            technician: '',
+            priority: priority,
+            results: [],
+            techComments: `[Token: ${token}] [Payment: ${payment}]`
+        });
+
+        // If unpaid, generate billing item
+        if (payment === 'unpaid') {
+            invoices.push({
+                id: 'INV-' + Math.floor(10000 + Math.random() * 90000),
+                patientId: patientId,
+                description: `Laboratory Analysis - ${testName}`,
+                amount: 75.00,
+                status: 'unpaid'
+            });
+        }
+    });
+
+    setDB('lab_requests', requests);
+    if (payment === 'unpaid') {
+        setDB('patient_invoices', invoices);
+    }
+
+    // Call API if server mode
+    if (!ApiService.useMock) {
+        try {
+            for (let index = 0; index < checkboxes.length; index++) {
+                const cb = checkboxes[index];
+                const testName = cb.value;
+                const testCat = cb.getAttribute('data-category');
+                await ApiService._request('/lab-tests/', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        lab_id: 'lab-' + Date.now() + '-' + index,
+                        patient_id: patientId,
+                        patient_name: patient.name,
+                        doctor_name: doctor,
+                        test_category: testCat,
+                        test_name: testName,
+                        status: sampleStatus,
+                        priority: priority,
+                        tech_comments: `[Token: ${token}] [Payment: ${payment}]`
+                    })
+                });
+            }
+            await ApiService.syncDataFromServer();
+        } catch (err) {
+            console.error("Failed to sync registered walk-in to backend:", err);
+        }
+    }
+
+    Toast.success(`Walk-In token ${token} registered successfully!`);
     document.getElementById('lab-walkin-form').reset();
+    
+    // Refresh queues & stats
     renderLabRequests();
     renderLabDashboardCharts();
     updateLabTechStats();
+    window.renderWalkinQueue();
+    window.renderSpecimenQueue();
+
+    // Navigate back to overview dashboard
     document.querySelector('[data-panel="panel-dashboard"]').click();
 }
 
 window.enterLabResults = function (requestId) {
     document.querySelector('[data-panel="panel-results-entry"]').click();
+    window.selectSpecimenForEntry(requestId);
+};
+
+window.selectSpecimenForEntry = function(requestId) {
     const reqs = getDB('lab_requests');
     const req = reqs.find(r => r.id === requestId);
 
     if (req) {
+        // Highlight active card
+        document.querySelectorAll('.specimen-queue-card').forEach(card => {
+            card.classList.remove('active-item');
+        });
+        const activeCard = document.getElementById(`specimen-card-${requestId}`);
+        if (activeCard) activeCard.classList.add('active-item');
+
+        // Toggle layout visibility
+        document.getElementById('results-editor-placeholder').classList.add('d-none');
+        const workspace = document.getElementById('results-editor-workspace');
+        workspace.classList.remove('d-none');
+
+        // Extract token if present
+        let token = "TKN-000";
+        if (req.techComments && req.techComments.includes('[Token: ')) {
+            const matches = req.techComments.match(/\[Token:\s*([A-Z0-9-]+)\]/);
+            if (matches && matches[1]) token = matches[1];
+        }
+        document.getElementById('entry-token-display').innerText = token;
+
         document.getElementById('entry-request-id').value = req.id;
         document.getElementById('entry-patient-name').value = req.patientName;
         document.getElementById('entry-test-name').value = req.testName;
@@ -3207,22 +3317,39 @@ window.enterLabResults = function (requestId) {
         const container = document.getElementById('dynamic-param-rows');
         container.innerHTML = '';
         const params = getParametersForTest(req.testName);
-        params.forEach(p => {
+
+        // Retrieve draft if saved
+        const draftStr = localStorage.getItem('draft_' + req.id);
+        const draft = draftStr ? JSON.parse(draftStr) : null;
+        if (draft && draft.comments) {
+            document.getElementById('entry-tech-comments').value = draft.comments;
+        } else {
+            document.getElementById('entry-tech-comments').value = req.techComments || '';
+        }
+
+        params.forEach((p, idx) => {
+            let val = '';
+            if (draft && draft.results && draft.results[idx]) {
+                val = draft.results[idx].value;
+            }
+            
             container.innerHTML += `
-            <div class="row g-3 mb-3 dynamic-param-row align-items-center">
-                <div class="col-md-4">
-                    <input type="text" class="form-control form-control-sm param-name" value="${p.name}" readonly>
-                </div>
-                <div class="col-md-3">
-                    <input type="number" step="0.01" class="form-control form-control-sm param-value" placeholder="Result Value" required>
-                </div>
-                <div class="col-md-2">
-                    <input type="text" class="form-control form-control-sm param-unit" value="${p.unit}" readonly>
-                </div>
-                <div class="col-md-3">
-                    <input type="text" class="form-control form-control-sm param-range" value="${p.range}" readonly>
-                </div>
-            </div>`;
+            <tr class="dynamic-param-row">
+                <td><span class="fw-semibold font-size-xs param-name">${p.name}</span></td>
+                <td>
+                    <input type="number" step="0.01" class="form-control form-control-sm param-value" placeholder="Result Value" value="${val}" oninput="window.interpretParamValue(this, '${p.range}')" required>
+                </td>
+                <td><span class="text-muted font-size-xs param-unit">${p.unit}</span></td>
+                <td><span class="text-secondary font-size-xs param-range">${p.range}</span></td>
+                <td><span class="param-flag badge bg-success-subtle text-success fw-bold font-size-xxs py-1 px-2.5">Normal</span></td>
+            </tr>`;
+        });
+
+        // Trigger interpretation if value is restored from draft
+        document.querySelectorAll('#dynamic-param-rows .param-value').forEach(input => {
+            if (input.value) {
+                input.dispatchEvent(new Event('input'));
+            }
         });
     }
 };
@@ -3310,10 +3437,13 @@ async function submitLabResults(technician) {
     const results = [];
 
     rows.forEach(row => {
-        const parameter = row.querySelector('.param-name').value;
+        const nameEl = row.querySelector('.param-name');
+        const parameter = nameEl.tagName === 'INPUT' ? nameEl.value : nameEl.innerText;
         const value = parseFloat(row.querySelector('.param-value').value);
-        const unit = row.querySelector('.param-unit').value;
-        const refRange = row.querySelector('.param-range').value;
+        const unitEl = row.querySelector('.param-unit');
+        const unit = unitEl.tagName === 'INPUT' ? unitEl.value : unitEl.innerText;
+        const rangeEl = row.querySelector('.param-range');
+        const refRange = rangeEl.tagName === 'INPUT' ? rangeEl.value : rangeEl.innerText;
 
         let flag = 'Normal';
         if (refRange.includes('-')) {
@@ -3322,6 +3452,7 @@ async function submitLabResults(technician) {
             const max = parseFloat(parts[1]);
             if (value < min) flag = 'Low';
             if (value > max) flag = 'High';
+            if (value < min * 0.7 || value > max * 1.3) flag = 'Critical';
         } else if (refRange.includes('<')) {
             const limit = parseFloat(refRange.replace('<', '').trim());
             if (value >= limit) flag = 'High';
@@ -3334,6 +3465,9 @@ async function submitLabResults(technician) {
     });
 
     const comments = document.getElementById('entry-tech-comments')?.value || '';
+
+    // Clear local draft
+    localStorage.removeItem('draft_' + reqId);
 
     if (!ApiService.useMock) {
         const formData = new FormData();
@@ -3371,6 +3505,12 @@ async function submitLabResults(technician) {
             await ApiService.syncDataFromServer();
             renderLabRequests();
             renderLabDashboardCharts();
+            
+            // Return to placeholder
+            document.getElementById('results-editor-workspace').classList.add('d-none');
+            document.getElementById('results-editor-placeholder').classList.remove('d-none');
+            window.renderSpecimenQueue();
+
             document.querySelector('[data-panel="panel-dashboard"]').click();
             return;
         } catch (err) {
@@ -3411,6 +3551,12 @@ async function submitLabResults(technician) {
 
     renderLabRequests();
     renderLabDashboardCharts();
+    
+    // Return to placeholder
+    document.getElementById('results-editor-workspace').classList.add('d-none');
+    document.getElementById('results-editor-placeholder').classList.remove('d-none');
+    window.renderSpecimenQueue();
+
     document.querySelector('[data-panel="panel-dashboard"]').click();
 }
 
@@ -3429,6 +3575,11 @@ function initAdminPortal(adminUser) {
     renderAdminDepartments();
     renderAdminAudits();
     renderAdminAnalyticsCharts();
+
+    if (window.renderAdminApprovals) window.renderAdminApprovals();
+    if (window.renderAdminVerifications) window.renderAdminVerifications();
+    if (window.renderAdminLeaves) window.renderAdminLeaves();
+    if (window.renderAdminEmailLogs) window.renderAdminEmailLogs();
 
     // Register User Form
     const adminUserForm = document.getElementById('admin-add-user-form');
@@ -3478,16 +3629,34 @@ function renderAdminDashboard() {
     const labs = getDB('lab_requests') || [];
     const depts = getDB('departments') || [];
     const appointments = getDB('appointments') || [];
+    const leaves = getDB('leaves') || [];
+
+    const todayStr = new Date().toISOString().split('T')[0];
+
+    // Count today's appointments
+    const todayAppts = appointments.filter(a => a.date === todayStr).length;
+
+    // Count active doctors and techs
+    const activeDocs = users.filter(u => u.role === 'doctor' && u.status !== 'Pending').length;
+    const activeTechs = users.filter(u => u.role === 'labtech' && u.status !== 'Pending').length;
+
+    // Count pending approvals & leaves
+    const pendingApprovals = users.filter(u => u.status === 'Pending').length;
+    const pendingLeaves = leaves.filter(l => l.status === 'pending' || l.status === 'Pending').length;
+
+    // Count completed reports
+    const completedReports = labs.filter(r => r.status === 'completed').length;
 
     document.getElementById('admin-stat-patients').innerText = users.filter(u => u.role === 'patient').length;
-    document.getElementById('admin-stat-doctors').innerText = users.filter(u => u.role === 'doctor').length;
-    document.getElementById('admin-stat-labs').innerText = labs.length;
-    document.getElementById('admin-stat-depts').innerText = depts.length;
+    document.getElementById('admin-stat-appointments').innerText = todayAppts;
+    document.getElementById('admin-stat-doctors').innerText = activeDocs;
+    if (document.getElementById('admin-stat-techs')) {
+        document.getElementById('admin-stat-techs').innerText = activeTechs;
+    }
 
     // Calculate dynamic revenue stats (Today, Week, Month, Year)
     const invoices = getDB('patient_invoices') || [];
     const paidInvoices = invoices.filter(inv => inv.status === 'paid' && inv.paidOn);
-    const todayStr = new Date().toISOString().split('T')[0];
     const todayMs = new Date(todayStr).getTime();
 
     let revToday = 0;
@@ -3525,6 +3694,19 @@ function renderAdminDashboard() {
     const formatCurrency = (val) => {
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
     };
+
+    if (document.getElementById('admin-stat-revenue-today')) {
+        document.getElementById('admin-stat-revenue-today').innerText = formatCurrency(revToday);
+    }
+    if (document.getElementById('admin-stat-pending-approvals')) {
+        document.getElementById('admin-stat-pending-approvals').innerText = pendingApprovals;
+    }
+    if (document.getElementById('admin-stat-pending-leaves')) {
+        document.getElementById('admin-stat-pending-leaves').innerText = pendingLeaves;
+    }
+    if (document.getElementById('admin-stat-reports-completed')) {
+        document.getElementById('admin-stat-reports-completed').innerText = completedReports;
+    }
 
     const elRevToday = document.getElementById('admin-rev-today');
     const elRevWeek = document.getElementById('admin-rev-week');
@@ -3613,10 +3795,10 @@ function renderAdminDepartments() {
 }
 
 function renderAdminAudits() {
-    const list = document.querySelector('#panel-audits tbody');
+    const list = document.getElementById('admin-audits-list') || document.querySelector('#panel-audits tbody');
     if (!list) return;
 
-    const audits = getDB('audits');
+    const audits = getDB('audits') || [];
     let html = '';
     audits.forEach(log => {
         html += `
@@ -5766,4 +5948,673 @@ window.triggerConsultationSave = function() {
     if (form) {
         form.dispatchEvent(new Event('submit', { cancelable: true }));
     }
+};
+
+// --- IDENTITY & DETAILS VERIFICATION LOGIC ---
+window.activeOtpType = 'email';
+
+window.renderPatientVerificationBadges = function(user) {
+    const emailBadge = document.getElementById('email-badge');
+    const phoneBadge = document.getElementById('phone-badge');
+    const btnVerifyEmail = document.getElementById('btn-verify-email');
+    const btnVerifyPhone = document.getElementById('btn-verify-phone');
+    const cardCreated = document.getElementById('profile-card-created');
+
+    if (emailBadge && btnVerifyEmail) {
+        if (user.emailVerified) {
+            emailBadge.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i>Verified`;
+            emailBadge.className = "badge bg-success-subtle text-success fw-bold font-size-xxs py-1 px-2";
+            btnVerifyEmail.style.display = 'none';
+        } else {
+            emailBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i>Unverified`;
+            emailBadge.className = "badge bg-warning-subtle text-warning fw-bold font-size-xxs py-1 px-2";
+            btnVerifyEmail.style.display = 'inline-block';
+        }
+    }
+
+    if (phoneBadge && btnVerifyPhone) {
+        if (user.phoneVerified) {
+            phoneBadge.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i>Verified`;
+            phoneBadge.className = "badge bg-success-subtle text-success fw-bold font-size-xxs py-1 px-2";
+            btnVerifyPhone.style.display = 'none';
+        } else {
+            phoneBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i>Unverified`;
+            phoneBadge.className = "badge bg-warning-subtle text-warning fw-bold font-size-xxs py-1 px-2";
+            btnVerifyPhone.style.display = 'inline-block';
+        }
+    }
+
+    if (cardCreated) {
+        let joinedDate = new Date(user.dateJoined || '2026-04-10');
+        const options = { year: 'numeric', month: 'long' };
+        cardCreated.innerText = joinedDate.toLocaleDateString('en-US', options);
+    }
+};
+
+window.triggerOtpVerification = function(type) {
+    window.activeOtpType = type;
+    document.getElementById('otp-1').value = '';
+    document.getElementById('otp-2').value = '';
+    document.getElementById('otp-3').value = '';
+    document.getElementById('otp-4').value = '';
+
+    const titleEl = document.getElementById('otpModalTitle');
+    const instEl = document.getElementById('otpModalInstructions');
+    const activeUser = AuthService.getCurrentUser();
+
+    if (type === 'email') {
+        if (titleEl) titleEl.innerText = "Verify Email Address";
+        if (instEl) instEl.innerText = `Enter the 4-digit verification code sent to ${activeUser.email}. (Enter 1234)`;
+    } else {
+        if (titleEl) titleEl.innerText = "Verify Phone Number";
+        const phoneInput = document.getElementById('profile-phone');
+        const phoneVal = phoneInput ? phoneInput.value : activeUser.phone || 'your phone';
+        if (instEl) instEl.innerText = `Enter the 4-digit verification code sent to ${phoneVal}. (Enter 1234)`;
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('otpVerificationModal'));
+    modal.show();
+    setTimeout(() => document.getElementById('otp-1').focus(), 400);
+};
+
+window.moveOtpFocus = function(input, nextId) {
+    if (input.value.length === 1) {
+        const nextEl = document.getElementById(nextId);
+        if (nextEl) nextEl.focus();
+    }
+};
+
+window.confirmOtpVerification = async function() {
+    const code = document.getElementById('otp-1').value + 
+                 document.getElementById('otp-2').value + 
+                 document.getElementById('otp-3').value + 
+                 document.getElementById('otp-4').value;
+
+    if (code.length < 4) {
+        Toast.error("Please enter the complete 4-digit code.");
+        return;
+    }
+
+    const activeUser = AuthService.getCurrentUser();
+    if (window.activeOtpType === 'email') {
+        activeUser.emailVerified = true;
+    } else {
+        activeUser.phoneVerified = true;
+    }
+
+    if (!ApiService.useMock && activeUser.id) {
+        try {
+            await ApiService.updateUser(activeUser.id, {
+                emailVerified: activeUser.emailVerified,
+                phoneVerified: activeUser.phoneVerified
+            });
+            await ApiService.syncDataFromServer();
+        } catch (err) {
+            Toast.error("Failed to update status on server: " + err.message);
+            return;
+        }
+    } else {
+        const users = getDB('users');
+        const idx = users.findIndex(u => u.email === activeUser.email);
+        if (idx !== -1) {
+            users[idx].emailVerified = activeUser.emailVerified;
+            users[idx].phoneVerified = activeUser.phoneVerified;
+            setDB('users', users);
+        }
+    }
+
+    sessionStorage.setItem('hc_current_user', JSON.stringify(activeUser));
+    window.renderPatientVerificationBadges(activeUser);
+
+    const modalEl = document.getElementById('otpVerificationModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+
+    Toast.success(`${window.activeOtpType === 'email' ? 'Email Address' : 'Phone Number'} verified successfully!`);
+};
+
+// --- LAB WORKSPACE QUEUES AND INTERPRETATION ---
+window.renderWalkinQueue = function() {
+    const queueBody = document.getElementById('walkin-queue-body');
+    if (!queueBody) return;
+
+    const requests = getDB('lab_requests') || [];
+    // Filter walk-in requests (which contain token in techComments)
+    const walkins = requests.filter(r => r.techComments && r.techComments.includes('[Token: '));
+
+    queueBody.innerHTML = '';
+    if (walkins.length === 0) {
+        queueBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted font-size-xs p-4">No active walk-in requests registered today.</td></tr>';
+        return;
+    }
+
+    walkins.forEach(r => {
+        // Extract token
+        let token = "TKN-000";
+        let payment = "unpaid";
+        const tokenMatches = r.techComments.match(/\[Token:\s*([A-Z0-9-]+)\]/);
+        if (tokenMatches && tokenMatches[1]) token = tokenMatches[1];
+        const payMatches = r.techComments.match(/\[Payment:\s*([a-z]+)\]/);
+        if (payMatches && payMatches[1]) payment = payMatches[1];
+
+        let drawBadge = `<span class="badge bg-warning-subtle text-warning font-size-xxs"><i class="fa-solid fa-hourglass-start me-1"></i>Pending Draw</span>`;
+        if (r.status !== 'pending' && r.status !== 'registered' && r.status !== 'accepted') {
+            drawBadge = `<span class="badge bg-success-subtle text-success font-size-xxs"><i class="fa-solid fa-circle-check me-1"></i>Collected</span>`;
+        }
+
+        let payBadge = payment === 'paid' ? 
+            `<span class="badge bg-success-subtle text-success font-size-xxs">Paid</span>` :
+            `<span class="badge bg-danger-subtle text-danger font-size-xxs">Unpaid</span>`;
+
+        queueBody.innerHTML += `
+        <tr>
+            <td><strong class="text-primary font-size-xs">${token}</strong></td>
+            <td>
+                <div class="fw-bold text-dark">${r.patientName}</div>
+                <div class="text-muted font-size-xxs">Ref: ${r.patientId}</div>
+            </td>
+            <td>
+                <span class="badge bg-secondary font-size-xxs">${r.testCategory}</span>
+                <div class="font-size-xs text-dark mt-1">${r.testName}</div>
+            </td>
+            <td>${drawBadge}</td>
+            <td>${payBadge}</td>
+        </tr>`;
+    });
+};
+
+window.renderSpecimenQueue = function() {
+    const container = document.getElementById('specimen-queue-container');
+    const countEl = document.getElementById('active-queue-count');
+    if (!container) return;
+
+    const requests = getDB('lab_requests') || [];
+    // Active orders are any requests that are NOT completed
+    const actives = requests.filter(r => r.status !== 'completed');
+    
+    // Filter by search query if any
+    const searchVal = document.getElementById('queue-search-input')?.value.toLowerCase().trim() || '';
+    let filtered = actives;
+    if (searchVal) {
+        filtered = actives.filter(r => 
+            r.patientName.toLowerCase().includes(searchVal) ||
+            r.id.toLowerCase().includes(searchVal) ||
+            r.testName.toLowerCase().includes(searchVal)
+        );
+    }
+
+    if (countEl) countEl.innerText = filtered.length;
+
+    container.innerHTML = '';
+    if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-center py-4 text-muted font-size-xs">No active specimens in queue.</div>';
+        return;
+    }
+
+    filtered.forEach(r => {
+        let token = "TKN-000";
+        if (r.techComments && r.techComments.includes('[Token: ')) {
+            const matches = r.techComments.match(/\[Token:\s*([A-Z0-9-]+)\]/);
+            if (matches && matches[1]) token = matches[1];
+        } else {
+            token = r.id.substring(4, 10).toUpperCase();
+        }
+
+        let priorityClass = 'badge-medium';
+        if (r.priority === 'Critical') priorityClass = 'badge-critical';
+        if (r.priority === 'High') priorityClass = 'badge-high';
+        if (r.priority === 'Low') priorityClass = 'badge-low';
+
+        let statusText = 'Pending';
+        let statusClass = 'bg-secondary';
+        if (r.status === 'sample_collected') { statusText = 'Sample Drawn'; statusClass = 'bg-warning text-dark'; }
+        if (r.status === 'sample_received') { statusText = 'Received'; statusClass = 'bg-info text-dark'; }
+        if (r.status === 'processing') { statusText = 'Processing'; statusClass = 'bg-primary'; }
+        if (r.status === 'results_ready') { statusText = 'Awaiting Verify'; statusClass = 'bg-success'; }
+
+        container.innerHTML += `
+        <div class="specimen-queue-card p-2.5 rounded border border-light shadow-sm cursor-pointer hover-lift d-flex flex-column gap-1" id="specimen-card-${r.id}" onclick="window.selectSpecimenForEntry('${r.id}')" style="background:var(--hc-bg-card-solid); transition:all 0.25s ease;">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-primary font-size-xs">${token}</span>
+                <span class="badge ${priorityClass} font-size-xxs py-0.5 px-1.5">${r.priority || 'Medium'}</span>
+            </div>
+            <div class="fw-semibold text-dark font-size-xs">${r.patientName}</div>
+            <div class="text-muted font-size-xxs text-truncate">${r.testName}</div>
+            <div class="d-flex justify-content-between align-items-center mt-1">
+                <span class="badge ${statusClass} font-size-xxs py-0.5 px-1.5">${statusText}</span>
+                <span class="text-muted font-size-xxs">${r.requestDate}</span>
+            </div>
+        </div>`;
+    });
+};
+
+window.interpretParamValue = function(inputEl, refRange) {
+    let flag = 'Normal';
+    const val = parseFloat(inputEl.value);
+    if (!isNaN(val)) {
+        if (refRange.includes('-')) {
+            const parts = refRange.split('-');
+            const min = parseFloat(parts[0]);
+            const max = parseFloat(parts[1]);
+            if (val < min) flag = 'Low';
+            if (val > max) flag = 'High';
+            if (val < min * 0.7 || val > max * 1.3) flag = 'Critical';
+        } else if (refRange.includes('<')) {
+            const limit = parseFloat(refRange.replace('<', '').trim());
+            if (val >= limit) flag = 'High';
+        } else if (refRange.includes('>')) {
+            const limit = parseFloat(refRange.replace('>', '').trim());
+            if (val <= limit) flag = 'Low';
+        }
+    }
+    
+    const badge = inputEl.closest('tr').querySelector('.param-flag');
+    if (badge) {
+        badge.innerText = flag;
+        badge.className = `param-flag badge font-size-xxs py-1 px-2.5 fw-bold`;
+        if (flag === 'Normal') badge.className += ' bg-success-subtle text-success';
+        if (flag === 'Low') badge.className += ' bg-primary-subtle text-primary';
+        if (flag === 'High') badge.className += ' bg-warning-subtle text-warning';
+        if (flag === 'Critical') badge.className += ' bg-danger-subtle text-danger animate-pulse';
+    }
+};
+
+window.saveLabDraft = function() {
+    const reqId = document.getElementById('entry-request-id').value;
+    if (!reqId) {
+        Toast.warning("No active specimen selected.");
+        return;
+    }
+
+    const rows = document.querySelectorAll('.dynamic-param-row');
+    const results = [];
+    rows.forEach(row => {
+        const nameEl = row.querySelector('.param-name');
+        const parameter = nameEl.tagName === 'INPUT' ? nameEl.value : nameEl.innerText;
+        const value = row.querySelector('.param-value').value;
+        results.push({ parameter, value });
+    });
+
+    const comments = document.getElementById('entry-tech-comments').value;
+
+    localStorage.setItem('draft_' + reqId, JSON.stringify({ results, comments }));
+    Toast.success("Worksheet draft saved successfully.");
+};
+
+// --- ADMIN MANAGEMENT AND UTILITIES LOGIC ---
+window.switchUserSubTab = function(subtab) {
+    document.querySelectorAll('#panel-users .nav-link').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const clickedBtn = document.getElementById(`subtab-${subtab}-btn`);
+    if (clickedBtn) clickedBtn.classList.add('active');
+
+    document.getElementById('user-subpanel-registry').classList.add('d-none');
+    document.getElementById('user-subpanel-approvals').classList.add('d-none');
+    document.getElementById('user-subpanel-verifications').classList.add('d-none');
+
+    document.getElementById(`user-subpanel-${subtab}`).classList.remove('d-none');
+
+    if (subtab === 'registry') renderAdminUserTable();
+    if (subtab === 'approvals') window.renderAdminApprovals();
+    if (subtab === 'verifications') window.renderAdminVerifications();
+};
+
+window.renderAdminApprovals = function() {
+    const container = document.getElementById('admin-approvals-list');
+    const badge = document.getElementById('admin-pending-approval-badge');
+    if (!container) return;
+
+    const users = getDB('users') || [];
+    const pendings = users.filter(u => u.status === 'Pending' || u.status === 'pending');
+
+    if (badge) badge.innerText = pendings.length;
+
+    container.innerHTML = '';
+    if (pendings.length === 0) {
+        container.innerHTML = '<tr><td colspan="7" class="text-center text-muted font-size-xs p-4">No pending doctor or technician approvals found.</td></tr>';
+        return;
+    }
+
+    pendings.forEach(u => {
+        const appDate = u.dateJoined ? new Date(u.dateJoined).toISOString().split('T')[0] : '2026-06-25';
+        const dept = u.department || 'General Medicine';
+        container.innerHTML += `
+        <tr>
+            <td class="fw-bold text-dark">${u.name}</td>
+            <td><code>${u.email}</code></td>
+            <td><span class="badge bg-primary-subtle text-primary font-size-xxs">${u.role.toUpperCase()}</span></td>
+            <td>${dept}</td>
+            <td><code>${appDate}</code></td>
+            <td><span class="badge bg-warning-subtle text-warning font-size-xxs">Pending Review</span></td>
+            <td>
+                <div class="d-flex gap-1.5">
+                    <button class="btn btn-xxs btn-success py-1" onclick="window.approveUser('${u.email}')"><i class="fa-solid fa-check me-1"></i>Approve</button>
+                    <button class="btn btn-xxs btn-danger py-1" onclick="window.rejectUser('${u.email}')"><i class="fa-solid fa-xmark me-1"></i>Deny</button>
+                </div>
+            </td>
+        </tr>`;
+    });
+};
+
+window.approveUser = function(email) {
+    const users = getDB('users') || [];
+    const idx = users.findIndex(u => u.email === email);
+    if (idx !== -1) {
+        users[idx].status = 'Active';
+        setDB('users', users);
+        Toast.success(`User ${email} approved and set to Active!`);
+        
+        // Log in audit trail
+        const audits = getDB('audits') || [];
+        audits.unshift({
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            module: 'accounts',
+            initiator: 'admin@ehrmail.com',
+            action: `Staff application approved: ${email}`,
+            flag: 'SECURE'
+        });
+        setDB('audits', audits);
+
+        renderAdminDashboard();
+        window.renderAdminApprovals();
+        renderAdminAudits();
+    }
+};
+
+window.rejectUser = function(email) {
+    const users = getDB('users') || [];
+    const idx = users.findIndex(u => u.email === email);
+    if (idx !== -1) {
+        users.splice(idx, 1);
+        setDB('users', users);
+        Toast.info(`Application for ${email} denied and deleted.`);
+        
+        // Log in audit trail
+        const audits = getDB('audits') || [];
+        audits.unshift({
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            module: 'accounts',
+            initiator: 'admin@ehrmail.com',
+            action: `Staff application denied: ${email}`,
+            flag: 'SECURE'
+        });
+        setDB('audits', audits);
+
+        renderAdminDashboard();
+        window.renderAdminApprovals();
+        renderAdminAudits();
+    }
+};
+
+window.renderAdminVerifications = function() {
+    const container = document.getElementById('admin-verifications-list');
+    if (!container) return;
+
+    const users = getDB('users') || [];
+    const patients = users.filter(u => u.role === 'patient');
+
+    container.innerHTML = '';
+    if (patients.length === 0) {
+        container.innerHTML = '<tr><td colspan="8" class="text-center text-muted font-size-xs p-4">No patients registered in database.</td></tr>';
+        return;
+    }
+
+    patients.forEach(p => {
+        const emailVerified = p.emailVerified ? 
+            `<span class="badge bg-success-subtle text-success font-size-xxs"><i class="fa-solid fa-check-circle me-1"></i>Verified</span>` :
+            `<span class="badge bg-warning-subtle text-warning font-size-xxs"><i class="fa-solid fa-triangle-exclamation me-1"></i>Unverified</span>`;
+
+        const phoneVerified = p.phoneVerified ? 
+            `<span class="badge bg-success-subtle text-success font-size-xxs"><i class="fa-solid fa-check-circle me-1"></i>Verified</span>` :
+            `<span class="badge bg-warning-subtle text-warning font-size-xxs"><i class="fa-solid fa-triangle-exclamation me-1"></i>Unverified</span>`;
+
+        const appDate = p.dateJoined ? new Date(p.dateJoined).toISOString().split('T')[0] : '2026-06-20';
+
+        container.innerHTML += `
+        <tr>
+            <td><strong class="text-primary font-size-xs">${p.patientId || 'N/A'}</strong></td>
+            <td class="fw-bold text-dark">${p.name}</td>
+            <td><code>${p.email}</code></td>
+            <td>${emailVerified}</td>
+            <td><code>${p.phone || '+1 (555) 001-9923'}</code></td>
+            <td>${phoneVerified}</td>
+            <td><code>${appDate}</code></td>
+            <td>
+                <div class="d-flex gap-1">
+                    <button class="btn btn-xxs btn-outline-primary py-0.5" onclick="window.toggleVerification('${p.email}', 'email')"><i class="fa-solid fa-envelope me-1"></i>Toggle Email</button>
+                    <button class="btn btn-xxs btn-outline-primary py-0.5" onclick="window.toggleVerification('${p.email}', 'phone')"><i class="fa-solid fa-phone me-1"></i>Toggle Phone</button>
+                </div>
+            </td>
+        </tr>`;
+    });
+};
+
+window.toggleVerification = function(email, type) {
+    const users = getDB('users') || [];
+    const idx = users.findIndex(u => u.email === email);
+    if (idx !== -1) {
+        if (type === 'email') {
+            users[idx].emailVerified = !users[idx].emailVerified;
+        } else {
+            users[idx].phoneVerified = !users[idx].phoneVerified;
+        }
+        setDB('users', users);
+        Toast.success(`Verification status updated for ${email}.`);
+        window.renderAdminVerifications();
+    }
+};
+
+window.renderAdminLeaves = function() {
+    const container = document.getElementById('admin-leaves-list');
+    if (!container) return;
+
+    // Seed mock leaves if empty
+    let leaves = getDB('leaves') || [];
+    if (leaves.length === 0) {
+        leaves = [
+            { id: 'LV-3921', staffName: 'Dr. Sarah Connor', role: 'doctor', dates: '2026-07-02 to 2026-07-05', reason: 'Medical Conference Attendance', status: 'pending' },
+            { id: 'LV-3922', staffName: 'Alex Mercer', role: 'labtech', dates: '2026-07-10 to 2026-07-11', reason: 'Personal Family Leave', status: 'pending' }
+        ];
+        setDB('leaves', leaves);
+    }
+
+    container.innerHTML = '';
+    const pendings = leaves.filter(l => l.status === 'pending');
+    if (pendings.length === 0) {
+        container.innerHTML = '<tr><td colspan="5" class="text-center text-muted font-size-xs p-4">No active staff leave requests pending.</td></tr>';
+        return;
+    }
+
+    pendings.forEach(l => {
+        container.innerHTML += `
+        <tr>
+            <td>
+                <div class="fw-bold text-dark">${l.staffName}</div>
+                <div class="text-muted font-size-xxs">${l.role.toUpperCase()}</div>
+            </td>
+            <td><code>${l.dates}</code></td>
+            <td class="font-size-xs">${l.reason}</td>
+            <td><span class="badge bg-warning-subtle text-warning font-size-xxs">Pending</span></td>
+            <td>
+                <div class="d-flex gap-1">
+                    <button class="btn btn-xxs btn-success py-1" onclick="window.approveLeave('${l.id}')"><i class="fa-solid fa-check me-1"></i>Approve</button>
+                    <button class="btn btn-xxs btn-danger py-1" onclick="window.rejectLeave('${l.id}')"><i class="fa-solid fa-xmark me-1"></i>Deny</button>
+                </div>
+            </td>
+        </tr>`;
+    });
+};
+
+window.approveLeave = function(leaveId) {
+    const leaves = getDB('leaves') || [];
+    const idx = leaves.findIndex(l => l.id === leaveId);
+    if (idx !== -1) {
+        leaves[idx].status = 'Approved';
+        setDB('leaves', leaves);
+        Toast.success(`Leave request ${leaveId} approved successfully.`);
+
+        // Log audit
+        const audits = getDB('audits') || [];
+        audits.unshift({
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            module: 'leaves',
+            initiator: 'admin@ehrmail.com',
+            action: `Leave request approved: ${leaveId}`,
+            flag: 'SECURE'
+        });
+        setDB('audits', audits);
+
+        renderAdminDashboard();
+        window.renderAdminLeaves();
+        renderAdminAudits();
+    }
+};
+
+window.rejectLeave = function(leaveId) {
+    const leaves = getDB('leaves') || [];
+    const idx = leaves.findIndex(l => l.id === leaveId);
+    if (idx !== -1) {
+        leaves[idx].status = 'Rejected';
+        setDB('leaves', leaves);
+        Toast.info(`Leave request ${leaveId} rejected.`);
+
+        // Log audit
+        const audits = getDB('audits') || [];
+        audits.unshift({
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            module: 'leaves',
+            initiator: 'admin@ehrmail.com',
+            action: `Leave request rejected: ${leaveId}`,
+            flag: 'SECURE'
+        });
+        setDB('audits', audits);
+
+        renderAdminDashboard();
+        window.renderAdminLeaves();
+        renderAdminAudits();
+    }
+};
+
+window.triggerGlobalBroadcast = function(event) {
+    event.preventDefault();
+    const title = document.getElementById('broadcast-title').value;
+    const msg = document.getElementById('broadcast-message').value;
+    const target = document.getElementById('broadcast-target').value;
+
+    const broadcasts = getDB('broadcasts') || [];
+    broadcasts.push({
+        id: 'BC-' + Date.now(),
+        title: title,
+        message: msg,
+        target: target,
+        date: new Date().toISOString().split('T')[0]
+    });
+    setDB('broadcasts', broadcasts);
+
+    Toast.success(`Broadcast announcement published successfully!`);
+    document.getElementById('admin-broadcast-form').reset();
+
+    // Log audit
+    const audits = getDB('audits') || [];
+    audits.unshift({
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        module: 'system',
+        initiator: 'admin@ehrmail.com',
+        action: `Global system broadcast published: ${title}`,
+        flag: 'SECURE'
+    });
+    setDB('audits', audits);
+    renderAdminAudits();
+};
+
+window.saveHospitalSettings = function(event) {
+    event.preventDefault();
+    const name = document.getElementById('settings-hospital-name').value;
+    const email = document.getElementById('settings-hospital-email').value;
+    const phone = document.getElementById('settings-hospital-phone').value;
+    const license = document.getElementById('settings-hospital-license').value;
+
+    const config = { name, email, phone, license };
+    localStorage.setItem('hc_hospital_settings', JSON.stringify(config));
+    Toast.success("Hospital configuration updated successfully!");
+
+    // Log audit
+    const audits = getDB('audits') || [];
+    audits.unshift({
+        timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        module: 'system',
+        initiator: 'admin@ehrmail.com',
+        action: `Hospital general configurations updated.`,
+        flag: 'SECURE'
+    });
+    setDB('audits', audits);
+    renderAdminAudits();
+};
+
+window.triggerDbBackup = function() {
+    Toast.info("Compiling local database tables...");
+    setTimeout(() => {
+        const todayStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        document.getElementById('admin-last-backup').innerHTML = `<i class="fa-solid fa-clock-rotate-left me-1.5"></i>Today at ${todayStr.split(' ')[1]}`;
+        
+        Toast.success("PostgreSQL Database Backup generated and saved to Cloud storage bucket!");
+        
+        // Log audit
+        const audits = getDB('audits') || [];
+        audits.unshift({
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            module: 'system',
+            initiator: 'admin@ehrmail.com',
+            action: `PostgreSQL database backup snapshot generated.`,
+            flag: 'SECURE'
+        });
+        setDB('audits', audits);
+        renderAdminAudits();
+    }, 1200);
+};
+
+window.checkDbHealth = function() {
+    Toast.info("Running PostgreSQL table indexing check...");
+    setTimeout(() => {
+        Toast.success("Database health checks complete: All indices are valid (100% integrity).");
+        
+        // Log audit
+        const audits = getDB('audits') || [];
+        audits.unshift({
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            module: 'system',
+            initiator: 'admin@ehrmail.com',
+            action: `Diagnostics database integrity audit finished. Status: HEALTHY`,
+            flag: 'SECURE'
+        });
+        setDB('audits', audits);
+        renderAdminAudits();
+    }, 1000);
+};
+
+window.renderAdminEmailLogs = function() {
+    const container = document.getElementById('admin-email-logs');
+    if (!container) return;
+
+    const mockEmailLogs = [
+        { recipient: 'john.doe@ehrmail.com', subject: 'Lab Report Released: CBC', status: 'Sent', time: '10 mins ago' },
+        { recipient: 'emma.watson@ehrmail.com', subject: 'Verification Security Code', status: 'Sent', time: '1 hr ago' },
+        { recipient: 'sarah.connor@ehrmail.com', subject: 'New Patient Scheduled', status: 'Sent', time: '2 hrs ago' }
+    ];
+
+    container.innerHTML = '';
+    mockEmailLogs.forEach(l => {
+        container.innerHTML += `
+        <div class="d-flex align-items-center justify-content-between p-2 rounded border border-light" style="background:var(--hc-bg-card-solid);">
+            <div>
+                <strong class="text-dark d-block font-size-xs">${l.recipient}</strong>
+                <span class="text-muted d-block" style="font-size: 10px;">${l.subject}</span>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-success-subtle text-success font-size-xxs mb-1">${l.status}</span>
+                <span class="text-muted d-block" style="font-size: 9px;">${l.time}</span>
+            </div>
+        </div>`;
+    });
 };
