@@ -553,35 +553,80 @@
                         </div>
                     </div>
                 </section>
-
-                <!-- PANEL 5: DOCTOR REPORTS & ANALYTICS -->
+                <!-- PANEL 5: DOCTOR REPORTS & ANALYTICS -->
                 <section class="dashboard-panel" id="panel-doctor-reports">
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-4">
-                            <div class="stat-widget">
+                    <!-- 8 STATS WIDGETS GRID -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-sm-6 col-6">
+                            <div class="stat-widget admin-premium-widget">
                                 <div>
-                                    <p class="stat-title">Total Consultations</p>
-                                    <h3 class="stat-value" id="doc-stat-total-consults">--</h3>
+                                    <p class="stat-title">Today's Consults</p>
+                                    <h3 class="stat-value text-primary" id="doc-stat-consults-today">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-calendar-day"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Weekly Consults</p>
+                                    <h3 class="stat-value text-teal" id="doc-stat-consults-week">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-teal mb-0"><i class="fa-solid fa-calendar-week"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Monthly Consults</p>
+                                    <h3 class="stat-value text-purple" id="doc-stat-consults-month">--</h3>
                                 </div>
                                 <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-stethoscope"></i></div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="stat-widget">
+                        <div class="col-xl-3 col-sm-6 col-6">
+                            <div class="stat-widget admin-premium-widget">
                                 <div>
-                                    <p class="stat-title">Unique Patients Seen</p>
-                                    <h3 class="stat-value" id="doc-stat-unique-patients">--</h3>
+                                    <p class="stat-title">Follow-up Rate</p>
+                                    <h3 class="stat-value text-indigo" id="doc-stat-followup-rate">--</h3>
                                 </div>
-                                <div class="hc-icon-wrapper hc-icon-green mb-0"><i class="fa-solid fa-user-injured"></i></div>
+                                <div class="hc-icon-wrapper hc-icon-info mb-0"><i class="fa-solid fa-arrows-spin"></i></div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="stat-widget">
+                        <div class="col-xl-3 col-sm-6 col-6">
+                            <div class="stat-widget admin-premium-widget">
                                 <div>
-                                    <p class="stat-title">Average Time / Consult</p>
-                                    <h3 class="stat-value">18 mins</h3>
+                                    <p class="stat-title">Satisfaction Rate</p>
+                                    <h3 class="stat-value text-warning" id="doc-stat-satisfaction">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-star"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Avg Consult Time</p>
+                                    <h3 class="stat-value text-dark" id="doc-stat-avg-time">18m</h3>
                                 </div>
                                 <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title font-size-xs">Prescriptions Issued</p>
+                                    <h3 class="stat-value text-success" id="doc-stat-prescriptions-count">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-green mb-0"><i class="fa-solid fa-pills"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-sm-6 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Labs Generated</p>
+                                    <h3 class="stat-value text-danger" id="doc-stat-labs-count">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-red mb-0"><i class="fa-solid fa-flask"></i></div>
                             </div>
                         </div>
                     </div>
@@ -628,10 +673,85 @@
                             </div>
                         </div>
                     </div>
-                </section>
+
+                    <!-- NEW ROW OF CHARTS -->
+                    <div class="row g-4 mt-2">
+                        <!-- Department-wise Patients Chart -->
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-users-viewfinder text-primary me-2"></i>Department Caseload Share</h5>
+                                <div style="position: relative; height: 220px; width: 100%;">
+                                    <canvas id="doctorDeptChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Diagnosis Distribution Chart -->
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-disease text-danger me-2"></i>Diagnosis Share</h5>
+                                <div style="position: relative; height: 220px; width: 100%;">
+                                    <canvas id="doctorDiagnosisChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Weekly Workload Chart -->
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-gantt text-success me-2"></i>Weekly Workload</h5>
+                                <div style="position: relative; height: 220px; width: 100%;">
+                                    <canvas id="doctorWorkloadChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>>
 
                 <!-- PANEL 5.5: DOCTOR PATIENT REVIEWS -->
                 <section class="dashboard-panel text-start" id="panel-reviews">
+                    <!-- Summary stats widgets row -->
+                    <div class="row g-3 mb-4">
+                        <!-- Avg Rating -->
+                        <div class="col-md-3 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Average Rating</p>
+                                    <h3 class="stat-value text-warning"><i class="fa-solid fa-star me-1"></i><span id="reviews-avg-value">--</span></h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-star"></i></div>
+                            </div>
+                        </div>
+                        <!-- Total Reviews -->
+                        <div class="col-md-3 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Total Reviews</p>
+                                    <h3 class="stat-value text-dark" id="reviews-total-value">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-comments"></i></div>
+                            </div>
+                        </div>
+                        <!-- Five Star Reviews -->
+                        <div class="col-md-3 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Five Star Reviews</p>
+                                    <h3 class="stat-value text-success" id="reviews-fivestar-value">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-green mb-0"><i class="fa-solid fa-award"></i></div>
+                            </div>
+                        </div>
+                        <!-- Recommendation Rate -->
+                        <div class="col-md-3 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Recommendation Rate</p>
+                                    <h3 class="stat-value text-info" id="reviews-recommend-rate">98.5%</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-teal mb-0"><i class="fa-solid fa-thumbs-up"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="hc-card">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="fw-bold mb-0"><i class="fa-solid fa-star text-warning me-2"></i>Patient Satisfaction Feed</h5>

@@ -274,17 +274,19 @@
 
                     <div class="row g-4 mt-2">
                         <!-- Hospital Visits Log -->
-                        <div class="col-lg-6">
+                        <div class="col-lg-8">
                             <div class="hc-card">
                                 <h5 class="fw-bold mb-4"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Hospital Visits Log</h5>
                                 <div class="table-responsive hc-table-container">
-                                    <table class="table hc-table mb-0">
+                                    <table class="table hc-table mb-0 align-middle">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
                                                 <th>Department</th>
                                                 <th>Physician</th>
-                                                <th>Reason</th>
+                                                <th>Diagnosis & Reason</th>
+                                                <th>Status</th>
+                                                <th>Follow-up Notes</th>
                                             </tr>
                                         </thead>
                                         <tbody id="patient-visits-list">
@@ -296,7 +298,7 @@
                         </div>
 
                         <!-- External Documents Upload -->
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="hc-card">
                                 <h5 class="fw-bold mb-4"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>External Reports & Certificates</h5>
                                 <div class="hc-upload-dropzone mb-3" id="patient-upload-dropzone">
@@ -568,7 +570,7 @@
                 <!-- PANEL 6: MY PROFILE -->
                 <section class="dashboard-panel text-start" id="panel-profile">
                     <div class="row g-4">
-                        <!-- Left Column: Avatar & Security Settings -->
+                        <!-- Left Column: Avatar Card -->
                         <div class="col-lg-4">
                             <!-- Avatar Card -->
                             <div class="hc-card text-center mb-4 border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);">
@@ -585,57 +587,15 @@
                                     <i class="fa-solid fa-calendar-day text-primary me-1"></i>Member since <span id="profile-card-created">June 2026</span>
                                 </div>
                             </div>
-
-                             <!-- Security & Verification Status -->
-                             <div class="hc-card mb-4">
-                                 <h6 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-shield-halved text-success me-2"></i>Identity Verification</h6>
-                                 <div class="d-flex flex-column gap-3 font-size-xs">
-                                     <div class="d-flex justify-content-between align-items-center pb-2 border-bottom border-light">
-                                         <span class="text-secondary"><i class="fa-solid fa-envelope me-2 text-muted"></i>Email Address</span>
-                                         <div class="d-flex align-items-center gap-2">
-                                             <span id="email-badge" class="badge bg-success-subtle text-success fw-bold font-size-xxs py-1 px-2">Verified</span>
-                                             <button type="button" id="btn-verify-email" class="btn btn-xxs btn-outline-primary py-0.5 px-2 font-size-xxs border-0" onclick="triggerOtpVerification('email')">Verify</button>
-                                         </div>
-                                     </div>
-                                     <div class="d-flex justify-content-between align-items-center">
-                                         <span class="text-secondary"><i class="fa-solid fa-phone me-2 text-muted"></i>Phone Number</span>
-                                         <div class="d-flex align-items-center gap-2">
-                                             <span id="phone-badge" class="badge bg-warning-subtle text-warning fw-bold font-size-xxs py-1 px-2">Unverified</span>
-                                             <button type="button" id="btn-verify-phone" class="btn btn-xxs btn-outline-primary py-0.5 px-2 font-size-xxs" onclick="triggerOtpVerification('phone')"><i class="fa-solid fa-shield-check me-1"></i>Verify</button>
-                                         </div>
-                                     </div>
-                                 </div>
-                             </div>
-
-                             <!-- Change Password Form -->
-                             <div class="hc-card">
-                                 <h6 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-key text-primary me-2"></i>Credentials Manager</h6>
-                                 <form id="profile-change-password-form">
-                                     <div class="mb-2">
-                                         <label class="form-label font-size-xxs fw-semibold text-secondary mb-1">New Secure Password</label>
-                                         <div class="input-group input-group-sm">
-                                             <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-lock"></i></span>
-                                             <input type="password" class="form-control form-control-sm border-start-0" id="profile-new-pass" placeholder="••••••••" required>
-                                         </div>
-                                     </div>
-                                     <div class="mb-3">
-                                         <label class="form-label font-size-xxs fw-semibold text-secondary mb-1">Confirm Password</label>
-                                         <div class="input-group input-group-sm">
-                                             <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-lock"></i></span>
-                                             <input type="password" class="form-control form-control-sm border-start-0" id="profile-confirm-pass" placeholder="••••••••" required>
-                                         </div>
-                                     </div>
-                                     <button type="submit" class="btn btn-sm btn-hc-primary w-100 py-2 font-size-xs shadow-sm"><i class="fa-solid fa-key me-1.5"></i>Update Account Password</button>
-                                 </form>
-                             </div>
                         </div>
 
-                        <!-- Right Column: Demographics & Medical Form -->
+                        <!-- Right Column: Premium Healthcare Demographics Form -->
                         <div class="col-lg-8">
-                            <div class="hc-card">
-                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-user-circle text-primary me-2"></i>Personal & Medical Record Demographics</h5>
-                                <form id="patient-profile-form">
-                                    <div class="row g-3 mb-4">
+                            <form id="patient-profile-form">
+                                <!-- CARD 1: Personal Details -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-primary border-bottom pb-2"><i class="fa-solid fa-user-circle me-2"></i>Personal Details</h5>
+                                    <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Full Legal Name</label>
                                             <input type="text" class="form-control" id="profile-name" disabled>
@@ -652,7 +612,33 @@
                                                 <option value="Other">Other</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Aadhaar / National ID</label>
+                                            <input type="text" class="form-control" id="profile-aadhaar" placeholder="XXXX-XXXX-XXXX">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 2: Contact Information -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-teal border-bottom pb-2" style="color: var(--hc-secondary);"><i class="fa-solid fa-address-book me-2"></i>Contact Information</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Primary Phone Number</label>
+                                            <input type="tel" class="form-control" id="profile-phone" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Residential Address</label>
+                                            <textarea class="form-control" id="profile-address" rows="2" placeholder="123 Main St, Apartment 4B..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 3: Medical Information -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-danger border-bottom pb-2"><i class="fa-solid fa-notes-medical me-2"></i>Medical Information</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
                                             <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Blood Group</label>
                                             <select class="form-select" id="profile-blood" required>
                                                 <option value="A+">A+</option>
@@ -665,26 +651,17 @@
                                                 <option value="O-">O-</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Primary Phone Number</label>
-                                            <input type="tel" class="form-control" id="profile-phone" required>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Aadhaar / National ID</label>
-                                            <input type="text" class="form-control" id="profile-aadhaar" placeholder="XXXX-XXXX-XXXX">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Residential Address</label>
-                                            <textarea class="form-control" id="profile-address" rows="2" placeholder="123 Main St, Apartment 4B..."></textarea>
-                                        </div>
-                                        <div class="col-12">
+                                        <div class="col-md-12">
                                             <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Active Allergies & Specimen Flags</label>
                                             <input type="text" class="form-control" id="profile-allergies" placeholder="Penicillin, Peanuts, Latex...">
                                         </div>
                                     </div>
+                                </div>
 
-                                    <h5 class="fw-bold my-4 text-secondary border-bottom pb-2"><i class="fa-solid fa-file-shield me-2"></i>Medical Insurance Policies</h5>
-                                    <div class="row g-3 mb-4">
+                                <!-- CARD 4: Insurance Details -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-info border-bottom pb-2"><i class="fa-solid fa-file-shield me-2"></i>Medical Insurance Policies</h5>
+                                    <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Insurance Provider</label>
                                             <input type="text" class="form-control" id="profile-insurance-carrier" placeholder="HDFC ERGO, Star Health...">
@@ -694,9 +671,12 @@
                                             <input type="text" class="form-control" id="profile-insurance-policy" placeholder="POL-9908123-X">
                                         </div>
                                     </div>
+                                </div>
 
-                                    <h5 class="fw-bold my-4 text-secondary border-bottom pb-2"><i class="fa-solid fa-phone-volume me-2"></i>Emergency Contact Details</h5>
-                                    <div class="row g-3 mb-4">
+                                <!-- CARD 5: Emergency Contact -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-warning border-bottom pb-2"><i class="fa-solid fa-phone-volume me-2"></i>Emergency Contact Details</h5>
+                                    <div class="row g-3">
                                         <div class="col-md-6">
                                             <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Emergency Contact Name</label>
                                             <input type="text" class="form-control" id="profile-emergency-name" required>
@@ -706,11 +686,12 @@
                                             <input type="tel" class="form-control" id="profile-emergency-phone" required>
                                         </div>
                                     </div>
-                                    <div class="text-end mt-4">
-                                        <button type="submit" class="btn btn-hc-primary py-2 px-5 shadow-sm font-size-sm"><i class="fa-solid fa-user-check me-2"></i>Update Demographics Settings</button>
-                                    </div>
-                                </form>
-                            </div>
+                                </div>
+
+                                <div class="text-end mt-4 mb-5">
+                                    <button type="submit" class="btn btn-hc-primary py-2.5 px-5 shadow-sm font-size-sm"><i class="fa-solid fa-user-check me-2"></i>Update Demographics Settings</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </section>
@@ -772,7 +753,7 @@
                         <label class="form-label fw-semibold font-size-sm">Comments / Review</label>
                         <textarea class="form-control" id="feedback-comments" rows="3" placeholder="How went your consultation? Care delivery, waiting times..."></textarea>
                     </div>
-                    <button type="button" class="btn btn-hc-primary w-100 py-2" onclick="submitPatientFeedback()">Submit Feedback</button>
+                    <button type="button" class="btn btn-hc-primary w-100 py-2" id="btn-submit-feedback" onclick="submitPatientFeedback()">Submit Feedback</button>
                 </div>
             </div>
         </div>

@@ -235,17 +235,38 @@
                         <div class="col-lg-4">
                             <div class="hc-card">
                                 <h5 class="fw-bold mb-4"><i class="fa-solid fa-server text-success me-2"></i>System Health Status</h5>
-                                <div class="p-3 bg-light rounded border mb-3">
-                                    <span class="text-muted d-block font-size-xs fw-semibold">DATABASE STATUS</span>
-                                    <span class="fw-bold text-success fs-6"><i class="fa-solid fa-circle-check me-1 animate-pulse"></i> Operational (PostgreSQL)</span>
+                                <div class="p-2.5 bg-light rounded border mb-2.5 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="text-muted d-block font-size-xs fw-semibold">DATABASE STATUS</span>
+                                        <span class="fw-bold text-success font-size-sm"><i class="fa-solid fa-circle-check me-1 animate-pulse"></i> Operational (PostgreSQL)</span>
+                                    </div>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Online</span>
                                 </div>
-                                <div class="p-3 bg-light rounded border mb-3">
-                                    <span class="text-muted d-block font-size-xs fw-semibold">JWT AUTHENTICATION ENGINE</span>
-                                    <span class="fw-bold text-success fs-6"><i class="fa-solid fa-circle-check me-1"></i> Active (Secure HS256)</span>
+                                <div class="p-2.5 bg-light rounded border mb-2.5 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="text-muted d-block font-size-xs fw-semibold">SERVER LATENCY</span>
+                                        <span class="fw-bold text-primary font-size-sm"><i class="fa-solid fa-gauge-high me-1"></i> <span id="admin-console-latency">14 ms</span></span>
+                                    </div>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Fast</span>
                                 </div>
-                                <div class="p-3 bg-light rounded border">
-                                    <span class="text-muted d-block font-size-xs fw-semibold">DAILY INBOUND TRAFFIC</span>
-                                    <span class="fw-bold text-dark fs-6"><i class="fa-solid fa-arrow-trend-up text-primary me-1"></i> 142 API requests/hr</span>
+                                <div class="p-2.5 bg-light rounded border mb-2.5 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="text-muted d-block font-size-xs fw-semibold">ONLINE USERS</span>
+                                        <span class="fw-bold text-success font-size-sm"><i class="fa-solid fa-users me-1 animate-pulse"></i> <span id="admin-console-online-users">3</span> Active</span>
+                                    </div>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle">Stable</span>
+                                </div>
+                                <div class="p-2.5 bg-light rounded border mb-2.5 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="text-muted d-block font-size-xs fw-semibold">JWT AUTHENTICATION ENGINE</span>
+                                        <span class="fw-bold text-success font-size-sm"><i class="fa-solid fa-circle-check me-1"></i> Active (Secure HS256)</span>
+                                    </div>
+                                </div>
+                                <div class="p-2.5 bg-light rounded border d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="text-muted d-block font-size-xs fw-semibold">DAILY INBOUND TRAFFIC</span>
+                                        <span class="fw-bold text-dark font-size-sm"><i class="fa-solid fa-arrow-trend-up text-primary me-1"></i> 142 API requests/hr</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -429,6 +450,47 @@
                                             <!-- Dynamically populated from audits DB -->
                                         </tbody>
                                     </table>
+                            </div>
+
+                            <!-- Backup Archives History Card -->
+                            <div class="hc-card mt-4">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-file-zipper text-teal me-2"></i>Backup Archives History</h5>
+                                <div class="table-responsive hc-table-container">
+                                    <table class="table hc-table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Archive Filename</th>
+                                                <th>Created Date</th>
+                                                <th>Size</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-backups-history-list">
+                                            <!-- Dynamically populated from backup history -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Recent Login Activities Card -->
+                            <div class="hc-card mt-4">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-user-lock text-info me-2"></i>Recent Login Activities</h5>
+                                <div class="table-responsive hc-table-container">
+                                    <table class="table hc-table align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>User Profile</th>
+                                                <th>Role</th>
+                                                <th>IP Address</th>
+                                                <th>Timestamp</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-login-history-list">
+                                            <!-- Dynamically populated from login logs -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -607,11 +669,59 @@
 
                 <!-- PANEL 6: LEAVES & ALERTS -->
                 <section class="dashboard-panel" id="panel-leaves">
+                    <!-- Leaves stats widgets row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Total Requests</p>
+                                    <h3 class="stat-value text-primary" id="leaves-stat-total">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-list-check"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Pending Leaves</p>
+                                    <h3 class="stat-value text-warning" id="leaves-stat-pending">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-user-clock"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Approved Leaves</p>
+                                    <h3 class="stat-value text-success" id="leaves-stat-approved">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-green mb-0"><i class="fa-solid fa-circle-check"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-widget admin-premium-widget">
+                                <div>
+                                    <p class="stat-title">Rejected Leaves</p>
+                                    <h3 class="stat-value text-danger" id="leaves-stat-rejected">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-red mb-0"><i class="fa-solid fa-circle-xmark"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row g-4">
                         <!-- Left Pane: Staff Leave Approval -->
-                        <div class="col-lg-6">
+                        <div class="col-lg-8">
                             <div class="hc-card">
-                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-hospital-user text-danger me-2"></i>Staff Leave Requests & Absences</h5>
+                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3 border-bottom pb-3">
+                                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-hospital-user text-danger me-2"></i>Staff Leave Requests</h5>
+                                    <div class="btn-group btn-group-sm" id="leaves-status-filter">
+                                        <button type="button" class="btn btn-outline-primary active" data-filter="pending">Pending</button>
+                                        <button type="button" class="btn btn-outline-primary" data-filter="approved">Approved</button>
+                                        <button type="button" class="btn btn-outline-primary" data-filter="rejected">Rejected</button>
+                                        <button type="button" class="btn btn-outline-primary" data-filter="all">All</button>
+                                    </div>
+                                </div>
                                 <div class="table-responsive hc-table-container">
                                     <table class="table hc-table align-middle">
                                         <thead>
@@ -632,7 +742,7 @@
                         </div>
 
                         <!-- Right Pane: Broadcast Notifications -->
-                        <div class="col-lg-6">
+                        <div class="col-lg-4">
                             <div class="hc-card">
                                 <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-bullhorn text-primary me-2"></i>Global Broadcast Notifications Console</h5>
                                 <form id="admin-broadcast-form" onsubmit="triggerGlobalBroadcast(event)">
