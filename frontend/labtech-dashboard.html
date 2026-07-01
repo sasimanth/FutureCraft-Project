@@ -9,7 +9,7 @@
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <!-- Custom Style -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -193,13 +193,25 @@
                                 <button class="nav-link fw-semibold font-size-sm" id="tab-accepted-btn" onclick="filterLabOrders('accepted')" type="button">Accepted</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-sample_collection-btn" onclick="filterLabOrders('sample_collection')" type="button">Sample Collection</button>
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-sample_collection-btn" onclick="filterLabOrders('sample_collection')" type="button">Sample Draw</button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-in_progress-btn" onclick="filterLabOrders('in_progress')" type="button">In Progress</button>
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-sample_received-btn" onclick="filterLabOrders('sample_received')" type="button">Received</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-in_progress-btn" onclick="filterLabOrders('in_progress')" type="button">Processing</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-awaiting_verification-btn" onclick="filterLabOrders('awaiting_verification')" type="button">Awaiting Verification</button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link fw-semibold font-size-sm" id="tab-completed-btn" onclick="filterLabOrders('completed')" type="button">Completed</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-critical-btn" onclick="filterLabOrders('critical')" type="button"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>Critical</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-urgent-btn" onclick="filterLabOrders('urgent')" type="button"><i class="fa-solid fa-circle-exclamation text-warning me-1"></i>Urgent Cases</button>
                             </li>
                         </ul>
 
@@ -227,67 +239,116 @@
 
                 <!-- PANEL 2: RESULTS ENTRY WORKSPACE -->
                 <section class="dashboard-panel" id="panel-results-entry">
-                    <div class="hc-card">
-                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-vial-circle-check text-primary me-2"></i>Results Entry Form</h5>
-                        <form id="lab-entry-form">
-                            <input type="hidden" id="entry-request-id">
-                            
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Patient Name</label>
-                                    <input type="text" class="form-control" id="entry-patient-name" disabled>
+                    <div class="split-workspace-container">
+                        <!-- Left Pane: Active Orders Queue -->
+                        <div class="workspace-left-queue">
+                            <div class="hc-card p-3">
+                                <h6 class="fw-bold mb-3 text-secondary d-flex align-items-center justify-content-between">
+                                    <span><i class="fa-solid fa-list-check text-primary me-2"></i>Specimen Queue</span>
+                                    <span class="badge bg-primary rounded-pill font-size-xxs" id="active-queue-count">0</span>
+                                </h6>
+                                <div class="mb-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-search"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="queue-search-input" placeholder="Search active queue..." oninput="renderSpecimenQueue()">
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold">Ordered Assessment</label>
-                                    <input type="text" class="form-control" id="entry-test-name" disabled>
+                                <div class="d-flex flex-column gap-2" id="specimen-queue-container" style="max-height: 520px; overflow-y: auto; padding-right: 4px;">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Pane: Entry Form / Editor Workspace -->
+                        <div class="workspace-right-form">
+                            <div class="hc-card" id="results-editor-placeholder">
+                                <div class="text-center py-5">
+                                    <i class="fa-solid fa-vials text-muted mb-3" style="font-size: 3.5rem;"></i>
+                                    <h5 class="fw-bold text-dark mb-1">Select an active order from the queue</h5>
+                                    <p class="text-muted font-size-xs max-width-320 mx-auto">Choose a specimen or order from the left pane queue to begin compiling parameter-level clinical findings and diagnostics results.</p>
                                 </div>
                             </div>
 
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Priority</label>
-                                    <input type="text" class="form-control" id="entry-priority" disabled>
+                            <div class="hc-card d-none" id="results-editor-workspace">
+                                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+                                    <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-vial-circle-check text-primary me-2"></i>Specimen Analysis Worksheet</h5>
+                                    <div class="token-badge" id="entry-token-display">TKN-000</div>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Appointment ID</label>
-                                    <input type="text" class="form-control" id="entry-appointment-id" disabled>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Consultation ID</label>
-                                    <input type="text" class="form-control" id="entry-consultation-id" disabled>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label fw-semibold">Doctor Notes</label>
-                                    <input type="text" class="form-control" id="entry-doctor-notes" disabled>
-                                </div>
-                            </div>
 
-                             <h6 class="fw-bold text-secondary my-3 border-bottom pb-2">Test Parameters Values</h6>
-                            <div id="dynamic-param-rows">
-                                <!-- Dynamic parameter rows populated by JS -->
-                            </div>
+                                <form id="lab-entry-form">
+                                    <input type="hidden" id="entry-request-id">
+                                    
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Patient Demographics</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-patient-name" disabled>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Ordered Assessment</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-test-name" disabled>
+                                        </div>
+                                    </div>
 
-                            <h6 class="fw-bold text-secondary my-3 border-bottom pb-2">Scanned Report Document (Optional)</h6>
-                            <div class="mb-4">
-                                <label class="form-label font-size-sm">Upload raw scanned document, graph, or pathologist signature certificate</label>
-                                <div class="hc-upload-dropzone" id="lab-upload-dropzone">
-                                    <i class="fa-solid fa-file-pdf"></i>
-                                    <p class="mb-1 fw-bold">Drag & Drop file here or click to browse</p>
-                                    <p class="text-muted font-size-xs mb-0">Supports PDF, PNG, JPG (Max 5MB)</p>
-                                    <input type="file" id="lab-file-input" class="d-none" accept=".pdf,.png,.jpg,.jpeg">
-                                </div>
-                                <div id="lab-uploaded-file-preview"></div>
-                            </div>
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Priority Level</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-priority" disabled>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Appointment Ref</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-appointment-id" disabled>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Consultation Ref</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-consultation-id" disabled>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Clinical Notes</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-doctor-notes" disabled>
+                                        </div>
+                                    </div>
 
-                            <div class="mb-4 text-start">
-                                <label for="entry-tech-comments" class="form-label fw-semibold font-size-sm">Technician Comments & Clinical Findings Notes</label>
-                                <textarea class="form-control" id="entry-tech-comments" rows="3" placeholder="Enter findings, specimen notes, or pathological remarks..."></textarea>
-                            </div>
+                                     <h6 class="fw-bold text-secondary my-3 border-bottom pb-2 font-size-xs"><i class="fa-solid fa-list-ol text-primary me-2"></i>Test Parameter Specifications</h6>
+                                     <div class="table-responsive mb-4">
+                                         <table class="table align-middle">
+                                             <thead class="table-light">
+                                                 <tr>
+                                                     <th>Parameter</th>
+                                                     <th style="width: 140px;">Observed Value</th>
+                                                     <th>Unit</th>
+                                                     <th>Reference Range</th>
+                                                     <th>Interpretation</th>
+                                                 </tr>
+                                             </thead>
+                                             <tbody id="dynamic-param-rows">
+                                                 <!-- Dynamic parameter rows populated by JS -->
+                                             </tbody>
+                                         </table>
+                                     </div>
 
-                            <div class="text-end mt-4">
-                                <button type="submit" class="btn btn-hc-secondary py-2 px-4"><i class="fa-solid fa-file-shield me-1"></i> Authorize & Compile Report</button>
+                                    <h6 class="fw-bold text-secondary my-3 border-bottom pb-2 font-size-xs"><i class="fa-solid fa-file-pdf text-danger me-2"></i>Scanned Pathologist Document (Optional)</h6>
+                                    <div class="mb-4">
+                                        <div class="hc-upload-dropzone" id="lab-upload-dropzone">
+                                            <i class="fa-solid fa-file-arrow-up text-primary fs-3 mb-2"></i>
+                                            <p class="mb-1 fw-bold">Drag & Drop certificate here or click to browse</p>
+                                            <p class="text-muted font-size-xs mb-0">Supports PDF, PNG, JPG (Max 5MB)</p>
+                                            <input type="file" id="lab-file-input" class="d-none" accept=".pdf,.png,.jpg,.jpeg">
+                                        </div>
+                                        <div id="lab-uploaded-file-preview"></div>
+                                    </div>
+
+                                    <div class="mb-4 text-start">
+                                        <label for="entry-tech-comments" class="form-label fw-semibold font-size-sm text-secondary">Technician Comments & Specs Remarks</label>
+                                        <textarea class="form-control font-size-sm" id="entry-tech-comments" rows="3" placeholder="Enter findings, specimen notes, or pathological remarks..."></textarea>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mt-4">
+                                        <button type="button" class="btn btn-outline-secondary py-2 px-4" onclick="saveLabDraft()"><i class="fa-solid fa-floppy-disk me-1.5"></i>Save Draft</button>
+                                        <button type="submit" class="btn btn-hc-secondary py-2 px-4"><i class="fa-solid fa-file-shield me-1.5"></i>Compile & Release Report</button>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </section>
 
@@ -317,53 +378,120 @@
 
                 <!-- PANEL 4: WALK-IN TEST REQUESTS -->
                 <section class="dashboard-panel" id="panel-walkin">
-                    <div class="hc-card">
-                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-file-signature text-primary me-2"></i>New Test Request Form</h5>
-                        <form id="lab-walkin-form">
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-6">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <label for="walkin-patient" class="form-label fw-semibold mb-0">Select Patient</label>
-                                        <button type="button" class="btn btn-xs btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registerPatientModal"><i class="fa-solid fa-user-plus me-1"></i>New Patient</button>
+                    <div class="row g-4">
+                        <!-- Left Pane: Registration Form -->
+                        <div class="col-lg-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-file-signature text-primary me-2"></i>Walk-In Registration Console</h5>
+                                <form id="lab-walkin-form">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label for="walkin-patient" class="form-label fw-semibold mb-0 font-size-sm text-secondary">Select Registered Patient</label>
+                                            <button type="button" class="btn btn-xs btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registerPatientModal"><i class="fa-solid fa-user-plus me-1"></i>Quick Intake Register</button>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-hospital-user"></i></span>
+                                            <select class="form-select border-start-0" id="walkin-patient" required>
+                                                <!-- Loaded dynamically -->
+                                            </select>
+                                        </div>
                                     </div>
-                                    <select class="form-select" id="walkin-patient" required>
-                                        <!-- Loaded dynamically -->
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="walkin-doctor" class="form-label fw-semibold">Ordering Physician (or Walk-In)</label>
-                                    <input type="text" class="form-control" id="walkin-doctor" value="Walk-In Patient" required>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label for="walkin-doctor" class="form-label fw-semibold font-size-sm text-secondary">Ordering Physician / Walk-In</label>
+                                            <input type="text" class="form-control" id="walkin-doctor" value="Self-Referral (Walk-In)" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="walkin-priority" class="form-label fw-semibold font-size-sm text-secondary">Priority Level</label>
+                                            <select class="form-select" id="walkin-priority" required>
+                                                <option value="Low">Low (Routine)</option>
+                                                <option value="Medium" selected>Medium (Standard)</option>
+                                                <option value="High">High (Urgent)</option>
+                                                <option value="Critical">Critical (STAT)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label for="walkin-payment" class="form-label fw-semibold font-size-sm text-secondary">Billing Status</label>
+                                            <select class="form-select" id="walkin-payment" required>
+                                                <option value="paid">Paid (Receipt Cleared)</option>
+                                                <option value="unpaid" selected>Unpaid (Generate Invoice)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="walkin-sample-status" class="form-label fw-semibold font-size-sm text-secondary">Intake Specimen Draw</label>
+                                            <select class="form-select" id="walkin-sample-status" required>
+                                                <option value="pending" selected>Draw Specimen Later</option>
+                                                <option value="sample_collected">Draw Specimen Now (Collected)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold font-size-sm text-secondary mb-2">Select Diagnostic Assessments (Multiple selection)</label>
+                                        <div class="p-3 bg-light rounded border" style="max-height: 220px; overflow-y: auto;">
+                                            <div class="mb-2 font-size-xxs fw-bold text-uppercase text-muted" style="letter-spacing:0.5px;">HEMATOLOGY / BLOOD PANEL</div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Complete Blood Count (CBC)" id="chk-cbc" data-category="Blood Test" checked>
+                                                <label class="form-check-label font-size-sm" for="chk-cbc">Complete Blood Count (CBC)</label>
+                                            </div>
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Lipid Profile" id="chk-lipid" data-category="Lipid Panel">
+                                                <label class="form-check-label font-size-sm" for="chk-lipid">Lipid Profile Panel (Cholesterol, HDL, LDL, Triglycerides)</label>
+                                            </div>
+
+                                            <div class="mb-2 font-size-xxs fw-bold text-uppercase text-muted" style="letter-spacing:0.5px;">BIOCHEMISTRY / METABOLIC</div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Liver Function Test (LFT)" id="chk-lft" data-category="Biochemistry">
+                                                <label class="form-check-label font-size-sm" for="chk-lft">Liver Function Test (LFT)</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Kidney Function Test (KFT)" id="chk-kft" data-category="Biochemistry">
+                                                <label class="form-check-label font-size-sm" for="chk-kft">Kidney Function Test (KFT)</label>
+                                            </div>
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Thyroid Panel (T3, T4, TSH)" id="chk-thyroid" data-category="Biochemistry">
+                                                <label class="form-check-label font-size-sm" for="chk-thyroid">Thyroid Function Panel (T3, T4, TSH)</label>
+                                            </div>
+
+                                            <div class="mb-2 font-size-xxs fw-bold text-uppercase text-muted" style="letter-spacing:0.5px;">OTHER ASSESSMENTS</div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="HbA1c Glucose Test" id="chk-glucose" data-category="Pathology">
+                                                <label class="form-check-label font-size-sm" for="chk-glucose">HbA1c Glycated Glucose Test</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="ECG Cardiology Scan" id="chk-ecg" data-category="Cardiology Tests">
+                                                <label class="form-check-label font-size-sm" for="chk-ecg">ECG Cardiology Screen (12-Lead)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-hc-primary w-100 py-2.5 font-size-sm shadow-sm"><i class="fa-solid fa-plus me-1.5"></i>Register Order & Generate Barcode</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right Pane: Active Queue Monitor & Generated Barcode -->
+                        <div class="col-lg-6">
+                            <div class="hc-card h-100 d-flex flex-column">
+                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-people-arrows text-primary me-2"></i>Walk-In Patient Queue Monitor</h5>
+                                <div class="table-responsive flex-grow-1" style="max-height: 480px; overflow-y: auto;">
+                                    <table class="table align-middle font-size-xs">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Token</th>
+                                                <th>Patient Details</th>
+                                                <th>Assigned Assessments</th>
+                                                <th>Draw Status</th>
+                                                <th>Payment</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="walkin-queue-body">
+                                            <!-- Dynamically populated -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="row g-3 mb-4">
-                                <div class="col-md-4">
-                                    <label for="walkin-cat" class="form-label fw-semibold">Test Category</label>
-                                    <select class="form-select" id="walkin-cat" required>
-                                        <option value="Blood Test">Blood Test</option>
-                                        <option value="Lipid Panel">Lipid Panel</option>
-                                        <option value="Pathology">Pathology</option>
-                                        <option value="Microbiology">Microbiology</option>
-                                        <option value="Cardiology Tests">Cardiology Tests</option>
-                                        <option value="Radiology">Radiology</option>
-                                        <option value="Biochemistry">Biochemistry</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="walkin-name" class="form-label fw-semibold">Test Name</label>
-                                    <input type="text" class="form-control" id="walkin-name" placeholder="e.g. Complete Blood Count (CBC)" required>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="walkin-priority" class="form-label fw-semibold">Priority Level</label>
-                                    <select class="form-select" id="walkin-priority" required>
-                                        <option value="Low">Low</option>
-                                        <option value="Medium" selected>Medium</option>
-                                        <option value="High">High</option>
-                                        <option value="Critical">Critical</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-hc-primary py-2 px-4"><i class="fa-solid fa-plus me-1"></i> Add Test Request</button>
-                        </form>
+                        </div>
                     </div>
                 </section>
 

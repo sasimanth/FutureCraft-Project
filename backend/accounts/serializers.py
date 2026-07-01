@@ -4,10 +4,13 @@ from .models import CustomUser, AuditLog
 class UserSerializer(serializers.ModelSerializer):
     patientId = serializers.SerializerMethodField(required=False)
     doctorId = serializers.SerializerMethodField(required=False)
+    dateJoined = serializers.DateTimeField(source='date_joined', read_only=True)
+    emailVerified = serializers.BooleanField(source='email_verified', required=False)
+    phoneVerified = serializers.BooleanField(source='phone_verified', required=False)
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'email', 'name', 'role', 'is_active', 'patientId', 'doctorId')
+        fields = ('id', 'email', 'name', 'role', 'is_active', 'patientId', 'doctorId', 'dateJoined', 'emailVerified', 'phoneVerified')
 
     def get_patientId(self, obj):
         if obj.role == 'patient' and hasattr(obj, 'patientprofile'):

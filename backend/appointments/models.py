@@ -7,6 +7,7 @@ class Appointment(models.Model):
         ('confirmed', 'Confirmed'),
         ('cancelled', 'Cancelled'),
         ('completed', 'Completed'),
+        ('completed_with_rating', 'Completed with Rating'),
     )
     TYPE_CHOICES = (
         ('Doctor Checkup', 'Doctor Checkup'),
@@ -22,7 +23,7 @@ class Appointment(models.Model):
     date = models.DateField(default=timezone.now)
     time_slot = models.CharField(max_length=50) # 09:30 AM
     symptoms = models.TextField(blank=True, default='')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='pending')
     type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='Doctor Checkup')
     created_at = models.DateTimeField(auto_now_add=True)
 

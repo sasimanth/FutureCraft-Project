@@ -125,6 +125,13 @@ class DoctorReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         doctor_id = self.request.data.get('doctorId')
+        appt_id = self.request.data.get('apptId')
+        
+        # Prevent duplicate reviews for the same consultation/appointment
+        if appt_id and DoctorReview.objects.filter(appt_id=appt_id).exists():
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError({'apptId': 'This consultation has already been rated.'})
+
         try:
             doctor = DoctorProfile.objects.get(doctor_id=doctor_id)
             serializer.save(doctor=doctor)
