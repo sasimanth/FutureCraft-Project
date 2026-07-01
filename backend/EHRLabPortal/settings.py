@@ -200,15 +200,33 @@ SIMPLE_JWT = {
 }
 
 # CORS settings
-CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# CSRF Trusted Origins for cross-domain requests (Vercel and Render)
+FRONTEND_URL = os.getenv('FRONTEND_URL')
+
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOW_ALL_ORIGINS = False
+    if FRONTEND_URL:
+        CORS_ALLOWED_ORIGINS = [url.strip() for url in FRONTEND_URL.split(',') if url.strip()]
+    else:
+        CORS_ALLOWED_ORIGIN_REGEXES = [
+            r"^https://[^/]+\.netlify\.app$",
+        ]
+
+# CSRF Trusted Origins for cross-domain requests (Vercel, Netlify, and Render)
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'https://*.onrender.com,https://*.vercel.app').split(',')
+    for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'https://*.onrender.com,https://*.netlify.app,https://*.vercel.app').split(',')
     if origin.strip()
 ]
+
+if FRONTEND_URL:
+    for url in FRONTEND_URL.split(','):
+        cleaned = url.strip()
+        if cleaned and cleaned not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(cleaned)
 
 # Static files delivery using WhiteNoise
 STORAGES = {
