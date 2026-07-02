@@ -6,6 +6,23 @@
  */
 
 // ==========================================
+// CUREPOINT – PRODUCTION INTEGRATION CONFIGURATION
+// ==========================================
+const CUREPOINT_CONFIG = {
+    PRODUCTION_API_URL: 'https://curepoint-backend-5am4.onrender.com/api',
+    LOCAL_API_URL: 'http://127.0.0.1:8000/api',
+    API_VERSION: '1.0',
+    TIMEOUT: 15000,
+    RETRY_POLICY: {
+        MAX_RETRIES: 3,
+        RETRY_DELAY: 1000
+    },
+    DEFAULT_HEADERS: {
+        'Content-Type': 'application/json'
+    }
+};
+
+// ==========================================
 // Toast Notifications System Helper
 // ==========================================
 window.Toast = {
@@ -389,29 +406,90 @@ initializeDatabase();
 
 const ApiService = {
     baseUrl: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? 'http://127.0.0.1:8000/api'
-        : 'https://curepoint-backend.onrender.com/api', // Django local development or Render server URL
+        ? CUREPOINT_CONFIG.LOCAL_API_URL
+        : CUREPOINT_CONFIG.PRODUCTION_API_URL,
     useMock: false, // Toggle this to FALSE to direct requests to actual Django backend
 
-    // Helper wrapper for actual network HTTP fetch requests
+    // Helper wrapper for actual network HTTP fetch requests with retries, timeouts, and auth redirection
     _request: async function (endpoint, options = {}) {
         if (this.useMock) {
             throw new Error("Mock database client is active. Set useMock to false in ApiService.");
         }
+        
         const currentUser = JSON.parse(sessionStorage.getItem('hc_current_user'));
-        const headers = {
-            'Content-Type': 'application/json',
-            ...(options.headers || {})
-        };
+        const headers = { ...CUREPOINT_CONFIG.DEFAULT_HEADERS };
+        
+        // If uploading files (FormData), do not set Content-Type as the browser does it automatically
+        if (options.body instanceof FormData) {
+            delete headers['Content-Type'];
+        }
+        
+        // Merge custom headers
+        Object.assign(headers, options.headers || {});
+        
+        // Set Auth header if token exists
         if (currentUser && currentUser.token) {
             headers['Authorization'] = `Bearer ${currentUser.token}`;
         }
-        const response = await fetch(`${this.baseUrl}${endpoint}`, { ...options, headers });
-        if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            throw new Error(errData.message || response.statusText || 'API request failed.');
+        
+        let retries = 0;
+        const maxRetries = CUREPOINT_CONFIG.RETRY_POLICY.MAX_RETRIES;
+        const delay = CUREPOINT_CONFIG.RETRY_POLICY.RETRY_DELAY;
+        
+        while (true) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), CUREPOINT_CONFIG.TIMEOUT);
+            
+            try {
+                const response = await fetch(`${this.baseUrl}${endpoint}`, {
+                    ...options,
+                    headers,
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.status === 401) {
+                    // Token expired or invalid
+                    sessionStorage.removeItem('hc_current_user');
+                    Toast.error("Session expired or unauthorized. Redirecting to login...");
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                    throw new Error("Authentication failed.");
+                }
+                
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.message || response.statusText || 'API request failed.');
+                }
+                
+                if (options.responseType === 'blob') {
+                    return response.blob();
+                }
+                
+                return response.json();
+                
+            } catch (err) {
+                clearTimeout(timeoutId);
+                
+                if (err.name === 'AbortError') {
+                    err = new Error("Request timed out.");
+                }
+                
+                if (err.message === "Authentication failed.") {
+                    throw err; // Do not retry on auth failures
+                }
+                
+                retries++;
+                if (retries > maxRetries) {
+                    throw err;
+                }
+                
+                // Wait before retrying
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
         }
-        return response.json();
     },
 
     syncDataFromServer: async function () {
@@ -1656,15 +1734,10 @@ async function handlePatientFileUpload(file, patient) {
         const formData = new FormData();
         formData.append('file', file);
         try {
-            const token = JSON.parse(sessionStorage.getItem('hc_current_user')).token;
-            const res = await fetch(`${ApiService.baseUrl}/patients/${patient.id}/files/`, {
+            await ApiService._request(`/patients/${patient.id}/files/`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
                 body: formData
             });
-            if (!res.ok) throw new Error("Upload failed.");
             Toast.success(`Successfully uploaded: ${file.name}`);
             await ApiService.syncDataFromServer();
             renderPatientFiles(patient);
@@ -1684,14 +1757,9 @@ window.deletePatientFile = async function (fileId, patientId) {
         if (patient) renderPatientFiles(patient);
     } else {
         try {
-            const token = JSON.parse(sessionStorage.getItem('hc_current_user')).token;
-            const res = await fetch(`${ApiService.baseUrl}/patients/${patientId}/files/${fileId}/`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            await ApiService._request(`/patients/${patientId}/files/${fileId}/`, {
+                method: 'DELETE'
             });
-            if (!res.ok) throw new Error("Delete failed.");
             Toast.success("File document deleted.");
             await ApiService.syncDataFromServer();
             const patient = getDB('patients').find(p => p.id === patientId);
@@ -3613,18 +3681,10 @@ async function submitLabResults(technician) {
         }
 
         try {
-            const token = JSON.parse(sessionStorage.getItem('hc_current_user')).token;
-            const res = await fetch(`${ApiService.baseUrl}/lab-tests/${reqId}/`, {
+            await ApiService._request(`/lab-tests/${reqId}/`, {
                 method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
                 body: formData
             });
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                throw new Error(errData.message || "Failed to submit results.");
-            }
             Toast.success('Lab report authorized and compiled successfully!');
             document.getElementById('lab-entry-form').reset();
             document.getElementById('dynamic-param-rows').innerHTML = '';
@@ -4461,15 +4521,9 @@ window.viewLabReportModal = async function (reportId) {
             }
 
             let pdfUrl = '';
-            const currentUser = JSON.parse(sessionStorage.getItem('hc_current_user')) || {};
-            const token = currentUser.token || '';
-            const res = await fetch(`${ApiService.baseUrl}/reports/lab-report/${req.id}/`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+            const blob = await ApiService._request(`/reports/lab-report/${req.id}/`, {
+                responseType: 'blob'
             });
-            if (!res.ok) throw new Error("Failed to load PDF report from backend server.");
-            const blob = await res.blob();
             pdfUrl = URL.createObjectURL(blob);
 
             const iframe = document.getElementById('report-pdf-iframe');
@@ -4512,14 +4566,9 @@ window.downloadPdfReport = async function (type, id) {
     }
 
     try {
-        const token = JSON.parse(sessionStorage.getItem('hc_current_user')).token;
-        const res = await fetch(`${ApiService.baseUrl}/reports/${type}/${id}/`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+        const blob = await ApiService._request(`/reports/${type}/${id}/`, {
+            responseType: 'blob'
         });
-        if (!res.ok) throw new Error("Failed to download PDF report from server.");
-        const blob = await res.blob();
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -5198,13 +5247,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const activeUser = AuthService.getCurrentUser();
     const pathname = window.location.pathname;
 
-    if (pathname.includes('-dashboard.html')) {
+    if (pathname.includes('-dashboard')) {
         if (!activeUser) {
             window.location.href = 'login.html';
             return;
         }
 
-        const currentPageRole = pathname.substring(pathname.lastIndexOf('/') + 1).replace('-dashboard.html', '');
+        const currentPageRole = pathname.substring(pathname.lastIndexOf('/') + 1).replace('-dashboard.html', '').replace('-dashboard', '');
         if (activeUser.role !== currentPageRole) {
             window.location.href = activeUser.role + '-dashboard.html';
             return;
@@ -5281,9 +5330,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // LOGIN ROUTING
-    if (pathname.includes('login.html')) {
-        const loginForm = document.getElementById('loginForm');
-        if (loginForm) {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
             const roleCards = document.querySelectorAll('.auth-role-card');
             const selectedRoleInput = document.getElementById('login-role');
 
@@ -5360,12 +5408,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             }
         }
-    }
 
     // REGISTER ROUTING
-    if (pathname.includes('register.html')) {
-        const registerForm = document.getElementById('registerForm');
-        if (registerForm) {
+    const registerForm = document.getElementById('registerForm');
+    if (registerForm) {
             registerForm.addEventListener('submit', async function (e) {
                 e.preventDefault();
                 const name = document.getElementById('reg-name').value;
@@ -5419,9 +5465,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             }
         }
-    }
 
-    if (!pathname.includes('-dashboard.html') && !pathname.includes('login.html') && !pathname.includes('register.html')) {
+    if (document.getElementById('landingPage')) {
         setupLandingPageFeatures();
     }
 });
