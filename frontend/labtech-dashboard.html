@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratory Desk - CurePoint</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='cg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3ClinearGradient id='cg2' x1='0%25' y1='100%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2306b6d4'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='url(%23cg)' stroke-width='2'/%3E%3Cpath d='M 12 6 L 12 18 M 6 12 L 18 12' stroke='url(%23cg)' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M 8 12 L 10 12 L 11 9 L 13 15 L 14 12 L 16 12' stroke='url(%23cg2)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper" id="labDashboard">
+        <!-- SIDEBAR PANEL -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                <svg class="curepoint-logo" viewBox="0 0 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                    <defs>
+                        <linearGradient id="medicore-white-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"></stop>
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.5"></stop>
+                        </linearGradient>
+                        <linearGradient id="medicore-white-trans" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4"></stop>
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.7"></stop>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 32 12 A 40 40 0 1 1 76 76" fill="none" stroke="url(#medicore-white-grad)" stroke-width="4.5" stroke-linecap="round" />
+                    <path d="M 22 50 C 22 68, 38 82, 56 80 C 62 79, 68 76, 72 71" fill="none" stroke="url(#medicore-white-trans)" stroke-width="4" stroke-linecap="round" />
+                    <path d="M 24 46 C 26 54, 32 64, 42 66 C 46 67, 50 65, 52 62" fill="none" stroke="url(#medicore-white-trans)" stroke-width="3" stroke-linecap="round" />
+                    <rect x="38" y="22" width="24" height="32" rx="3" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2.5" />
+                    <rect x="44" y="19" width="12" height="4" rx="1.5" fill="url(#medicore-white-grad)" />
+                    <path d="M 50 26 V 32 M 47 29 H 53" stroke="url(#medicore-white-trans)" stroke-width="2" stroke-linecap="round" />
+                    <line x1="43" y1="36" x2="57" y2="36" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="43" y1="40" x2="57" y2="40" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" />
+                    <path d="M 43 46 L 46 46 L 48 43 L 50 49 L 52 45 L 54 47 L 57 47" fill="none" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 50 63 C 45 58, 41 54, 41 49 C 41 45.5, 43.5 43, 47 43 C 48.8 43, 49.6 44, 50 44.5 C 50.4 44, 51.2 43, 53 43 C 56.5 43, 59 45.5, 59 49 C 59 54, 55 58, 50 63 Z" fill="url(#medicore-white-grad)" />
+                    <path d="M 44 49 L 46 49 L 47 46 L 49 52 L 51 47 L 53 50 L 56 50" fill="none" stroke="#2563eb" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 67 22 C 67 22, 65 17, 69 15 C 72 13.5, 75 18, 74 21" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 77 23 C 77 23, 75 18, 79 16 C 82 14.5, 85 19, 84 22" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="69" cy="15" r="1" fill="url(#medicore-white-grad)" />
+                    <circle cx="79" cy="16" r="1" fill="url(#medicore-white-grad)" />
+                    <path d="M 70 21 C 71 27, 81 28, 82 22" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 76 25 C 76 25, 77 34, 73 38 C 69 42, 69 50, 74 53 C 79 56, 79 62, 75 64" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="74" cy="67" r="4" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" />
+                    <circle cx="74" cy="67" r="1.5" fill="url(#medicore-white-trans)" />
+                </svg>
+                <span class="brand-text text-white">Cure<span class="brand-highlight" style="color: rgba(255,255,255,0.7);">Point</span></span>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active">
+                    <a href="#" class="sidebar-link" data-panel="panel-dashboard">
+                        <i class="fa-solid fa-square-poll-vertical"></i>
+                        <span>Lab Desk</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-results-entry">
+                        <i class="fa-solid fa-square-plus"></i>
+                        <span>Results Entry</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-walkin">
+                        <i class="fa-solid fa-file-signature"></i>
+                        <span>Walk-in Requests</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-completed">
+                        <i class="fa-solid fa-file-medical"></i>
+                        <span>Completed Reports</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="avatar-letters">LT</div>
+                    <div>
+                        <h6 class="mb-0 text-white font-size-sm fw-bold" id="user-display-name">Lab Tech Name</h6>
+                        <span class="text-white-50 font-size-xs">Laboratory Desk</span>
+                    </div>
+                </div>
+                <button onclick="AuthService.logout()" class="btn btn-sm btn-outline-danger w-100 py-2"><i class="fa-solid fa-right-from-bracket me-1"></i> Log Out</button>
+            </div>
+        </aside>
+
+        <!-- DASHBOARD BODY CONTENT -->
+        <main class="dashboard-content-area">
+            <!-- HEADER NAVBAR -->
+            <header class="dashboard-header">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="mobile-sidebar-toggle"><i class="fa-solid fa-bars text-primary"></i></button>
+                    <h4 class="mb-0 fw-bold" id="breadcrumb-title">Lab Desk</h4>
+                </div>
+                <div class="header-actions">
+                    <div class="dashboard-search-bar d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="form-control" id="lab-search-input" placeholder="Search test requests...">
+                        <span class="cmd-indicator" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.7rem;"><i class="fa-solid fa-arrow-turn-down fa-rotate-90 me-1" style="font-size: 0.6rem;"></i> K</span>
+                    </div>
+                    <!-- Theme Toggle Button -->
+                    <button type="button" class="theme-toggle-btn btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center p-2 rounded-circle me-2" onclick="toggleTheme()" style="width: 38px; height: 38px;">
+                        <i class="fa-solid fa-moon fs-6"></i>
+                    </button>
+                    <div class="header-notification-btn">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="header-notification-badge"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN PANELS VIEW AREA (SPA) -->
+            <div class="dashboard-main-view">
+                
+                <!-- PANEL 1: LABORATORY DESK OVERVIEW (LaboraX) -->
+                <section class="dashboard-panel active" id="panel-dashboard">
+                    <div class="laborax-stats-row mb-4">
+                        <div class="laborax-stat-card">
+                            <div>
+                                <p class="stat-title">Delayed Reports</p>
+                                <h3 class="laborax-stat-val" id="lab-stat-delayed">0</h3>
+                                <div class="stat-trend stat-trend-up mt-1"><i class="fa-solid fa-arrow-trend-up me-1"></i>+0% vs last week</div>
+                            </div>
+                            <span class="laborax-change-badge positive">+0</span>
+                        </div>
+                        <div class="laborax-stat-card">
+                            <div>
+                                <p class="stat-title">Critical Results</p>
+                                <h3 class="laborax-stat-val" id="lab-stat-critical">0</h3>
+                                <div class="stat-trend stat-trend-up mt-1"><i class="fa-solid fa-arrow-trend-up me-1"></i>+0% vs last week</div>
+                            </div>
+                            <span class="laborax-change-badge positive">+0</span>
+                        </div>
+                        <div class="laborax-stat-card">
+                            <div>
+                                <p class="stat-title">Average TAT</p>
+                                <h3 class="laborax-stat-val" id="lab-stat-tat" style="font-size: 1.4rem;">04 hr 15 mins</h3>
+                                <div class="stat-trend stat-trend-down mt-1"><i class="fa-solid fa-arrow-trend-down me-1"></i>-10% improve</div>
+                            </div>
+                            <span class="laborax-change-badge negative">-1h</span>
+                        </div>
+                        <div class="laborax-stat-card">
+                            <div>
+                                <p class="stat-title">Today's Tests</p>
+                                <h3 class="laborax-stat-val" id="lab-stat-today">0</h3>
+                                <div class="font-size-xs text-muted mt-1" id="lab-stat-today-details">Completed: 0 | Need Test: 0</div>
+                            </div>
+                            <span class="badge bg-secondary">Active</span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <!-- Orders Trend Chart -->
+                        <div class="col-lg-8">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-area text-primary me-2"></i>Lab Orders Trend (Weekly volume)</h5>
+                                <div style="position: relative; height: 220px; width: 100%">
+                                    <canvas id="laboraxOrdersChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Processing status doughnut chart -->
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-pie text-secondary me-2"></i>Processing Status</h5>
+                                <div style="position: relative; height: 220px; width: 100%">
+                                    <canvas id="laboraxStatusChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hc-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-bell-concierge text-primary me-2"></i>Physician Lab Orders Queue</h5>
+                            <span class="badge bg-primary px-3 py-2" id="lab-stat-pending">-- pending requests</span>
+                        </div>
+                        
+                        <!-- Segmented Workflow Tabs -->
+                        <ul class="nav nav-tabs mb-4 border-light-subtle" id="lab-orders-tabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-semibold font-size-sm" id="tab-pending-btn" onclick="filterLabOrders('pending')" type="button">Pending</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-accepted-btn" onclick="filterLabOrders('accepted')" type="button">Accepted</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-sample_collection-btn" onclick="filterLabOrders('sample_collection')" type="button">Sample Draw</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-sample_received-btn" onclick="filterLabOrders('sample_received')" type="button">Received</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-in_progress-btn" onclick="filterLabOrders('in_progress')" type="button">Processing</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-awaiting_verification-btn" onclick="filterLabOrders('awaiting_verification')" type="button">Awaiting Verification</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-completed-btn" onclick="filterLabOrders('completed')" type="button">Completed</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-critical-btn" onclick="filterLabOrders('critical')" type="button"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>Critical</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold font-size-sm" id="tab-urgent-btn" onclick="filterLabOrders('urgent')" type="button"><i class="fa-solid fa-circle-exclamation text-warning me-1"></i>Urgent Cases</button>
+                            </li>
+                        </ul>
+
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Request ID</th>
+                                        <th>Patient Details</th>
+                                        <th>Test Name</th>
+                                        <th>Urgency</th>
+                                        <th>Barcode Scan</th>
+                                        <th>Ordered Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lab-pending-requests">
+                                    <!-- Dynamic list of lab requests -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 2: RESULTS ENTRY WORKSPACE -->
+                <section class="dashboard-panel" id="panel-results-entry">
+                    <div class="split-workspace-container">
+                        <!-- Left Pane: Active Orders Queue -->
+                        <div class="workspace-left-queue">
+                            <div class="hc-card p-3">
+                                <h6 class="fw-bold mb-3 text-secondary d-flex align-items-center justify-content-between">
+                                    <span><i class="fa-solid fa-list-check text-primary me-2"></i>Specimen Queue</span>
+                                    <span class="badge bg-primary rounded-pill font-size-xxs" id="active-queue-count">0</span>
+                                </h6>
+                                <div class="mb-3">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-search"></i></span>
+                                        <input type="text" class="form-control border-start-0" id="queue-search-input" placeholder="Search active queue..." oninput="renderSpecimenQueue()">
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column gap-2" id="specimen-queue-container" style="max-height: 520px; overflow-y: auto; padding-right: 4px;">
+                                    <!-- Populated dynamically by JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Pane: Entry Form / Editor Workspace -->
+                        <div class="workspace-right-form">
+                            <div class="hc-card" id="results-editor-placeholder">
+                                <div class="text-center py-5">
+                                    <i class="fa-solid fa-vials text-muted mb-3" style="font-size: 3.5rem;"></i>
+                                    <h5 class="fw-bold text-dark mb-1">Select an active order from the queue</h5>
+                                    <p class="text-muted font-size-xs max-width-320 mx-auto">Choose a specimen or order from the left pane queue to begin compiling parameter-level clinical findings and diagnostics results.</p>
+                                </div>
+                            </div>
+
+                            <div class="hc-card d-none" id="results-editor-workspace">
+                                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+                                    <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-vial-circle-check text-primary me-2"></i>Specimen Analysis Worksheet</h5>
+                                    <div class="token-badge" id="entry-token-display">TKN-000</div>
+                                </div>
+
+                                <form id="lab-entry-form">
+                                    <input type="hidden" id="entry-request-id">
+                                    
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Patient Demographics</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-patient-name" disabled>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Ordered Assessment</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-test-name" disabled>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Priority Level</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-priority" disabled>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Appointment Ref</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-appointment-id" disabled>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Consultation Ref</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-consultation-id" disabled>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary">Clinical Notes</label>
+                                            <input type="text" class="form-control font-size-sm" id="entry-doctor-notes" disabled>
+                                        </div>
+                                    </div>
+
+                                     <h6 class="fw-bold text-secondary my-3 border-bottom pb-2 font-size-xs"><i class="fa-solid fa-list-ol text-primary me-2"></i>Test Parameter Specifications</h6>
+                                     <div class="table-responsive mb-4">
+                                         <table class="table align-middle">
+                                             <thead class="table-light">
+                                                 <tr>
+                                                     <th>Parameter</th>
+                                                     <th style="width: 140px;">Observed Value</th>
+                                                     <th>Unit</th>
+                                                     <th>Reference Range</th>
+                                                     <th>Interpretation</th>
+                                                 </tr>
+                                             </thead>
+                                             <tbody id="dynamic-param-rows">
+                                                 <!-- Dynamic parameter rows populated by JS -->
+                                             </tbody>
+                                         </table>
+                                     </div>
+
+                                    <h6 class="fw-bold text-secondary my-3 border-bottom pb-2 font-size-xs"><i class="fa-solid fa-file-pdf text-danger me-2"></i>Scanned Pathologist Document (Optional)</h6>
+                                    <div class="mb-4">
+                                        <div class="hc-upload-dropzone" id="lab-upload-dropzone">
+                                            <i class="fa-solid fa-file-arrow-up text-primary fs-3 mb-2"></i>
+                                            <p class="mb-1 fw-bold">Drag & Drop certificate here or click to browse</p>
+                                            <p class="text-muted font-size-xs mb-0">Supports PDF, PNG, JPG (Max 5MB)</p>
+                                            <input type="file" id="lab-file-input" class="d-none" accept=".pdf,.png,.jpg,.jpeg">
+                                        </div>
+                                        <div id="lab-uploaded-file-preview"></div>
+                                    </div>
+
+                                    <div class="mb-4 text-start">
+                                        <label for="entry-tech-comments" class="form-label fw-semibold font-size-sm text-secondary">Technician Comments & Specs Remarks</label>
+                                        <textarea class="form-control font-size-sm" id="entry-tech-comments" rows="3" placeholder="Enter findings, specimen notes, or pathological remarks..."></textarea>
+                                    </div>
+
+                                    <div class="d-flex justify-content-between align-items-center mt-4">
+                                        <button type="button" class="btn btn-outline-secondary py-2 px-4" onclick="saveLabDraft()"><i class="fa-solid fa-floppy-disk me-1.5"></i>Save Draft</button>
+                                        <button type="submit" class="btn btn-hc-secondary py-2 px-4"><i class="fa-solid fa-file-shield me-1.5"></i>Compile & Release Report</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 3: COMPLETED REPORTS -->
+                <section class="dashboard-panel" id="panel-completed">
+                    <div class="hc-card">
+                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-file-medical text-success me-2"></i>Diagnostic Archives</h5>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Report ID</th>
+                                        <th>Patient Name</th>
+                                        <th>Test Name</th>
+                                        <th>Result Released Date</th>
+                                        <th>Authorized Technician</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lab-completed-requests">
+                                    <!-- Dynamic list of completed reports -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 4: WALK-IN TEST REQUESTS -->
+                <section class="dashboard-panel" id="panel-walkin">
+                    <div class="row g-4">
+                        <!-- Left Pane: Registration Form -->
+                        <div class="col-lg-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-file-signature text-primary me-2"></i>Walk-In Registration Console</h5>
+                                <form id="lab-walkin-form">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label for="walkin-patient" class="form-label fw-semibold mb-0 font-size-sm text-secondary">Select Registered Patient</label>
+                                            <button type="button" class="btn btn-xs btn-outline-primary" data-bs-toggle="modal" data-bs-target="#registerPatientModal"><i class="fa-solid fa-user-plus me-1"></i>Quick Intake Register</button>
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-hospital-user"></i></span>
+                                            <select class="form-select border-start-0" id="walkin-patient" required>
+                                                <!-- Loaded dynamically -->
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label for="walkin-doctor" class="form-label fw-semibold font-size-sm text-secondary">Ordering Physician / Walk-In</label>
+                                            <input type="text" class="form-control" id="walkin-doctor" value="Self-Referral (Walk-In)" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="walkin-priority" class="form-label fw-semibold font-size-sm text-secondary">Priority Level</label>
+                                            <select class="form-select" id="walkin-priority" required>
+                                                <option value="Low">Low (Routine)</option>
+                                                <option value="Medium" selected>Medium (Standard)</option>
+                                                <option value="High">High (Urgent)</option>
+                                                <option value="Critical">Critical (STAT)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label for="walkin-payment" class="form-label fw-semibold font-size-sm text-secondary">Billing Status</label>
+                                            <select class="form-select" id="walkin-payment" required>
+                                                <option value="paid">Paid (Receipt Cleared)</option>
+                                                <option value="unpaid" selected>Unpaid (Generate Invoice)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="walkin-sample-status" class="form-label fw-semibold font-size-sm text-secondary">Intake Specimen Draw</label>
+                                            <select class="form-select" id="walkin-sample-status" required>
+                                                <option value="pending" selected>Draw Specimen Later</option>
+                                                <option value="sample_collected">Draw Specimen Now (Collected)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="form-label fw-semibold font-size-sm text-secondary mb-2">Select Diagnostic Assessments (Multiple selection)</label>
+                                        <div class="p-3 bg-light rounded border" style="max-height: 220px; overflow-y: auto;">
+                                            <div class="mb-2 font-size-xxs fw-bold text-uppercase text-muted" style="letter-spacing:0.5px;">HEMATOLOGY / BLOOD PANEL</div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Complete Blood Count (CBC)" id="chk-cbc" data-category="Blood Test" checked>
+                                                <label class="form-check-label font-size-sm" for="chk-cbc">Complete Blood Count (CBC)</label>
+                                            </div>
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Lipid Profile" id="chk-lipid" data-category="Lipid Panel">
+                                                <label class="form-check-label font-size-sm" for="chk-lipid">Lipid Profile Panel (Cholesterol, HDL, LDL, Triglycerides)</label>
+                                            </div>
+
+                                            <div class="mb-2 font-size-xxs fw-bold text-uppercase text-muted" style="letter-spacing:0.5px;">BIOCHEMISTRY / METABOLIC</div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Liver Function Test (LFT)" id="chk-lft" data-category="Biochemistry">
+                                                <label class="form-check-label font-size-sm" for="chk-lft">Liver Function Test (LFT)</label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Kidney Function Test (KFT)" id="chk-kft" data-category="Biochemistry">
+                                                <label class="form-check-label font-size-sm" for="chk-kft">Kidney Function Test (KFT)</label>
+                                            </div>
+                                            <div class="form-check mb-3">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="Thyroid Panel (T3, T4, TSH)" id="chk-thyroid" data-category="Biochemistry">
+                                                <label class="form-check-label font-size-sm" for="chk-thyroid">Thyroid Function Panel (T3, T4, TSH)</label>
+                                            </div>
+
+                                            <div class="mb-2 font-size-xxs fw-bold text-uppercase text-muted" style="letter-spacing:0.5px;">OTHER ASSESSMENTS</div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="HbA1c Glucose Test" id="chk-glucose" data-category="Pathology">
+                                                <label class="form-check-label font-size-sm" for="chk-glucose">HbA1c Glycated Glucose Test</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input walkin-test-cb" type="checkbox" value="ECG Cardiology Scan" id="chk-ecg" data-category="Cardiology Tests">
+                                                <label class="form-check-label font-size-sm" for="chk-ecg">ECG Cardiology Screen (12-Lead)</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-hc-primary w-100 py-2.5 font-size-sm shadow-sm"><i class="fa-solid fa-plus me-1.5"></i>Register Order & Generate Barcode</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right Pane: Active Queue Monitor & Generated Barcode -->
+                        <div class="col-lg-6">
+                            <div class="hc-card h-100 d-flex flex-column">
+                                <h5 class="fw-bold mb-4 border-bottom pb-3"><i class="fa-solid fa-people-arrows text-primary me-2"></i>Walk-In Patient Queue Monitor</h5>
+                                <div class="table-responsive flex-grow-1" style="max-height: 480px; overflow-y: auto;">
+                                    <table class="table align-middle font-size-xs">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Token</th>
+                                                <th>Patient Details</th>
+                                                <th>Assigned Assessments</th>
+                                                <th>Draw Status</th>
+                                                <th>Payment</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="walkin-queue-body">
+                                            <!-- Dynamically populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- REGISTER WALK-IN PATIENT MODAL -->
+    <div class="modal fade" id="registerPatientModal" tabindex="-1" aria-labelledby="registerPatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="registerPatientModalLabel"><i class="fa-solid fa-user-plus text-primary me-2"></i>Register Walk-In Patient</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modal-patient-register-form">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="modal-pat-name" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="modal-pat-name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="modal-pat-email" class="form-label fw-semibold">Email Address <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="modal-pat-email" required>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label for="modal-pat-dob" class="form-label fw-semibold">Date of Birth <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="modal-pat-dob" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="modal-pat-gender" class="form-label fw-semibold">Gender <span class="text-danger">*</span></label>
+                                <select class="form-select" id="modal-pat-gender" required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="modal-pat-blood" class="form-label fw-semibold">Blood Group <span class="text-danger">*</span></label>
+                                <select class="form-select" id="modal-pat-blood" required>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="modal-pat-phone" class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="modal-pat-phone" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="modal-pat-allergies" class="form-label fw-semibold">Allergies</label>
+                                <input type="text" class="form-control" id="modal-pat-allergies" placeholder="e.g. Penicillin (or None)">
+                            </div>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="modal-pat-emergency-name" class="form-label fw-semibold">Emergency Contact Name</label>
+                                <input type="text" class="form-control" id="modal-pat-emergency-name">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="modal-pat-emergency-phone" class="form-label fw-semibold">Emergency Contact Phone</label>
+                                <input type="text" class="form-control" id="modal-pat-emergency-phone">
+                            </div>
+                        </div>
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-hc-primary"><i class="fa-solid fa-floppy-disk me-1"></i> Register Patient</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS Controller -->
+    <script src="js/app.js?v=1.4"></script>
+</body>
+</html>

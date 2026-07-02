@@ -1,9 +1,519 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>EHR & Lab Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurePoint - Smart Healthcare. Connected Care.</title>
+    <meta name="description" content="CurePoint is a premium enterprise clinical platform for electronic health records, consultation pipelines, and laboratory diagnostics.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='cg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3ClinearGradient id='cg2' x1='0%25' y1='100%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2306b6d4'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='url(%23cg)' stroke-width='2'/%3E%3Cpath d='M 12 6 L 12 18 M 6 12 L 18 12' stroke='url(%23cg)' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M 8 12 L 10 12 L 11 9 L 13 15 L 14 12 L 16 12' stroke='url(%23cg2)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <h1>Welcome to EHR & Lab Portal</h1>
+<body id="landingPage">
+
+    <!-- 1. NAVIGATION BAR -->
+    <nav class="navbar navbar-expand-lg landing-navbar sticky-top">
+        <div class="container py-1">
+            <a class="navbar-brand fw-bold fs-4 text-primary d-flex align-items-center gap-2" href="index.html">
+                <img src="assets/images/logo.jpg" class="curepoint-logo rounded-circle shadow-sm" width="38" height="38" alt="CurePoint Brand Logo" style="vertical-align: middle; object-fit: cover;">
+                <span class="brand-text">Cure<span class="brand-highlight">Point</span></span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars text-primary"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-3 mt-3 mt-lg-0">
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy active" href="#landingPage">Home</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="#services">Services</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="login.html">Dashboards</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="#contact">Contact</a></li>
+                    <li class="nav-item ms-lg-2">
+                        <a href="login.html" class="btn btn-hc-primary shadow-sm"><i class="fa-solid fa-right-to-bracket me-1"></i> Login</a>
+                    </li>
+                    <li class="nav-item ms-lg-2">
+                        <button type="button" class="theme-toggle-btn btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center p-2 rounded-circle" onclick="toggleTheme()" style="width: 38px; height: 38px;">
+                            <i class="fa-solid fa-moon fs-6"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. HERO SECTION -->
+    <header class="hero-section d-flex align-items-center mesh-gradient-bg">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 text-center text-lg-start animate-slide-up">
+                    <div class="hc-badge hc-badge-primary mb-3 animate-pulse">
+                        <i class="fa-solid fa-shield-halved me-1"></i> HIPAA & SOC2 Compliant Security
+                    </div>
+                    <h1 class="hero-title mb-4 fw-extrabold" style="font-size: 3.5rem;">
+                        The Clinical <span>Operating System</span> for Health-Tech
+                    </h1>
+                    <p class="hero-subtitle mb-4 fs-5 text-secondary">
+                         centralize electronic health records, consultation pipelines, and laboratory diagnostics workflows. A venture-grade, secure portal tailored for modern healthcare networks.
+                    </p>
+                    <div class="d-flex flex-column flex-sm-row justify-content-center justify-content-lg-start gap-3 mb-5">
+                        <a href="login.html" class="btn btn-hc-primary btn-lg px-5 py-3 shadow-sm"><i class="fa-solid fa-right-to-bracket me-2"></i>Login to Platform</a>
+                    </div>
+                    <!-- Trust Indicators Grid -->
+                    <div class="row g-3 text-start">
+                        <div class="col-sm-4 col-6">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span class="fw-semibold text-secondary font-size-sm">AES-256 Encryption</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-6">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span class="fw-semibold text-secondary font-size-sm">Real-time Analytics</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 col-12">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span class="fw-semibold text-secondary font-size-sm">99.9% SLA Guarantee</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center animate-fade-in">
+                    <!-- Premium Graphic Illustration Wrapper -->
+                    <div class="hero-image-frame p-3 bg-white rounded-4 shadow-lg border border-light position-relative floating-card" style="backdrop-filter: blur(12px); background: rgba(255,255,255,0.75) !important; max-width: 560px; margin: 0 auto;">
+                        <div class="position-absolute top-0 start-0 translate-middle badge bg-primary p-3 rounded-circle shadow animate-pulse">
+                            <i class="fa-solid fa-user-doctor fs-4"></i>
+                        </div>
+                        <img src="assets/images/doctors-collaboration.jpg" class="img-fluid rounded-3 shadow-sm border border-light" alt="CurePoint Clinical Collaboration" style="object-fit: cover; width: 100%; height: auto;">
+                        
+                        <!-- Floating Card Left: Doctor Identity -->
+                        <div class="position-absolute floating-card-left p-3 rounded-3 shadow-lg d-flex align-items-center gap-3 animate-float d-none d-sm-flex text-start">
+                            <div class="avatar-mock bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; font-size: 1.1rem; flex-shrink: 0;">
+                                <i class="fa-solid fa-hospital-user"></i>
+                            </div>
+                            <div style="line-height:1.2;">
+                                <h6 class="mb-0 font-size-xs fw-bold text-dark">Enterprise Portal</h6>
+                                <span class="text-muted font-size-xxs">Secure EHR Pipeline</span>
+                            </div>
+                        </div>
+                        <!-- Floating Card Right: Live ECG pulse -->
+                        <div class="position-absolute floating-card-right p-3 rounded-3 shadow-lg animate-float-delayed d-none d-sm-block text-start">
+                            <div class="d-flex justify-content-between align-items-center mb-1.5" style="line-height:1;">
+                                <span class="fw-bold font-size-xxs text-danger"><i class="fa-solid fa-heart-pulse animate-pulse me-1"></i>Live Vitals</span>
+                                <span class="text-dark fw-extrabold font-size-xs">72 bpm</span>
+                            </div>
+                            <svg class="ecg-line-svg" viewBox="0 0 100 20" width="100%" height="20">
+                                <path class="ecg-path" d="M 0 10 L 20 10 L 25 5 L 30 15 L 35 10 L 50 10 L 55 2 L 60 18 L 65 10 L 80 10 L 85 8 L 90 12 L 100 10" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. STATISTICS BAR -->
+    <section class="py-5 border-top border-bottom border-light" style="background: var(--hc-bg-card-solid);">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3 col-6">
+                    <div class="p-4 border rounded-3 text-center h-100 hover-lift shadow-sm bg-light-subtle">
+                        <div class="hc-icon-wrapper hc-icon-blue mx-auto mb-2" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                            <i class="fa-solid fa-server"></i>
+                        </div>
+                        <h3 class="fw-extrabold text-primary mb-1">99.99%</h3>
+                        <p class="text-muted font-size-sm mb-0 fw-medium">System Uptime SLA</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-4 border rounded-3 text-center h-100 hover-lift shadow-sm bg-light-subtle">
+                        <div class="hc-icon-wrapper hc-icon-green mx-auto mb-2" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                            <i class="fa-solid fa-file-medical"></i>
+                        </div>
+                        <h3 class="fw-extrabold text-primary mb-1">10k+</h3>
+                        <p class="text-muted font-size-sm mb-0 fw-medium">Active Electronic Records</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-4 border rounded-3 text-center h-100 hover-lift shadow-sm bg-light-subtle">
+                        <div class="hc-icon-wrapper hc-icon-yellow mx-auto mb-2" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                            <i class="fa-solid fa-hospital"></i>
+                        </div>
+                        <h3 class="fw-extrabold text-primary mb-1">45+</h3>
+                        <p class="text-muted font-size-sm mb-0 fw-medium">Connected Hospital Labs</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="p-4 border rounded-3 text-center h-100 hover-lift shadow-sm bg-light-subtle">
+                        <div class="hc-icon-wrapper hc-icon-red mx-auto mb-2" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <h3 class="fw-extrabold text-primary mb-1">&lt; 2 hrs</h3>
+                        <p class="text-muted font-size-sm mb-0 fw-medium">Average Lab Turnaround</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features section removed in favor of clean 7-module grid below -->
+
+    <!-- 5. ABOUT THE SYSTEM -->
+    <section id="about" class="py-5 bg-white">
+        <div class="container py-4">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&amp;w=600&amp;auto=format&amp;fit=crop" class="img-fluid rounded-4 shadow border border-light animate-fade-in" alt="CurePoint Software Platform Preview">
+                </div>
+                <div class="col-lg-6">
+                    <div class="hc-badge hc-badge-primary">About Platform</div>
+                    <h2 class="fw-bold mb-4">Centralized Hospital & Lab Network</h2>
+                    <p class="text-muted mb-4">
+                        The Electronic Health Record & Laboratory Management Portal represents a modern leap in clinical software architectures. By creating direct APIs between doctors prescribing medicine, labs taking samples, and patients seeking health records, we eliminate paper processing errors and communication delays.
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span class="fw-semibold">Secure JWT Auth</span>
+                            </div>
+                            <p class="text-muted font-size-sm">Encrypted role-based access for HIPAA compliance.</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span class="fw-semibold">Analytics Dashboard</span>
+                            </div>
+                            <p class="text-muted font-size-sm">Administrators monitor total cases, revenue, and loads.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5.5 INTERACTIVE DASHBOARD SHOWCASE -->
+    <section id="showcase" class="py-5" style="background: var(--hc-bg-main); border-top: 1px solid var(--hc-border); border-bottom: 1px solid var(--hc-border);">
+        <div class="container py-4">
+            <div class="text-center max-width-600 mx-auto mb-5">
+                <div class="hc-badge hc-badge-primary mb-2">Live Demo</div>
+                <h2 class="fw-bold mb-3">Interactive Workspace Preview</h2>
+                <p class="text-muted">Explore the specialized workbenches custom-built for every role in the hospital ecosystem.</p>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Card 1: Patient Portal -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="showcase-card p-4 rounded-4 shadow-sm h-100 border border-light text-start position-relative overflow-hidden">
+                        <div class="showcase-glow bg-teal"></div>
+                        <div class="showcase-icon bg-teal-subtle text-teal rounded-3 mb-4 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fa-solid fa-hospital-user fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2 text-dark">Patient Portal</h4>
+                        <p class="text-muted font-size-xs mb-4">View comprehensive health histories, download compiled lab reports, track vital trends, and manage consultation bookings.</p>
+                        <div class="mockup-preview-snippet mb-4 rounded-3 p-2 bg-light-subtle font-size-xxs text-secondary border border-light">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-bold text-dark">Patient Record</span>
+                                <span class="badge bg-success-subtle text-success">Verified</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <a href="login.html" class="btn btn-sm btn-outline-teal w-100 py-2 rounded-3 hover-glow">Launch Workspace <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Card 2: Doctor Workbench -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="showcase-card p-4 rounded-4 shadow-sm h-100 border border-light text-start position-relative overflow-hidden">
+                        <div class="showcase-glow bg-blue"></div>
+                        <div class="showcase-icon bg-primary-subtle text-primary rounded-3 mb-4 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fa-solid fa-user-doctor fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2 text-dark">Doctor Workbench</h4>
+                        <p class="text-muted font-size-xs mb-4">Confirm appointment lists, log chief complaints and symptoms, capturing patient vitals, and issue e-prescriptions.</p>
+                        <div class="mockup-preview-snippet mb-4 rounded-3 p-2 bg-light-subtle font-size-xxs text-secondary border border-light">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-bold text-dark">Vitals Captured</span>
+                                <span class="text-primary fw-bold">120/80 mmHg</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-primary" style="width: 70%"></div>
+                            </div>
+                        </div>
+                        <a href="login.html" class="btn btn-sm btn-outline-primary w-100 py-2 rounded-3 hover-glow">Launch Workspace <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Card 3: Lab Tech Portal -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="showcase-card p-4 rounded-4 shadow-sm h-100 border border-light text-start position-relative overflow-hidden">
+                        <div class="showcase-glow bg-yellow"></div>
+                        <div class="showcase-icon bg-warning-subtle text-warning rounded-3 mb-4 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fa-solid fa-flask fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2 text-dark">Lab Tech Desk</h4>
+                        <p class="text-muted font-size-xs mb-4">Manage the doctor order queues, track sample collection steps, enter medical parameters, and authorize clinical PDFs.</p>
+                        <div class="mockup-preview-snippet mb-4 rounded-3 p-2 bg-light-subtle font-size-xxs text-secondary border border-light">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-bold text-dark">Sample Status</span>
+                                <span class="badge bg-warning-subtle text-warning">Processing</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-warning" style="width: 50%"></div>
+                            </div>
+                        </div>
+                        <a href="login.html" class="btn btn-sm btn-outline-warning w-100 py-2 rounded-3 hover-glow">Launch Workspace <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Card 4: Admin Console -->
+                <div class="col-lg-3 col-md-6">
+                    <div class="showcase-card p-4 rounded-4 shadow-sm h-100 border border-light text-start position-relative overflow-hidden">
+                        <div class="showcase-glow bg-purple"></div>
+                        <div class="showcase-icon bg-indigo-subtle text-indigo rounded-3 mb-4 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="fa-solid fa-user-gear fs-4"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2 text-dark">Admin Console</h4>
+                        <p class="text-muted font-size-xs mb-4">Oversee hospital analytics, manage employee directory entries, audit active system security logs, and review financials.</p>
+                        <div class="mockup-preview-snippet mb-4 rounded-3 p-2 bg-light-subtle font-size-xxs text-secondary border border-light">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="fw-bold text-dark">System Load</span>
+                                <span class="text-indigo fw-bold">Optimal</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-indigo" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <a href="login.html" class="btn btn-sm btn-outline-indigo w-100 py-2 rounded-3 hover-glow">Launch Workspace <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. SERVICES SECTION (6 PRIMARY MODULES) -->
+    <section id="services" class="py-5 bg-light-subtle">
+        <div class="container py-4">
+            <div class="text-center max-width-600 mx-auto mb-5 animate-slide-up">
+                <div class="hc-badge hc-badge-success mb-2">Modules</div>
+                <h2 class="fw-bold mb-3">Enterprise Healthcare Suite</h2>
+                <p class="text-muted">A world-class operating system built to streamline clinic, hospital, and laboratory operations.</p>
+            </div>
+
+            <div class="row g-4 justify-content-center">
+                <!-- Module 1: Patient Management -->
+                <div class="col-lg-4 col-md-6 animate-fade-in">
+                    <a href="login.html" class="text-decoration-none">
+                        <div class="hc-card text-center p-4 h-100 hover-lift border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%); transition: all 0.3s ease;">
+                            <div class="hc-icon-wrapper hc-icon-blue mx-auto shadow-sm">
+                                <i class="fa-solid fa-hospital-user"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mt-3">Patient Management</h5>
+                            <p class="text-muted font-size-sm mb-0">Demographics tracking, allergy logs, emergency contact registry, and digital intake profiles.</p>
+                        </div>
+                    </a>
+                </div>
+                <!-- Module 2: EHR Management -->
+                <div class="col-lg-4 col-md-6 animate-fade-in">
+                    <a href="login.html" class="text-decoration-none">
+                        <div class="hc-card text-center p-4 h-100 hover-lift border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); transition: all 0.3s ease;">
+                            <div class="hc-icon-wrapper hc-icon-green mx-auto shadow-sm">
+                                <i class="fa-solid fa-file-waveform"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mt-3">EHR Management</h5>
+                            <p class="text-muted font-size-sm mb-0">Centralized Electronic Health Records, clinical diagnosis timeline, and secure health vitals trends.</p>
+                        </div>
+                    </a>
+                </div>
+                <!-- Module 3: Laboratory Management -->
+                <div class="col-lg-4 col-md-6 animate-fade-in">
+                    <a href="login.html" class="text-decoration-none">
+                        <div class="hc-card text-center p-4 h-100 hover-lift border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #fefcf0 100%); transition: all 0.3s ease;">
+                            <div class="hc-icon-wrapper hc-icon-yellow mx-auto shadow-sm">
+                                <i class="fa-solid fa-flask-vial"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mt-3">Laboratory Management</h5>
+                            <p class="text-muted font-size-sm mb-0">Physician orders queue, parameter-level results entry, turnaround analytics, and PDF compilation.</p>
+                        </div>
+                    </a>
+                </div>
+                <!-- Module 4: Doctor Consultation -->
+                <div class="col-lg-4 col-md-6 animate-fade-in">
+                    <a href="login.html" class="text-decoration-none">
+                        <div class="hc-card text-center p-4 h-100 hover-lift border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #ecfeff 100%); transition: all 0.3s ease;">
+                            <div class="hc-icon-wrapper hc-icon-info mx-auto shadow-sm">
+                                <i class="fa-solid fa-user-doctor"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mt-3">Doctor Consultation</h5>
+                            <p class="text-muted font-size-sm mb-0">Digital clinical workbench, active consultation queues, vitals logs, and diagnosis trackers.</p>
+                        </div>
+                    </a>
+                </div>
+                <!-- Module 5: Prescription Management -->
+                <div class="col-lg-4 col-md-6 animate-fade-in">
+                    <a href="login.html" class="text-decoration-none">
+                        <div class="hc-card text-center p-4 h-100 hover-lift border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%); transition: all 0.3s ease;">
+                            <div class="hc-icon-wrapper hc-icon-red mx-auto shadow-sm">
+                                <i class="fa-solid fa-prescription-bottle-medical"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mt-3">Prescription Management</h5>
+                            <p class="text-muted font-size-sm mb-0">E-prescribing e-form builders, dosage/duration guidelines, drug renew flows, and print summaries.</p>
+                        </div>
+                    </a>
+                </div>
+                <!-- Module 6: Appointment Management -->
+                <div class="col-lg-4 col-md-6 animate-fade-in">
+                    <a href="login.html" class="text-decoration-none">
+                        <div class="hc-card text-center p-4 h-100 hover-lift border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%); transition: all 0.3s ease;">
+                            <div class="hc-icon-wrapper hc-icon-teal mx-auto shadow-sm">
+                                <i class="fa-solid fa-calendar-check"></i>
+                            </div>
+                            <h5 class="fw-bold text-dark mt-3">Appointment Management</h5>
+                            <p class="text-muted font-size-sm mb-0">Patient bookings, calendar integrations, automated doctor dispatch, and status alerts.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. CONTACT SECTION -->
+    <section id="contact" class="py-5 bg-white border-top">
+        <div class="container py-4">
+            <div class="row g-5">
+                <div class="col-lg-5">
+                    <div class="hc-badge hc-badge-primary">Get In Touch</div>
+                    <h2 class="fw-bold mb-4">We'd love to hear from you</h2>
+                    <p class="text-muted mb-4">
+                        Interested in adopting our EHR system for your clinic or laboratory network? Contact our technical team today for a live database integration showcase.
+                    </p>
+                    <div class="d-flex flex-column gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="hc-icon-wrapper hc-icon-blue mb-0" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Email Us</h6>
+                                <p class="text-muted mb-0">support@smartehrportal.com</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="hc-icon-wrapper hc-icon-green mb-0" style="width: 44px; height: 44px; font-size: 1.1rem;">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Call Center</h6>
+                                <p class="text-muted mb-0">+1 (555) 019-8800</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7">
+                    <form class="hc-card p-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="contact-name" class="form-label fw-semibold">Your Name</label>
+                                <input type="text" class="form-control py-2" id="contact-name" placeholder="John Doe" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="contact-email" class="form-label fw-semibold">Email Address</label>
+                                <input type="email" class="form-control py-2" id="contact-email" placeholder="john@example.com" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="contact-subject" class="form-label fw-semibold">Subject</label>
+                                <input type="text" class="form-control py-2" id="contact-subject" placeholder="Enterprise Integration Demo" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="contact-msg" class="form-label fw-semibold">Message</label>
+                                <textarea class="form-control" id="contact-msg" rows="4" placeholder="Briefly describe your request..." required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-hc-primary py-2 px-4 w-100">Send Message</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8. FOOTER -->
+    <footer class="premium-footer text-white py-5">
+        <div class="container">
+            <div class="row g-4 mb-5">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="fw-bold mb-4 d-flex align-items-center gap-2">
+                        <img src="assets/images/logo.jpg" class="curepoint-logo rounded-circle shadow-sm" width="38" height="38" alt="CurePoint Brand Logo" style="vertical-align: middle; object-fit: cover;">
+                        <span class="brand-text text-white">Cure<span class="brand-highlight">Point</span></span>
+                    </h5>
+                    <p class="text-secondary font-size-sm mb-4" style="max-width: 360px; line-height: 1.6;">
+                        Providing state-of-the-art digitized health records and real-time clinical diagnostics pipelines for hospitals, clinic groups, and laboratory networks. Built to SOC2 and HIPAA privacy standards.
+                    </p>
+                    <!-- Social Media Links Grid -->
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <a href="https://linkedin.com" target="_blank" class="footer-social-icon linkedin" title="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="https://github.com" target="_blank" class="footer-social-icon github" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://twitter.com" target="_blank" class="footer-social-icon twitter" title="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="https://instagram.com" target="_blank" class="footer-social-icon instagram" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://facebook.com" target="_blank" class="footer-social-icon facebook" title="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="https://youtube.com" target="_blank" class="footer-social-icon youtube" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="fw-bold text-uppercase mb-4 text-white font-size-xs" style="letter-spacing:1px;">Quick Links</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2.5 font-size-sm">
+                        <li><a href="#landingPage" class="text-white-50 text-decoration-none hover-white">Home</a></li>
+                        <li><a href="#services" class="text-white-50 text-decoration-none hover-white">Services</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white">Dashboards</a></li>
+                        <li><a href="#about" class="text-white-50 text-decoration-none hover-white">About Us</a></li>
+                        <li><a href="#contact" class="text-white-50 text-decoration-none hover-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 col-6">
+                    <h6 class="fw-bold text-uppercase mb-4 text-white font-size-xs" style="letter-spacing:1px;">Services Suite</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2.5 font-size-sm">
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white">Patient Intake Profiles</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white">Electronic Health Records</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white">Laboratory Findings Portal</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white">Physician Consultation</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white">E-Prescription Builder</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white">Appointment Scheduler</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold text-uppercase mb-4 text-white font-size-xs" style="letter-spacing:1px;">User Portals</h6>
+                    <ul class="list-unstyled d-flex flex-column gap-2.5 font-size-sm mb-4">
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white"><i class="fa-solid fa-hospital-user me-1.5 font-size-xs"></i> Patient Dashboard</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white"><i class="fa-solid fa-user-doctor me-1.5 font-size-xs"></i> Doctor Workspace</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white"><i class="fa-solid fa-flask me-1.5 font-size-xs"></i> Laboratory Desk</a></li>
+                        <li><a href="login.html" class="text-white-50 text-decoration-none hover-white"><i class="fa-solid fa-user-gear me-1.5 font-size-xs"></i> Admin Console</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary mb-4" style="opacity: 0.1;">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <p class="text-white-50 mb-0 font-size-sm">&copy; 2026 CurePoint Platform. Smart Healthcare. Connected Care. All rights reserved.</p>
+                <div class="d-flex align-items-center gap-3 font-size-sm">
+                    <a href="privacy.html" class="text-white-50 text-decoration-none hover-white">Privacy Policy & HIPAA</a>
+                    <span class="text-white-50" style="opacity:0.2;">|</span>
+                    <a href="terms.html" class="text-white-50 text-decoration-none hover-white">Terms & Conditions</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS Controller -->
+    <script src="js/app.js?v=1.4"></script>
 </body>
 </html>

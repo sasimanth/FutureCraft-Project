@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - CurePoint</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='cg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3ClinearGradient id='cg2' x1='0%25' y1='100%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2306b6d4'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='url(%23cg)' stroke-width='2'/%3E%3Cpath d='M 12 6 L 12 18 M 6 12 L 18 12' stroke='url(%23cg)' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M 8 12 L 10 12 L 11 9 L 13 15 L 14 12 L 16 12' stroke='url(%23cg2)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="dashboard-wrapper" id="patientDashboard">
+        <!-- SIDEBAR PANEL -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-brand">
+                <svg class="curepoint-logo" viewBox="0 0 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                    <defs>
+                        <linearGradient id="medicore-white-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"></stop>
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.5"></stop>
+                        </linearGradient>
+                        <linearGradient id="medicore-white-trans" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.4"></stop>
+                            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.7"></stop>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 32 12 A 40 40 0 1 1 76 76" fill="none" stroke="url(#medicore-white-grad)" stroke-width="4.5" stroke-linecap="round" />
+                    <path d="M 22 50 C 22 68, 38 82, 56 80 C 62 79, 68 76, 72 71" fill="none" stroke="url(#medicore-white-trans)" stroke-width="4" stroke-linecap="round" />
+                    <path d="M 24 46 C 26 54, 32 64, 42 66 C 46 67, 50 65, 52 62" fill="none" stroke="url(#medicore-white-trans)" stroke-width="3" stroke-linecap="round" />
+                    <rect x="38" y="22" width="24" height="32" rx="3" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2.5" />
+                    <rect x="44" y="19" width="12" height="4" rx="1.5" fill="url(#medicore-white-grad)" />
+                    <path d="M 50 26 V 32 M 47 29 H 53" stroke="url(#medicore-white-trans)" stroke-width="2" stroke-linecap="round" />
+                    <line x1="43" y1="36" x2="57" y2="36" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="43" y1="40" x2="57" y2="40" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" />
+                    <path d="M 43 46 L 46 46 L 48 43 L 50 49 L 52 45 L 54 47 L 57 47" fill="none" stroke="url(#medicore-white-trans)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 50 63 C 45 58, 41 54, 41 49 C 41 45.5, 43.5 43, 47 43 C 48.8 43, 49.6 44, 50 44.5 C 50.4 44, 51.2 43, 53 43 C 56.5 43, 59 45.5, 59 49 C 59 54, 55 58, 50 63 Z" fill="url(#medicore-white-grad)" />
+                    <path d="M 44 49 L 46 49 L 47 46 L 49 52 L 51 47 L 53 50 L 56 50" fill="none" stroke="#2563eb" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 67 22 C 67 22, 65 17, 69 15 C 72 13.5, 75 18, 74 21" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 77 23 C 77 23, 75 18, 79 16 C 82 14.5, 85 19, 84 22" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="69" cy="15" r="1" fill="url(#medicore-white-grad)" />
+                    <circle cx="79" cy="16" r="1" fill="url(#medicore-white-grad)" />
+                    <path d="M 70 21 C 71 27, 81 28, 82 22" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 76 25 C 76 25, 77 34, 73 38 C 69 42, 69 50, 74 53 C 79 56, 79 62, 75 64" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="74" cy="67" r="4" fill="none" stroke="url(#medicore-white-grad)" stroke-width="2" />
+                    <circle cx="74" cy="67" r="1.5" fill="url(#medicore-white-trans)" />
+                </svg>
+                <span class="brand-text text-white">Cure<span class="brand-highlight" style="color: rgba(255,255,255,0.7);">Point</span></span>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active">
+                    <a href="#" class="sidebar-link" data-panel="panel-dashboard">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-records">
+                        <i class="fa-solid fa-file-medical"></i>
+                        <span>Medical Records</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-prescriptions">
+                        <i class="fa-solid fa-prescription-bottle-medical"></i>
+                        <span>Prescriptions</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-labs">
+                        <i class="fa-solid fa-flask-vial"></i>
+                        <span>Lab Reports</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-appointments">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Appointments</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-payments">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>Payments & Billing</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-profile">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span>My Profile</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="avatar-letters">JD</div>
+                    <div>
+                        <h6 class="mb-0 text-white font-size-sm fw-bold" id="user-display-name">Patient Name</h6>
+                        <span class="text-white-50 font-size-xs">Patient Portal</span>
+                    </div>
+                </div>
+                <button onclick="AuthService.logout()" class="btn btn-sm btn-outline-danger w-100 py-2"><i class="fa-solid fa-right-from-bracket me-1"></i> Log Out</button>
+            </div>
+        </aside>
+
+        <!-- DASHBOARD BODY CONTENT -->
+        <main class="dashboard-content-area">
+            <!-- HEADER NAVBAR -->
+            <header class="dashboard-header">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="mobile-sidebar-toggle"><i class="fa-solid fa-bars text-primary"></i></button>
+                    <h4 class="mb-0 fw-bold" id="breadcrumb-title">Dashboard</h4>
+                </div>
+                <div class="header-actions">
+                    <div class="dashboard-search-bar d-none d-md-block">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="form-control" id="patient-dashboard-search" placeholder="Search records...">
+                        <span class="cmd-indicator" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.7rem;"><i class="fa-solid fa-arrow-turn-down fa-rotate-90 me-1" style="font-size: 0.6rem;"></i> K</span>
+                    </div>
+                    <!-- Theme Toggle Button -->
+                    <button type="button" class="theme-toggle-btn btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center p-2 rounded-circle me-2" onclick="toggleTheme()" style="width: 38px; height: 38px;">
+                        <i class="fa-solid fa-moon fs-6"></i>
+                    </button>
+                    <div class="header-notification-btn">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="header-notification-badge"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MAIN PANELS VIEW AREA (SPA) -->
+            <div class="dashboard-main-view">
+                
+                <!-- PANEL 1: DASHBOARD OVERVIEW -->
+                <section class="dashboard-panel active" id="panel-dashboard">
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Active Medications</p>
+                                    <h3 class="stat-value" id="patient-active-rx">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-blue mb-0"><i class="fa-solid fa-pills"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Pending Lab Results</p>
+                                    <h3 class="stat-value" id="patient-pending-labs">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-yellow mb-0"><i class="fa-solid fa-hourglass-half"></i></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-widget">
+                                <div>
+                                    <p class="stat-title">Next Scheduled Appointment</p>
+                                    <h3 class="stat-value" style="font-size: 1.2rem; font-weight: 700; margin-top: 10px;" id="patient-next-appt">--</h3>
+                                </div>
+                                <div class="hc-icon-wrapper hc-icon-green mb-0"><i class="fa-solid fa-calendar-check"></i></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <!-- VITALS GRID -->
+                        <div class="col-xl-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-heart-pulse text-danger me-2"></i>Current Vital Signs</h5>
+                                <div class="vitals-grid">
+                                    <div class="vital-card blood-pressure">
+                                        <i class="fa-solid fa-gauge-high vital-icon"></i>
+                                        <div class="vital-label">Blood Pressure</div>
+                                        <h4 class="vital-value" id="vital-bp-val">--/--</h4>
+                                    </div>
+                                    <div class="vital-card heart-rate">
+                                        <i class="fa-solid fa-heartbeat vital-icon"></i>
+                                        <div class="vital-label">Heart Rate</div>
+                                        <h4 class="vital-value" id="vital-hr-val">--</h4>
+                                    </div>
+                                    <div class="vital-card temperature">
+                                        <i class="fa-solid fa-temperature-three-quarters vital-icon"></i>
+                                        <div class="vital-label">Temperature</div>
+                                        <h4 class="vital-value" id="vital-temp-val">--</h4>
+                                    </div>
+                                    <div class="vital-card weight">
+                                        <i class="fa-solid fa-weight-scale vital-icon"></i>
+                                        <div class="vital-label">Body Weight</div>
+                                        <h4 class="vital-value" id="vital-weight-val">--</h4>
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-light rounded border">
+                                    <h6 class="fw-bold font-size-sm"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>Allergies Warning:</h6>
+                                    <p class="mb-0 font-size-sm text-danger fw-semibold" id="panel-allergies-summary">None recorded.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- VITALS HISTORICAL CHART -->
+                        <div class="col-xl-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-chart-line text-primary me-2"></i>Vital Trends History</h5>
+                                <div style="position: relative; height:240px; width:100%">
+                                    <canvas id="patientVitalsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 2: MEDICAL RECORDS -->
+                <section class="dashboard-panel" id="panel-records">
+                    <div class="row g-4">
+                        <div class="col-lg-8">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Clinical Diagnosis Timeline</h5>
+                                <div class="history-timeline" id="patient-history-timeline">
+                                    <!-- Dynamic Timeline populated by app.js -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-notes-medical text-success me-2"></i>General Medical Details</h5>
+                                <div class="p-3 bg-light rounded border mb-3">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">BLOOD GROUP</span>
+                                    <span class="fw-bold text-dark fs-5" id="records-blood-group">O Positive (O+)</span>
+                                </div>
+                                <div class="p-3 bg-light rounded border">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">EMERGENCY CONTACT</span>
+                                    <span class="fw-bold text-dark d-block" id="records-emergency-name">Jane Doe</span>
+                                    <span class="text-muted font-size-sm" id="records-emergency-phone">+1 (555) 019-2835</span>
+                                </div>
+                            </div>
+                            <div class="hc-card mt-4">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-dna text-danger me-2"></i>Family Medical History</h5>
+                                <div class="accordion" id="familyHistoryAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingFam1">
+                                            <button class="accordion-button collapsed font-size-sm fw-bold py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFam1" aria-expanded="false" aria-controls="collapseFam1">
+                                                Cardiovascular Conditions
+                                            </button>
+                                        </h2>
+                                        <div id="collapseFam1" class="accordion-collapse collapse" aria-labelledby="headingFam1" data-bs-parent="#familyHistoryAccordion">
+                                            <div class="accordion-body font-size-xs text-muted">
+                                                Father diagnosed with Hypertension at age 52. Paternal grandfather had coronary artery bypass surgery.
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingFam2">
+                                            <button class="accordion-button collapsed font-size-sm fw-bold py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFam2" aria-expanded="false" aria-controls="collapseFam2">
+                                                Endocrine & Diabetes
+                                            </button>
+                                        </h2>
+                                        <div id="collapseFam2" class="accordion-collapse collapse" aria-labelledby="headingFam2" data-bs-parent="#familyHistoryAccordion">
+                                            <div class="accordion-body font-size-xs text-muted">
+                                                Maternal grandmother diagnosed with Type 2 Diabetes. No history of thyroid disorders.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                        <!-- Hospital Visits Log -->
+                        <div class="col-lg-8">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Hospital Visits Log</h5>
+                                <div class="table-responsive hc-table-container">
+                                    <table class="table hc-table mb-0 align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Department</th>
+                                                <th>Physician</th>
+                                                <th>Diagnosis & Reason</th>
+                                                <th>Status</th>
+                                                <th>Follow-up Notes</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="patient-visits-list">
+                                            <!-- Dynamic rows populated by app.js -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- External Documents Upload -->
+                        <div class="col-lg-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>External Reports & Certificates</h5>
+                                <div class="hc-upload-dropzone mb-3" id="patient-upload-dropzone">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p class="mb-1 fw-bold">Drag & Drop files here or click to browse</p>
+                                    <p class="text-muted font-size-xs mb-0">Supports PDF, PNG, JPG (Max 5MB)</p>
+                                    <input type="file" id="patient-file-input" class="d-none" accept=".pdf,.png,.jpg,.jpeg">
+                                </div>
+                                <div id="patient-uploaded-files-list">
+                                    <!-- Dynamic list of files -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 3: PRESCRIPTIONS -->
+                <section class="dashboard-panel" id="panel-prescriptions">
+                    <div class="hc-card">
+                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-prescription-bottle-medical text-primary me-2"></i>Active Drug Prescriptions</h5>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Prescribed Date</th>
+                                        <th>Medicine Name</th>
+                                        <th>Dosage</th>
+                                        <th>Frequency</th>
+                                        <th>Duration</th>
+                                        <th>Route</th>
+                                        <th>Special Instructions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patient-prescriptions-list">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 4: LAB REPORTS -->
+                <section class="dashboard-panel" id="panel-labs">
+                    <div class="hc-card">
+                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-flask-vial text-primary me-2"></i>Laboratory Assessments</h5>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table">
+                                <thead>
+                                    <tr>
+                                        <th>Request Date</th>
+                                        <th>Test Name</th>
+                                        <th>Requested By</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patient-labs-list">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 5: APPOINTMENTS & ADVANCED BOOKING WIZARD -->
+                <section class="dashboard-panel" id="panel-appointments">
+                    <div class="row g-4">
+                        <!-- Step-by-Step Booking Card -->
+                        <div class="col-lg-6">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4 text-primary"><i class="fa-solid fa-calendar-plus me-2"></i>Book Consultation Wizard</h5>
+                                
+                                <!-- Stepper Header -->
+                                <div class="wizard-steps mb-4">
+                                    <div class="wizard-progress-bar" id="booking-progress"></div>
+                                    <div class="wizard-step-node active" id="node-1">1</div>
+                                    <div class="wizard-step-node" id="node-2">2</div>
+                                    <div class="wizard-step-node" id="node-3">3</div>
+                                    <div class="wizard-step-node" id="node-4">4</div>
+                                    <div class="wizard-step-node" id="node-5"><i class="fa-solid fa-check"></i></div>
+                                </div>
+
+                                <form id="book-appointment-form" onsubmit="event.preventDefault();">
+                                    <!-- STEP 1: Select Specialization -->
+                                    <div class="step-panel" id="step-panel-1">
+                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-stethoscope me-1 text-primary"></i>Step 1: Select Specialization</h6>
+                                        <div class="spec-grid mb-4" id="booking-spec-grid">
+                                            <!-- Dynamically filled with specializations -->
+                                        </div>
+                                        <input type="hidden" id="booking-specialization">
+                                        <div class="text-end">
+                                            <button type="button" class="btn btn-hc-primary" onclick="goToBookingStep(2)">Next <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STEP 2: Show Available Doctors -->
+                                    <div class="step-panel d-none" id="step-panel-2">
+                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-user-doctor me-1 text-primary"></i>Step 2: Choose Doctor</h6>
+                                        <div class="d-flex flex-column gap-3 mb-4" id="booking-doctors-list">
+                                            <!-- Dynamically filled with available doctors in specialization -->
+                                        </div>
+                                        <input type="hidden" id="booking-doctor-id">
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="goToBookingStep(1)"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                            <button type="button" class="btn btn-hc-primary" id="btn-to-step3" onclick="goToBookingStep(3)" disabled>Next <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STEP 3: Show Availability Calendar -->
+                                    <div class="step-panel d-none" id="step-panel-3">
+                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-calendar-day me-1 text-primary"></i>Step 3: Select Date & Time</h6>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-semibold">Available Dates</label>
+                                            <input type="date" class="form-control border-primary-subtle" id="booking-date" required>
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label fw-semibold mb-2">Available Time Slots</label>
+                                            <div class="slot-grid" id="booking-slots-grid">
+                                                <!-- Dynamically filled with time slots -->
+                                            </div>
+                                            <input type="hidden" id="booking-time-slot">
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="goToBookingStep(2)"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                            <button type="button" class="btn btn-hc-primary" id="btn-to-step4" onclick="goToBookingStep(4)" disabled>Next <i class="fa-solid fa-arrow-right ms-1"></i></button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STEP 4: Book Appointment -->
+                                    <div class="step-panel d-none" id="step-panel-4">
+                                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-file-invoice me-1 text-primary"></i>Step 4: Describe Symptoms & Confirm</h6>
+                                        <div class="mb-4">
+                                            <label for="booking-symptoms" class="form-label fw-semibold">Symptoms / Reason for Visit</label>
+                                            <textarea class="form-control border-primary-subtle" id="booking-symptoms" rows="4" placeholder="e.g. Mild fever, persistent chest tightness..." required></textarea>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <button type="button" class="btn btn-outline-secondary" onclick="goToBookingStep(3)"><i class="fa-solid fa-arrow-left me-1"></i> Back</button>
+                                            <button type="button" class="btn btn-success text-white" onclick="submitWizardBooking()"><i class="fa-solid fa-check-double me-1"></i> Confirm & Book</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STEP 5: Confirmation -->
+                                    <div class="step-panel d-none text-center py-4" id="step-panel-5">
+                                        <div class="text-success fs-1 mb-3"><i class="fa-solid fa-circle-check"></i></div>
+                                        <h4 class="fw-bold text-dark">Appointment Confirmed!</h4>
+                                        <p class="text-muted mb-4">Your appointment has been registered successfully on our platform.</p>
+                                        
+                                        <div class="p-3 bg-light rounded border mb-4 text-start font-size-sm" style="max-width:320px; margin:0 auto;">
+                                            <div class="mb-1"><strong>Appointment ID:</strong> <span class="text-primary fw-bold" id="confirm-appt-id">--</span></div>
+                                            <div class="mb-1"><strong>Doctor Name:</strong> <span id="confirm-doctor-name">--</span></div>
+                                            <div class="mb-1"><strong>Department:</strong> <span id="confirm-dept">--</span></div>
+                                            <div><strong>Date & Time:</strong> <span id="confirm-datetime">--</span></div>
+                                        </div>
+                                        
+                                        <button type="button" class="btn btn-hc-primary" onclick="resetBookingWizard()">Book Another Appointment</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Active Appointments Queue -->
+                        <div class="col-lg-6">
+                            <div class="hc-card h-100">
+                                <h5 class="fw-bold mb-4 text-success"><i class="fa-solid fa-calendar-days me-2"></i>My Consultations Queue</h5>
+                                <div class="row g-3 overflow-y-auto" id="patient-appts-cards" style="max-height: 520px;">
+                                    <!-- Dynamically populated cards -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 5.5: PAYMENTS & BILLING -->
+                <section class="dashboard-panel" id="panel-payments">
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i>Outstanding Invoices</h5>
+                                <div class="table-responsive hc-table-container">
+                                    <table class="table hc-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Billing ID</th>
+                                                <th>Description</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="patient-invoices-list">
+                                            <!-- Dynamically populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="hc-card mt-4">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-clock-rotate-left text-secondary me-2"></i>Payment History</h5>
+                                <div class="table-responsive hc-table-container">
+                                    <table class="table hc-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Receipt ID</th>
+                                                <th>Service</th>
+                                                <th>Method</th>
+                                                <th>Paid On</th>
+                                                <th>Receipt</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="patient-receipts-list">
+                                            <!-- Dynamically populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-5">
+                            <div class="hc-card text-start">
+                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-cash-register text-success me-2"></i>Secure Payment Gateway</h5>
+                                <div class="p-3 bg-light rounded border mb-4">
+                                    <span class="text-muted d-block font-size-xs fw-semibold">ACTIVE BILL SELECTED</span>
+                                    <h6 class="fw-bold text-dark mb-0 font-size-sm" id="payment-active-desc">Select an invoice to proceed...</h6>
+                                    <h4 class="fw-extrabold text-primary mt-2" id="payment-active-amount">$0.00</h4>
+                                    <input type="hidden" id="payment-active-id">
+                                </div>
+                                <div class="d-flex flex-column gap-3">
+                                    <!-- Payment Options -->
+                                    <div class="border rounded p-3 cursor-pointer hover-lift d-flex justify-content-between align-items-center bg-white" onclick="selectPaymentMethod('UPI')">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i class="fa-solid fa-qrcode text-primary fs-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-0 text-dark font-size-sm">UPI Transfer</h6>
+                                                <span class="text-muted font-size-xxs">GooglePay, PhonePe, Paytm</span>
+                                            </div>
+                                        </div>
+                                        <input type="radio" name="payment-method" id="pay-upi" value="UPI">
+                                    </div>
+                                    
+                                    <div class="border rounded p-3 cursor-pointer hover-lift d-flex justify-content-between align-items-center bg-white" onclick="selectPaymentMethod('Card')">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i class="fa-solid fa-credit-card text-success fs-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-0 text-dark font-size-sm">Credit / Debit Card</h6>
+                                                <span class="text-muted font-size-xxs">Visa, MasterCard, RuPay</span>
+                                            </div>
+                                        </div>
+                                        <input type="radio" name="payment-method" id="pay-card" value="Card">
+                                    </div>
+                                    
+                                    <div class="border rounded p-3 cursor-pointer hover-lift d-flex justify-content-between align-items-center bg-white" onclick="selectPaymentMethod('NetBanking')">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <i class="fa-solid fa-building-columns text-info fs-3"></i>
+                                            <div>
+                                                <h6 class="fw-bold mb-0 text-dark font-size-sm">Net Banking</h6>
+                                                <span class="text-muted font-size-xxs">All major national banks</span>
+                                            </div>
+                                        </div>
+                                        <input type="radio" name="payment-method" id="pay-nb" value="NetBanking">
+                                    </div>
+                                </div>
+                                
+                                <button type="button" class="btn btn-hc-primary w-100 py-3 mt-4" id="btn-pay-now" onclick="executeSecurePayment()" disabled>Pay Selected Invoice</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 6: MY PROFILE -->
+                <section class="dashboard-panel text-start" id="panel-profile">
+                    <div class="row g-4">
+                        <!-- Left Column: Avatar Card -->
+                        <div class="col-lg-4">
+                            <!-- Avatar Card -->
+                            <div class="hc-card text-center mb-4 border-gradient" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);">
+                                <div class="position-relative mx-auto mb-3" style="width: 120px; height: 120px;">
+                                    <img src="assets/images/logo.jpg" id="profile-avatar-img" class="rounded-circle border border-primary border-3 shadow-sm" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <label for="avatar-file-upload" class="position-absolute bottom-0 end-0 bg-primary text-white p-2 rounded-circle shadow border cursor-pointer hover-lift" style="width:36px; height:36px; display:flex; align-items:center; justify-content:center;">
+                                        <i class="fa-solid fa-camera font-size-xs"></i>
+                                    </label>
+                                    <input type="file" id="avatar-file-upload" class="d-none" accept="image/*" onchange="uploadProfileAvatar(this)">
+                                </div>
+                                <h5 class="fw-bold mb-1 text-dark" id="profile-card-name">Patient Name</h5>
+                                <div class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill font-size-xxs px-2.5 py-1 mb-2">UID: <span id="profile-card-id">pat-1</span></div>
+                                <div class="text-muted font-size-xxs" style="letter-spacing:0.5px;">
+                                    <i class="fa-solid fa-calendar-day text-primary me-1"></i>Member since <span id="profile-card-created">June 2026</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column: Premium Healthcare Demographics Form -->
+                        <div class="col-lg-8">
+                            <form id="patient-profile-form">
+                                <!-- CARD 1: Personal Details -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-primary border-bottom pb-2"><i class="fa-solid fa-user-circle me-2"></i>Personal Details</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Full Legal Name</label>
+                                            <input type="text" class="form-control" id="profile-name" disabled>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Date of Birth</label>
+                                            <input type="date" class="form-control" id="profile-dob" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Gender Identity</label>
+                                            <select class="form-select" id="profile-gender" required>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Aadhaar / National ID</label>
+                                            <input type="text" class="form-control" id="profile-aadhaar" placeholder="XXXX-XXXX-XXXX">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 2: Contact Information -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-teal border-bottom pb-2" style="color: var(--hc-secondary);"><i class="fa-solid fa-address-book me-2"></i>Contact Information</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Primary Phone Number</label>
+                                            <input type="tel" class="form-control" id="profile-phone" required>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Residential Address</label>
+                                            <textarea class="form-control" id="profile-address" rows="2" placeholder="123 Main St, Apartment 4B..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 3: Medical Information -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-danger border-bottom pb-2"><i class="fa-solid fa-notes-medical me-2"></i>Medical Information</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Blood Group</label>
+                                            <select class="form-select" id="profile-blood" required>
+                                                <option value="A+">A+</option>
+                                                <option value="A-">A-</option>
+                                                <option value="B+">B+</option>
+                                                <option value="B-">B-</option>
+                                                <option value="AB+">AB+</option>
+                                                <option value="AB-">AB-</option>
+                                                <option value="O+">O+</option>
+                                                <option value="O-">O-</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Active Allergies & Specimen Flags</label>
+                                            <input type="text" class="form-control" id="profile-allergies" placeholder="Penicillin, Peanuts, Latex...">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 4: Insurance Details -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-info border-bottom pb-2"><i class="fa-solid fa-file-shield me-2"></i>Medical Insurance Policies</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Insurance Provider</label>
+                                            <input type="text" class="form-control" id="profile-insurance-carrier" placeholder="HDFC ERGO, Star Health...">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Policy / Certificate Number</label>
+                                            <input type="text" class="form-control" id="profile-insurance-policy" placeholder="POL-9908123-X">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- CARD 5: Emergency Contact -->
+                                <div class="hc-card mb-4 shadow-sm border border-light-subtle">
+                                    <h5 class="fw-bold mb-3 text-warning border-bottom pb-2"><i class="fa-solid fa-phone-volume me-2"></i>Emergency Contact Details</h5>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Emergency Contact Name</label>
+                                            <input type="text" class="form-control" id="profile-emergency-name" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-semibold font-size-sm text-secondary mb-1">Emergency Phone Number</label>
+                                            <input type="tel" class="form-control" id="profile-emergency-phone" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-end mt-4 mb-5">
+                                    <button type="submit" class="btn btn-hc-primary py-2.5 px-5 shadow-sm font-size-sm"><i class="fa-solid fa-user-check me-2"></i>Update Demographics Settings</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="hc-toast-container" id="toast-container"></div>
+
+    <!-- Lab Report Modal Container -->
+    <div class="modal fade" id="labReportModal" tabindex="-1" aria-hidden="true"></div>
+
+    <!-- OTP VERIFICATION MODAL -->
+    <div class="modal fade" id="otpVerificationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header py-2.5">
+                    <h6 class="modal-title fw-bold" id="otpModalTitle">Verify Details</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="font-size-xs text-muted mb-3" id="otpModalInstructions">Enter the 4-digit verification code sent to your registered address.</p>
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <input type="text" class="otp-digit-field" id="otp-1" maxlength="1" onkeyup="moveOtpFocus(this, 'otp-2')" style="width: 48px; height: 52px; font-size: 1.5rem; font-weight: 800; text-align: center; border: 2px solid var(--hc-border); border-radius: 10px; background: var(--hc-bg-card-solid); color: var(--hc-text-primary); transition: border-color 0.25s ease;">
+                        <input type="text" class="otp-digit-field" id="otp-2" maxlength="1" onkeyup="moveOtpFocus(this, 'otp-3')" style="width: 48px; height: 52px; font-size: 1.5rem; font-weight: 800; text-align: center; border: 2px solid var(--hc-border); border-radius: 10px; background: var(--hc-bg-card-solid); color: var(--hc-text-primary); transition: border-color 0.25s ease;">
+                        <input type="text" class="otp-digit-field" id="otp-3" maxlength="1" onkeyup="moveOtpFocus(this, 'otp-4')" style="width: 48px; height: 52px; font-size: 1.5rem; font-weight: 800; text-align: center; border: 2px solid var(--hc-border); border-radius: 10px; background: var(--hc-bg-card-solid); color: var(--hc-text-primary); transition: border-color 0.25s ease;">
+                        <input type="text" class="otp-digit-field" id="otp-4" maxlength="1" style="width: 48px; height: 52px; font-size: 1.5rem; font-weight: 800; text-align: center; border: 2px solid var(--hc-border); border-radius: 10px; background: var(--hc-bg-card-solid); color: var(--hc-text-primary); transition: border-color 0.25s ease;">
+                    </div>
+                    <button type="button" class="btn btn-hc-primary w-100 py-2 font-size-sm" onclick="confirmOtpVerification()">Submit Verification Code</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor/Consultation Feedback Rating Modal -->
+    <div class="modal fade" id="feedbackRatingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-star text-warning me-2"></i>Rate Consultation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <h6 class="fw-bold mb-1" id="feedback-doctor-name">Dr. Sarah Connor</h6>
+                    <p class="text-muted font-size-sm mb-4">Please rate your experience with this physician consultation.</p>
+                    <div class="d-flex justify-content-center gap-3 mb-4" id="rating-stars-container">
+                        <i class="fa-solid fa-star rating-star-icon" data-rating="1" onclick="selectRatingStar(1)"></i>
+                        <i class="fa-solid fa-star rating-star-icon" data-rating="2" onclick="selectRatingStar(2)"></i>
+                        <i class="fa-solid fa-star rating-star-icon" data-rating="3" onclick="selectRatingStar(3)"></i>
+                        <i class="fa-solid fa-star rating-star-icon" data-rating="4" onclick="selectRatingStar(4)"></i>
+                        <i class="fa-solid fa-star rating-star-icon" data-rating="5" onclick="selectRatingStar(5)"></i>
+                    </div>
+                    <input type="hidden" id="feedback-rating-value" value="0">
+                    <input type="hidden" id="feedback-appt-id">
+                    <div class="mb-3 text-start">
+                        <label class="form-label fw-semibold font-size-sm">Comments / Review</label>
+                        <textarea class="form-control" id="feedback-comments" rows="3" placeholder="How went your consultation? Care delivery, waiting times..."></textarea>
+                    </div>
+                    <button type="button" class="btn btn-hc-primary w-100 py-2" id="btn-submit-feedback" onclick="submitPatientFeedback()">Submit Feedback</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS Controller -->
+    <script src="js/app.js?v=1.4"></script>
+</body>
+</html>
