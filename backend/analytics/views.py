@@ -52,8 +52,8 @@ class AdminAnalyticsView(APIView):
 
         # 3. Patient Volume by Month
         monthly_patients = PatientProfile.objects.filter(
-            created_at__year=current_year
-        ).annotate(month=ExtractMonth('created_at')).values('month').annotate(total=Count('id'))
+            user__date_joined__year=current_year
+        ).annotate(month=ExtractMonth('user__date_joined')).values('month').annotate(total=Count('id'))
         
         patients_dict = {i: 0 for i in range(1, 13)}
         for entry in monthly_patients:

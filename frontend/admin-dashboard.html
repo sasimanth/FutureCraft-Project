@@ -143,382 +143,324 @@
                 
                 <!-- PANEL 1: ADMIN CONSOLE OVERVIEW -->
                 <section class="dashboard-panel active" id="panel-dashboard">
-                    <!-- KPI SUMMARY GRID ROW 1 (PREMIUM GRADIENTS) -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); transition: all 0.3s ease;">
-                                <div class="d-flex flex-column justify-content-between h-100 w-100">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <p class="stat-title text-primary fw-bold font-size-xxs text-uppercase mb-1">Today's Patients</p>
-                                            <h3 class="stat-value text-dark fw-extrabold" id="admin-stat-patients">--</h3>
-                                        </div>
-                                        <div class="hc-icon-wrapper bg-primary text-white mb-0" style="width: 40px; height: 40px;"><i class="fa-solid fa-hospital-user"></i></div>
+                    <div class="dashboard-grid">
+                        
+                        <!-- ROW 1: CORE CLINICAL KPIS -->
+                        <div class="kpi-card kpi-blue">
+                            <div class="d-flex flex-column justify-content-between h-100 w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="kpi-title">Today's Patients</p>
+                                        <h3 class="kpi-value" id="admin-stat-patients">--</h3>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
-                                        <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill"><i class="fa-solid fa-arrow-up me-1"></i>+12%</span>
-                                        <span class="text-muted fw-semibold">vs yesterday</span>
-                                    </div>
+                                    <div class="hc-icon-wrapper bg-primary text-white mb-0" style="width: 40px; height: 40px; border-radius: 8px;"><i class="fa-solid fa-hospital-user"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
+                                    <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill"><i class="fa-solid fa-arrow-up me-1"></i>+12%</span>
+                                    <span class="text-muted fw-semibold">vs yesterday</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); transition: all 0.3s ease;">
-                                <div class="d-flex flex-column justify-content-between h-100 w-100">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <p class="stat-title text-info fw-bold font-size-xxs text-uppercase mb-1">Today's Appointments</p>
-                                            <h3 class="stat-value text-dark fw-extrabold" id="admin-stat-appointments">--</h3>
-                                        </div>
-                                        <div class="hc-icon-wrapper bg-info text-white mb-0" style="width: 40px; height: 40px;"><i class="fa-solid fa-calendar-check"></i></div>
+                        <div class="kpi-card kpi-info">
+                            <div class="d-flex flex-column justify-content-between h-100 w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="kpi-title">Today's Appointments</p>
+                                        <h3 class="kpi-value" id="admin-stat-appointments">--</h3>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
-                                        <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill"><i class="fa-solid fa-arrow-up me-1"></i>+8%</span>
-                                        <span class="text-muted fw-semibold">vs yesterday</span>
-                                    </div>
+                                    <div class="hc-icon-wrapper bg-info text-white mb-0" style="width: 40px; height: 40px; border-radius: 8px;"><i class="fa-solid fa-calendar-check"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
+                                    <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill"><i class="fa-solid fa-arrow-up me-1"></i>+8%</span>
+                                    <span class="text-muted fw-semibold">vs yesterday</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); transition: all 0.3s ease;">
-                                <div class="d-flex flex-column justify-content-between h-100 w-100">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <p class="stat-title text-success fw-bold font-size-xxs text-uppercase mb-1">Active Doctors</p>
-                                            <h3 class="stat-value text-dark fw-extrabold" id="admin-stat-doctors">--</h3>
-                                        </div>
-                                        <div class="hc-icon-wrapper bg-success text-white mb-0" style="width: 40px; height: 40px;"><i class="fa-solid fa-user-doctor"></i></div>
+                        <div class="kpi-card kpi-green">
+                            <div class="d-flex flex-column justify-content-between h-100 w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="kpi-title">Active Doctors</p>
+                                        <h3 class="kpi-value" id="admin-stat-doctors">--</h3>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
-                                        <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill">98%</span>
-                                        <span class="text-muted fw-semibold">attendance rate</span>
-                                    </div>
+                                    <div class="hc-icon-wrapper bg-success text-white mb-0" style="width: 40px; height: 40px; border-radius: 8px;"><i class="fa-solid fa-user-doctor"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
+                                    <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill">98%</span>
+                                    <span class="text-muted fw-semibold">attendance rate</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%); transition: all 0.3s ease;">
-                                <div class="d-flex flex-column justify-content-between h-100 w-100">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <p class="stat-title text-cyan fw-bold font-size-xxs text-uppercase mb-1">Active Technicians</p>
-                                            <h3 class="stat-value text-dark fw-extrabold" id="admin-stat-techs">--</h3>
-                                        </div>
-                                        <div class="hc-icon-wrapper bg-cyan text-white mb-0" style="width: 40px; height: 40px;"><i class="fa-solid fa-user-gear"></i></div>
+                        <div class="kpi-card kpi-cyan">
+                            <div class="d-flex flex-column justify-content-between h-100 w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="kpi-title">Active Lab Technicians</p>
+                                        <h3 class="kpi-value" id="admin-stat-techs">--</h3>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
-                                        <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill">100%</span>
-                                        <span class="text-muted fw-semibold">on duty today</span>
-                                    </div>
+                                    <div class="hc-icon-wrapper bg-cyan text-white mb-0" style="width: 40px; height: 40px; border-radius: 8px;"><i class="fa-solid fa-user-gear"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
+                                    <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill">100%</span>
+                                    <span class="text-muted fw-semibold">on duty today</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- KPI SUMMARY GRID ROW 2 -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); transition: all 0.3s ease;">
-                                <div class="d-flex flex-column justify-content-between h-100 w-100">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <p class="stat-title text-success fw-bold font-size-xxs text-uppercase mb-1">Today's Revenue</p>
-                                            <h3 class="stat-value text-dark fw-extrabold" id="admin-stat-revenue-today">--</h3>
-                                        </div>
-                                        <div class="hc-icon-wrapper bg-success text-white mb-0" style="width: 40px; height: 40px;"><i class="fa-solid fa-wallet"></i></div>
+                        <!-- ROW 2: ADMINISTRATIVE & REVENUE KPIS -->
+                        <div class="kpi-card kpi-green">
+                            <div class="d-flex flex-column justify-content-between h-100 w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="kpi-title">Today's Revenue</p>
+                                        <h3 class="kpi-value" id="admin-stat-revenue-today">--</h3>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
-                                        <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill"><i class="fa-solid fa-arrow-up me-1"></i>+15%</span>
-                                        <span class="text-muted fw-semibold">vs yesterday</span>
-                                    </div>
+                                    <div class="hc-icon-wrapper bg-success text-white mb-0" style="width: 40px; height: 40px; border-radius: 8px;"><i class="fa-solid fa-wallet"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
+                                    <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill"><i class="fa-solid fa-arrow-up me-1"></i>+15%</span>
+                                    <span class="text-muted fw-semibold">vs yesterday</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); transition: all 0.3s ease;">
-                                <div class="d-flex flex-column justify-content-between h-100 w-100">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <p class="stat-title text-warning fw-bold font-size-xxs text-uppercase mb-1">Pending Approvals</p>
-                                            <h3 class="stat-value text-dark fw-extrabold" id="admin-stat-pending-approvals">--</h3>
-                                        </div>
-                                        <div class="hc-icon-wrapper bg-warning text-white mb-0" style="width: 40px; height: 40px;"><i class="fa-solid fa-user-clock"></i></div>
+                        <div class="kpi-card kpi-yellow">
+                            <div class="d-flex flex-column justify-content-between h-100 w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="kpi-title">Pending Approvals</p>
+                                        <h3 class="kpi-value" id="admin-stat-pending-approvals">--</h3>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-warning fw-bold">
-                                        <span class="badge bg-warning-subtle text-warning py-0.5 px-1.5 rounded-pill">-5%</span>
-                                        <span class="text-muted fw-semibold">decrease rate</span>
-                                    </div>
+                                    <div class="hc-icon-wrapper bg-warning text-white mb-0" style="width: 40px; height: 40px; border-radius: 8px;"><i class="fa-solid fa-user-clock"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-warning fw-bold">
+                                    <span class="badge bg-warning-subtle text-warning py-0.5 px-1.5 rounded-pill">-5%</span>
+                                    <span class="text-muted fw-semibold">decrease rate</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); transition: all 0.3s ease;">
-                                <div class="d-flex flex-column justify-content-between h-100 w-100">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <p class="stat-title text-danger fw-bold font-size-xxs text-uppercase mb-1">Pending Leaves</p>
-                                            <h3 class="stat-value text-dark fw-extrabold" id="admin-stat-pending-leaves">--</h3>
-                                        </div>
-                                        <div class="hc-icon-wrapper bg-danger text-white mb-0" style="width: 40px; height: 40px;"><i class="fa-solid fa-clipboard-question"></i></div>
+                        <div class="kpi-card kpi-red">
+                            <div class="d-flex flex-column justify-content-between h-100 w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="kpi-title">Pending Leave Requests</p>
+                                        <h3 class="kpi-value" id="admin-stat-pending-leaves">--</h3>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-danger fw-bold">
-                                        <span class="text-danger fw-bold">Needs attention</span>
-                                    </div>
+                                    <div class="hc-icon-wrapper bg-danger text-white mb-0" style="width: 40px; height: 40px; border-radius: 8px;"><i class="fa-solid fa-clipboard-question"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-danger fw-bold">
+                                    <span class="text-danger fw-bold">Needs attention</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-3 col-sm-6">
-                            <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); transition: all 0.3s ease;">
-                                <div class="d-flex flex-column justify-content-between h-100 w-100">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <p class="stat-title text-indigo fw-bold font-size-xxs text-uppercase mb-1">Completed Reports</p>
-                                            <h3 class="stat-value text-dark fw-extrabold" id="admin-stat-reports-completed">--</h3>
-                                        </div>
-                                        <div class="hc-icon-wrapper bg-indigo text-white mb-0" style="width: 40px; height: 40px;"><i class="fa-solid fa-file-invoice"></i></div>
+                        <div class="kpi-card kpi-indigo">
+                            <div class="d-flex flex-column justify-content-between h-100 w-100">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="kpi-title">Completed Reports</p>
+                                        <h3 class="kpi-value" id="admin-stat-reports-completed">--</h3>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
-                                        <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill"><i class="fa-solid fa-arrow-up me-1"></i>+22%</span>
-                                        <span class="text-muted fw-semibold">monthly volume</span>
-                                    </div>
+                                    <div class="hc-icon-wrapper bg-indigo text-white mb-0" style="width: 40px; height: 40px; border-radius: 8px;"><i class="fa-solid fa-file-invoice"></i></div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5 mt-2 font-size-xxs text-success fw-bold">
+                                    <span class="badge bg-success-subtle text-success py-0.5 px-1.5 rounded-pill"><i class="fa-solid fa-arrow-up me-1"></i>+22%</span>
+                                    <span class="text-muted fw-semibold">monthly volume</span>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="row g-4 mb-4">
-                        <!-- Left Column: Analytics Card & Monitoring -->
-                        <div class="col-lg-8">
-                            <!-- Executive Analytics Card with Tabbed Views -->
-                            <div class="hc-card mb-4">
-                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 gap-3 border-bottom pb-3">
-                                    <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-chart-line text-primary me-2"></i>Executive Analytics Console</h5>
-                                    <ul class="nav nav-pills card-header-pills" id="admin-analytics-tabs" role="tablist" style="background: #f1f5f9; padding: 3px; border-radius: 6px;">
-                                        <li class="nav-item">
-                                            <button class="nav-link active py-1 px-2.5 font-size-xxs fw-bold" id="tab-act-vol-btn" data-bs-toggle="tab" data-bs-target="#tab-act-vol" type="button">Activity & Volume</button>
-                                        </li>
-                                        <li class="nav-item">
-                                            <button class="nav-link py-1 px-2.5 font-size-xxs fw-bold" id="tab-cons-work-btn" data-bs-toggle="tab" data-bs-target="#tab-cons-work" type="button">Consultations & Staff</button>
-                                        </li>
-                                        <li class="nav-item">
-                                            <button class="nav-link py-1 px-2.5 font-size-xxs fw-bold" id="tab-fin-lab-btn" data-bs-toggle="tab" data-bs-target="#tab-fin-lab" type="button">Finance & Labs</button>
-                                        </li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="tab-content">
-                                    <!-- Tab 1: Activity & Volume -->
-                                    <div class="tab-pane fade show active" id="tab-act-vol" role="tabpanel">
-                                        <div class="row g-3">
-                                            <div class="col-lg-6">
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <span class="fw-bold font-size-xxs text-secondary"><i class="fa-solid fa-hospital-user text-primary me-1.5"></i>Admissions & Case Load</span>
-                                                    <div class="btn-group btn-group-sm" id="admin-chart-filter-group" style="scale: 0.8; transform-origin: right;">
-                                                        <button type="button" class="btn btn-outline-primary active" onclick="updateAdminActivityChart('daily')">Daily</button>
-                                                        <button type="button" class="btn btn-outline-primary" onclick="updateAdminActivityChart('weekly')">Weekly</button>
-                                                        <button type="button" class="btn btn-outline-primary" onclick="updateAdminActivityChart('monthly')">Monthly</button>
-                                                        <button type="button" class="btn btn-outline-primary" onclick="updateAdminActivityChart('yearly')">Yearly</button>
-                                                    </div>
-                                                </div>
-                                                <div style="position: relative; height: 230px;">
-                                                    <canvas id="adminActivityChart"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <span class="fw-bold font-size-xxs text-secondary d-block mb-3"><i class="fa-solid fa-users text-success me-1.5"></i>Patient Registration Volume (M-o-M)</span>
-                                                <div style="position: relative; height: 230px;">
-                                                    <canvas id="chartPatientVolumeAdmin"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Tab 2: Consultations & Workload -->
-                                    <div class="tab-pane fade" id="tab-cons-work" role="tabpanel">
-                                        <div class="row g-3">
-                                            <div class="col-lg-6">
-                                                <span class="fw-bold font-size-xxs text-secondary d-block mb-3"><i class="fa-solid fa-stethoscope text-info me-1.5"></i>Consultations by Month</span>
-                                                <div style="position: relative; height: 230px;">
-                                                    <canvas id="chartConsultationsAdmin"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <span class="fw-bold font-size-xxs text-secondary d-block mb-3"><i class="fa-solid fa-user-doctor text-purple me-1.5"></i>Doctor Workload (Consultations Count)</span>
-                                                <div style="position: relative; height: 230px;">
-                                                    <canvas id="chartDocWorkloadAdmin"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Tab 3: Finance & Labs -->
-                                    <div class="tab-pane fade" id="tab-fin-lab" role="tabpanel">
-                                        <div class="row g-3">
-                                            <div class="col-lg-6">
-                                                <span class="fw-bold font-size-xxs text-secondary d-block mb-3"><i class="fa-solid fa-sack-dollar text-success me-1.5"></i>Revenue Stream Trends</span>
-                                                <div style="position: relative; height: 230px;">
-                                                    <canvas id="chartRevenueAdmin"></canvas>
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <span class="fw-bold font-size-xxs text-secondary d-block mb-3"><i class="fa-solid fa-flask text-warning me-1.5"></i>Laboratory Requests Volume</span>
-                                                <div style="position: relative; height: 230px;">
-                                                    <canvas id="chartLabRequestsAdmin"></canvas>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Global Appointment Monitoring -->
+                        <!-- ROW 3: DEPARTMENT ADMISSION & SYSTEM HEALTH -->
+                        <div class="grid-row-3">
                             <div class="hc-card">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-calendar-check text-primary me-2"></i>Global Appointment Monitoring</h5>
-                                <div class="table-responsive hc-table-container">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Department Admission & Case Load</h5>
+                                    <div class="btn-group btn-group-sm" id="admin-chart-filter-group" style="scale: 0.8; transform-origin: right;">
+                                        <button type="button" class="btn btn-outline-primary active" onclick="updateAdminActivityChart('daily')">Daily</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="updateAdminActivityChart('weekly')">Weekly</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="updateAdminActivityChart('monthly')">Monthly</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="updateAdminActivityChart('yearly')">Yearly</button>
+                                    </div>
+                                </div>
+                                <div class="analytics-chart-wrapper">
+                                    <canvas id="adminActivityChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark"><i class="fa-solid fa-server text-success me-2"></i>System Health Engine</h5>
+                                <div class="system-health-grid">
+                                    <div class="health-indicator-card">
+                                        <div class="indicator-header">
+                                            <i class="fa-solid fa-database text-success font-size-xs"></i>
+                                            <span class="indicator-name">Database Status</span>
+                                        </div>
+                                        <div class="indicator-value">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">Healthy</span>
+                                        </div>
+                                    </div>
+                                    <div class="health-indicator-card">
+                                        <div class="indicator-header">
+                                            <i class="fa-solid fa-gauge-high text-primary font-size-xs"></i>
+                                            <span class="indicator-name">Server Latency</span>
+                                        </div>
+                                        <div class="indicator-value">
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-size-xxxxs" id="admin-console-latency">-- ms</span>
+                                        </div>
+                                    </div>
+                                    <div class="health-indicator-card">
+                                        <div class="indicator-header">
+                                            <i class="fa-solid fa-users text-success font-size-xs"></i>
+                                            <span class="indicator-name">Online Users</span>
+                                        </div>
+                                        <div class="indicator-value">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs"><span id="admin-console-online-users">--</span> Active</span>
+                                        </div>
+                                    </div>
+                                    <div class="health-indicator-card">
+                                        <div class="indicator-header">
+                                            <i class="fa-solid fa-shield-halved text-success font-size-xs"></i>
+                                            <span class="indicator-name">JWT Auth Status</span>
+                                        </div>
+                                        <div class="indicator-value">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">Secure</span>
+                                        </div>
+                                    </div>
+                                    <div class="health-indicator-card">
+                                        <div class="indicator-header">
+                                            <i class="fa-solid fa-clock-rotate-left text-success font-size-xs"></i>
+                                            <span class="indicator-name">API Response Time</span>
+                                        </div>
+                                        <div class="indicator-value">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">120 ms</span>
+                                        </div>
+                                    </div>
+                                    <div class="health-indicator-card">
+                                        <div class="indicator-header">
+                                            <i class="fa-solid fa-microchip text-warning font-size-xs"></i>
+                                            <span class="indicator-name">CPU / Memory</span>
+                                        </div>
+                                        <div class="indicator-value">
+                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle font-size-xxxxs">18% / 42%</span>
+                                        </div>
+                                    </div>
+                                    <div class="health-indicator-card">
+                                        <div class="indicator-header">
+                                            <i class="fa-solid fa-cloud text-success font-size-xs"></i>
+                                            <span class="indicator-name">Storage Usage</span>
+                                        </div>
+                                        <div class="indicator-value">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">14 GB Free</span>
+                                        </div>
+                                    </div>
+                                    <div class="health-indicator-card">
+                                        <div class="indicator-header">
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-success font-size-xs"></i>
+                                            <span class="indicator-name">System Uptime</span>
+                                        </div>
+                                        <div class="indicator-value">
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">99.98%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROW 4: CORE CHARTS GRAPH -->
+                        <div class="grid-row-4">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-sack-dollar text-success me-2"></i>Revenue Analytics</h5>
+                                <div class="analytics-chart-wrapper">
+                                    <canvas id="chartRevenueAdmin"></canvas>
+                                </div>
+                            </div>
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-users text-success me-2"></i>Patient Growth (M-o-M)</h5>
+                                <div class="analytics-chart-wrapper">
+                                    <canvas id="chartPatientVolumeAdmin"></canvas>
+                                </div>
+                            </div>
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-calendar-check text-primary me-2"></i>Appointment Statistics</h5>
+                                <div class="analytics-chart-wrapper">
+                                    <canvas id="chartConsultationsAdmin"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ROW 5: LOGGING & SYSTEM LOGS -->
+                        <div class="grid-row-5">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark"><i class="fa-solid fa-timeline text-purple me-2"></i>Recent Activity</h5>
+                                <div class="d-flex flex-column gap-2" id="admin-recent-activities-list" style="max-height: 380px; overflow-y: auto; padding-right: 4px;">
+                                    <!-- Dynamic feed -->
+                                </div>
+                            </div>
+                            
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark"><i class="fa-solid fa-clipboard-list text-primary me-2"></i>Latest System Audit Logs</h5>
+                                <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
                                     <table class="table hc-table mb-0">
                                         <thead>
                                             <tr>
-                                                <th>Appointment ID</th>
-                                                <th>Patient Name</th>
-                                                <th>Doctor Name</th>
-                                                <th>Date & Slot</th>
-                                                <th>Status</th>
+                                                <th>Timestamp</th>
+                                                <th>Severity</th>
+                                                <th>Module</th>
+                                                <th>Action Detail</th>
+                                                <th>User</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="admin-appointments-list">
-                                            <!-- Dynamic rows populated by app.js -->
+                                        <tbody id="admin-dashboard-audits-list">
+                                            <!-- Dynamic audits feed populated by app.js -->
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Right Column: Quick Actions, System Health, Activities, Alerts -->
-                        <div class="col-lg-4">
-                            <!-- Quick Actions Panel -->
-                            <div class="hc-card mb-4">
-                                <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-bolt text-warning me-2"></i>Quick Actions Console</h5>
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 py-2.5 font-size-xs" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fa-solid fa-user-plus d-block mb-1.5 fs-6 text-primary"></i> Add Patient</button>
-                                    </div>
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 py-2.5 font-size-xs" data-bs-toggle="modal" data-bs-target="#addUserModal"><i class="fa-solid fa-user-doctor d-block mb-1.5 fs-6 text-primary"></i> Register Doctor</button>
-                                    </div>
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 py-2.5 font-size-xs" onclick="document.querySelector('[data-panel=\'panel-settings\']').click()"><i class="fa-solid fa-hospital d-block mb-1.5 fs-6 text-primary"></i> Create Dept</button>
-                                    </div>
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 py-2.5 font-size-xs" onclick="document.querySelector('[data-panel=\'panel-leave\']').click()"><i class="fa-solid fa-bullhorn d-block mb-1.5 fs-6 text-primary"></i> Broadcast Alert</button>
-                                    </div>
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 py-2.5 font-size-xs" onclick="document.querySelector('[data-panel=\'panel-audits\']').click()"><i class="fa-solid fa-database d-block mb-1.5 fs-6 text-primary"></i> Backup DB</button>
-                                    </div>
-                                    <div class="col-6">
-                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 py-2.5 font-size-xs" onclick="document.querySelector('[data-panel=\'panel-admin-reports\']').click()"><i class="fa-solid fa-chart-pie d-block mb-1.5 fs-6 text-primary"></i> View Reports</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- System Health Panel -->
-                            <div class="hc-card mb-4">
-                                <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-server text-success me-2"></i>System Health Engine</h5>
-                                <div class="d-flex flex-column gap-2">
-                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-database text-success font-size-xs"></i>
-                                            <span class="font-size-xxs fw-bold text-dark">Database Status</span>
-                                        </div>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">Healthy</span>
-                                    </div>
-                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-gauge-high text-primary font-size-xs"></i>
-                                            <span class="font-size-xxs fw-bold text-dark">Server Latency</span>
-                                        </div>
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-size-xxxxs" id="admin-console-latency">-- ms</span>
-                                    </div>
-                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-users text-success font-size-xs"></i>
-                                            <span class="font-size-xxs fw-bold text-dark">Online Users</span>
-                                        </div>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs"><span id="admin-console-online-users">--</span> Active</span>
-                                    </div>
-                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-shield-halved text-success font-size-xs"></i>
-                                            <span class="font-size-xxs fw-bold text-dark">JWT Auth Status</span>
-                                        </div>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">Secure</span>
-                                    </div>
-                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-clock-rotate-left text-success font-size-xs"></i>
-                                            <span class="font-size-xxs fw-bold text-dark">API Response Time</span>
-                                        </div>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">120 ms</span>
-                                    </div>
-                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-microchip text-warning font-size-xs"></i>
-                                            <span class="font-size-xxs fw-bold text-dark">CPU / Memory</span>
-                                        </div>
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle font-size-xxxxs">18% / 42%</span>
-                                    </div>
-                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-cloud text-success font-size-xs"></i>
-                                            <span class="font-size-xxs fw-bold text-dark">Storage Usage</span>
-                                        </div>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">14 GB Free</span>
-                                    </div>
-                                    <div class="p-2 bg-light rounded border d-flex justify-content-between align-items-center">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fa-solid fa-arrow-up-right-from-square text-success font-size-xs"></i>
-                                            <span class="font-size-xxs fw-bold text-dark">System Uptime</span>
-                                        </div>
-                                        <span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxxxs">99.98%</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Live Activity Log -->
-                            <div class="hc-card mb-4">
-                                <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-timeline text-purple me-2"></i>Live System Activities</h5>
-                                <div class="d-flex flex-column gap-2" id="admin-recent-activities-list" style="max-height: 230px; overflow-y: auto; padding-right: 4px;">
-                                    <!-- Dynamic feed -->
-                                </div>
-                            </div>
-
-                            <!-- Recent Notifications -->
+                        <!-- ROW 6: ADDITIONAL CLINICAL INSIGHTS & ACTIONS -->
+                        <div class="grid-row-6">
                             <div class="hc-card">
-                                <h5 class="fw-bold mb-3 border-bottom pb-2"><i class="fa-solid fa-bell text-danger me-2"></i>Critical Alert Center</h5>
-                                <div class="d-flex flex-column gap-2" id="admin-critical-notifications">
-                                    <div class="p-2 bg-danger-subtle text-danger rounded border border-danger-subtle font-size-xxs d-flex gap-2">
-                                        <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
-                                        <div>
-                                            <strong class="d-block font-size-xxxxs text-uppercase">CRITICAL LAB ALERT</strong>
-                                            <span>Abnormal blood test (WBC count 24.5) reported for John Doe.</span>
-                                        </div>
+                                <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-user-doctor text-purple me-2"></i>Doctor Workload (Consultations)</h5>
+                                <div class="analytics-chart-wrapper">
+                                    <canvas id="chartDocWorkloadAdmin"></canvas>
+                                </div>
+                            </div>
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 text-dark"><i class="fa-solid fa-flask text-warning me-2"></i>Laboratory Requests Volume</h5>
+                                <div class="analytics-chart-wrapper">
+                                    <canvas id="chartLabRequestsAdmin"></canvas>
+                                </div>
+                            </div>
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark"><i class="fa-solid fa-bolt text-warning me-2"></i>Quick Actions Console</h5>
+                                <div class="quick-actions-grid">
+                                    <div class="quick-action-card" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                        <span>Add Patient</span>
                                     </div>
-                                    <div class="p-2 bg-warning-subtle text-warning rounded border border-warning-subtle font-size-xxs d-flex gap-2">
-                                        <i class="fa-solid fa-user-clock mt-0.5"></i>
-                                        <div>
-                                            <strong class="d-block font-size-xxxxs text-uppercase">PENDING APPROVAL</strong>
-                                            <span>2 new staff members are awaiting administrator access verification.</span>
-                                        </div>
+                                    <div class="quick-action-card" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                                        <i class="fa-solid fa-user-doctor"></i>
+                                        <span>Register Doctor</span>
                                     </div>
-                                    <div class="p-2 bg-info-subtle text-info rounded border border-info-subtle font-size-xxs d-flex gap-2">
-                                        <i class="fa-solid fa-umbrella-beach mt-0.5"></i>
-                                        <div>
-                                            <strong class="d-block font-size-xxxxs text-uppercase">LEAVE REQUESTS</strong>
-                                            <span>Dr. Sarah Connor has requested medical leave starting 2026-07-02.</span>
-                                        </div>
+                                    <div class="quick-action-card" onclick="document.querySelector('[data-panel=\'panel-settings\']').click()">
+                                        <i class="fa-solid fa-hospital"></i>
+                                        <span>Create Dept</span>
+                                    </div>
+                                    <div class="quick-action-card" onclick="document.querySelector('[data-panel=\'panel-leaves\']').click()">
+                                        <i class="fa-solid fa-bullhorn"></i>
+                                        <span>Broadcast Alert</span>
+                                    </div>
+                                    <div class="quick-action-card" onclick="document.querySelector('[data-panel=\'panel-audits\']').click()">
+                                        <i class="fa-solid fa-database"></i>
+                                        <span>Backup DB</span>
+                                    </div>
+                                    <div class="quick-action-card" onclick="document.querySelector('[data-panel=\'panel-admin-reports\']').click()">
+                                        <i class="fa-solid fa-chart-pie"></i>
+                                        <span>View Reports</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </section>
 
