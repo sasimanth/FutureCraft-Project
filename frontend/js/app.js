@@ -428,7 +428,7 @@ const ApiService = {
     baseUrl: (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? CUREPOINT_CONFIG.LOCAL_API_URL
         : CUREPOINT_CONFIG.PRODUCTION_API_URL,
-    useMock: true, // Toggle this to FALSE to direct requests to actual Django backend
+    useMock: false, // Toggle this to FALSE to direct requests to actual Django backend
 
     // Helper wrapper for actual network HTTP fetch requests with retries, timeouts, and auth redirection
     _request: async function (endpoint, options = {}) {
@@ -518,7 +518,7 @@ const ApiService = {
             const activeUser = JSON.parse(sessionStorage.getItem('hc_current_user'));
             if (!activeUser) return;
             
-            const [patients, doctors, appointments, prescriptions, labRequests, audits, departments, leaves, reviews, invoices] = await Promise.all([
+            const [patients, doctors, appointments, prescriptions, labRequests, audits, departments, leaves, reviews, invoices, consultations] = await Promise.all([
                 this.getPatients().catch(() => []),
                 this._request('/doctors/').catch(() => []),
                 this.getAppointments().catch(() => []),
@@ -528,7 +528,8 @@ const ApiService = {
                 this._request('/departments/').catch(() => []),
                 this._request('/leaves/').catch(() => []),
                 this._request('/reviews/').catch(() => []),
-                this._request('/billing/').catch(() => [])
+                this._request('/billing/').catch(() => []),
+                this.getConsultations().catch(() => [])
             ]);
 
             setDB('patients', patients);
@@ -541,6 +542,7 @@ const ApiService = {
             setDB('leaves', leaves);
             setDB('doctor_reviews', reviews);
             setDB('patient_invoices', invoices);
+            setDB('consultations', consultations);
 
             if (activeUser.role === 'patient' && activeUser.patientId) {
                 const patId = activeUser.patientId;
@@ -652,11 +654,22 @@ const ApiService = {
             setDB('users', users);
             this.addAuditLog('accounts', email, `Registered user account with role: ${role}`);
             return { success: true, message: 'Account registered successfully.' };
+        }
+    },
+
+    // POST /api/departments/
+    createDepartment: async function (data) {
+        if (this.useMock) {
+            const depts = getDB('departments') || [];
+            depts.push(data);
+            setDB('departments', depts);
+            return data;
         } else {
-            return this._request('/register/', {
-                method: 'POST',
-                body: JSON.stringify({ name, email, password, role, ...extraFields })
-            });
+            const res = await this._request('/departments/', { method: 'POST', body: JSON.stringify(data) });
+            const depts = getDB('departments') || [];
+            depts.push(res);
+            setDB('departments', depts);
+            return res;
         }
     },
 
@@ -4078,6 +4091,33 @@ function renderAdminDashboard() {
         }
     }
 
+    // Populate dashboard audit logs
+    const auditsTable = document.getElementById('admin-dashboard-audits-list');
+    if (auditsTable) {
+        const audits = getDB('audits') || [];
+        if (audits.length === 0) {
+            auditsTable.innerHTML = `<tr><td colspan="5" class="text-center text-muted font-size-xxs py-3">No system audits found.</td></tr>`;
+        } else {
+            let html = '';
+            audits.slice(0, 8).forEach(log => {
+                let badgeClass = 'bg-secondary';
+                if (log.flag === 'SECURE' || log.flag === 'SUCCESS') badgeClass = 'bg-success';
+                if (log.flag === 'WARNING') badgeClass = 'bg-warning text-dark';
+                if (log.flag === 'DANGER' || log.flag === 'CRITICAL') badgeClass = 'bg-danger';
+
+                html += `
+                <tr>
+                    <td><code class="font-size-xxxxs">${log.timestamp || '--'}</code></td>
+                    <td><span class="badge ${badgeClass} font-size-xxxxs py-0.5 px-1.5 rounded-pill">${log.flag || 'INFO'}</span></td>
+                    <td><span class="badge bg-secondary-subtle text-secondary font-size-xxxxs">${log.module || 'SYSTEM'}</span></td>
+                    <td class="text-truncate font-size-xxs" style="max-width: 220px;" title="${log.action}"><strong>${log.action}</strong></td>
+                    <td><code class="font-size-xxxxs">${log.initiator}</code></td>
+                </tr>`;
+            });
+            auditsTable.innerHTML = html;
+        }
+    }
+
     // Load dynamic dashboard analytics console charts
     if (typeof window.renderAdminDashboardCharts === 'function') {
         window.renderAdminDashboardCharts();
@@ -4371,27 +4411,36 @@ window.deleteUser = async function (email) {
     }
 };
 
-function submitAdminCreateDept() {
+async function submitAdminCreateDept() {
     const name = document.getElementById('admin-dept-name').value;
     const head = document.getElementById('admin-dept-head').value;
     const staff = parseInt(document.getElementById('admin-dept-staff').value);
 
-    const depts = getDB('departments');
-    depts.push({
-        id: 'dept-' + (depts.length + 1),
-        name: name,
-        head: head,
-        staffCount: staff
-    });
+    // Form validation
+    if (!name || !head || isNaN(staff)) {
+        alert('Please fill out all fields correctly.');
+        return;
+    }
 
-    setDB('departments', depts);
-    ApiService.addAuditLog('system', 'admin', `Created medical specialty department: ${name}`);
-    alert('Department specialty created successfully!');
-    document.getElementById('admin-add-dept-form').reset();
+    try {
+        const payload = {
+            id: 'dept-' + Date.now(),
+            name: name,
+            head: head,
+            staffCount: staff
+        };
+        await ApiService.createDepartment(payload);
+        ApiService.addAuditLog('system', 'admin', `Created medical specialty department: ${name}`);
+        alert('Department specialty created successfully!');
+        document.getElementById('admin-add-dept-form').reset();
 
-    renderAdminDepartments();
-    renderAdminDashboard();
-    renderAdminAudits();
+        renderAdminDepartments();
+        renderAdminDashboard();
+        renderAdminAudits();
+    } catch (err) {
+        console.error(err);
+        alert(err.message || 'Failed to create department');
+    }
 }
 
 async function renderAdminAnalyticsCharts() {
