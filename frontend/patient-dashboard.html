@@ -61,6 +61,18 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-appointments">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Appointments</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-consultations">
+                        <i class="fa-solid fa-hospital-user"></i>
+                        <span>Consultations</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-records">
                         <i class="fa-solid fa-file-medical"></i>
                         <span>Medical Records</span>
@@ -76,18 +88,6 @@
                     <a href="#" class="sidebar-link" data-panel="panel-labs">
                         <i class="fa-solid fa-flask-vial"></i>
                         <span>Lab Reports</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-panel="panel-appointments">
-                        <i class="fa-solid fa-calendar-check"></i>
-                        <span>Appointments</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-panel="panel-payments">
-                        <i class="fa-solid fa-credit-card"></i>
-                        <span>Payments & Billing</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -136,6 +136,9 @@
             </header>
 
             <!-- MAIN PANELS VIEW AREA (SPA) -->
+            <!-- GLOBAL BROADCAST ALERTS CONTAINER -->
+            <div id="global-broadcast-container" class="px-4 mt-3"></div>
+
             <div class="dashboard-main-view">
                 
                 <!-- PANEL 1: DASHBOARD OVERVIEW -->
@@ -273,32 +276,8 @@
                     </div>
 
                     <div class="row g-4 mt-2">
-                        <!-- Hospital Visits Log -->
-                        <div class="col-lg-8">
-                            <div class="hc-card">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Hospital Visits Log</h5>
-                                <div class="table-responsive hc-table-container">
-                                    <table class="table hc-table mb-0 align-middle">
-                                        <thead>
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Department</th>
-                                                <th>Physician</th>
-                                                <th>Diagnosis & Reason</th>
-                                                <th>Status</th>
-                                                <th>Follow-up Notes</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="patient-visits-list">
-                                            <!-- Dynamic rows populated by app.js -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
                         <!-- External Documents Upload -->
-                        <div class="col-lg-4">
+                        <div class="col-lg-12">
                             <div class="hc-card">
                                 <h5 class="fw-bold mb-4"><i class="fa-solid fa-cloud-arrow-up text-primary me-2"></i>External Reports & Certificates</h5>
                                 <div class="hc-upload-dropzone mb-3" id="patient-upload-dropzone">
@@ -311,6 +290,30 @@
                                     <!-- Dynamic list of files -->
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL: CONSULTATIONS -->
+                <section class="dashboard-panel" id="panel-consultations">
+                    <div class="hc-card">
+                        <h5 class="fw-bold mb-4"><i class="fa-solid fa-hospital-user text-primary me-2"></i>Hospital Visits Log & Consultation Notes</h5>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Department</th>
+                                        <th>Physician</th>
+                                        <th>Diagnosis & Reason</th>
+                                        <th>Status</th>
+                                        <th>Follow-up Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="patient-visits-list">
+                                    <!-- Dynamic rows populated by app.js -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -466,102 +469,6 @@
                                 <div class="row g-3 overflow-y-auto" id="patient-appts-cards" style="max-height: 520px;">
                                     <!-- Dynamically populated cards -->
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- PANEL 5.5: PAYMENTS & BILLING -->
-                <section class="dashboard-panel" id="panel-payments">
-                    <div class="row g-4">
-                        <div class="col-lg-7">
-                            <div class="hc-card">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-file-invoice-dollar text-primary me-2"></i>Outstanding Invoices</h5>
-                                <div class="table-responsive hc-table-container">
-                                    <table class="table hc-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Billing ID</th>
-                                                <th>Description</th>
-                                                <th>Amount</th>
-                                                <th>Status</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="patient-invoices-list">
-                                            <!-- Dynamically populated -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            
-                            <div class="hc-card mt-4">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-clock-rotate-left text-secondary me-2"></i>Payment History</h5>
-                                <div class="table-responsive hc-table-container">
-                                    <table class="table hc-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Receipt ID</th>
-                                                <th>Service</th>
-                                                <th>Method</th>
-                                                <th>Paid On</th>
-                                                <th>Receipt</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="patient-receipts-list">
-                                            <!-- Dynamically populated -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-lg-5">
-                            <div class="hc-card text-start">
-                                <h5 class="fw-bold mb-4"><i class="fa-solid fa-cash-register text-success me-2"></i>Secure Payment Gateway</h5>
-                                <div class="p-3 bg-light rounded border mb-4">
-                                    <span class="text-muted d-block font-size-xs fw-semibold">ACTIVE BILL SELECTED</span>
-                                    <h6 class="fw-bold text-dark mb-0 font-size-sm" id="payment-active-desc">Select an invoice to proceed...</h6>
-                                    <h4 class="fw-extrabold text-primary mt-2" id="payment-active-amount">$0.00</h4>
-                                    <input type="hidden" id="payment-active-id">
-                                </div>
-                                <div class="d-flex flex-column gap-3">
-                                    <!-- Payment Options -->
-                                    <div class="border rounded p-3 cursor-pointer hover-lift d-flex justify-content-between align-items-center bg-white" onclick="selectPaymentMethod('UPI')">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <i class="fa-solid fa-qrcode text-primary fs-3"></i>
-                                            <div>
-                                                <h6 class="fw-bold mb-0 text-dark font-size-sm">UPI Transfer</h6>
-                                                <span class="text-muted font-size-xxs">GooglePay, PhonePe, Paytm</span>
-                                            </div>
-                                        </div>
-                                        <input type="radio" name="payment-method" id="pay-upi" value="UPI">
-                                    </div>
-                                    
-                                    <div class="border rounded p-3 cursor-pointer hover-lift d-flex justify-content-between align-items-center bg-white" onclick="selectPaymentMethod('Card')">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <i class="fa-solid fa-credit-card text-success fs-3"></i>
-                                            <div>
-                                                <h6 class="fw-bold mb-0 text-dark font-size-sm">Credit / Debit Card</h6>
-                                                <span class="text-muted font-size-xxs">Visa, MasterCard, RuPay</span>
-                                            </div>
-                                        </div>
-                                        <input type="radio" name="payment-method" id="pay-card" value="Card">
-                                    </div>
-                                    
-                                    <div class="border rounded p-3 cursor-pointer hover-lift d-flex justify-content-between align-items-center bg-white" onclick="selectPaymentMethod('NetBanking')">
-                                        <div class="d-flex align-items-center gap-3">
-                                            <i class="fa-solid fa-building-columns text-info fs-3"></i>
-                                            <div>
-                                                <h6 class="fw-bold mb-0 text-dark font-size-sm">Net Banking</h6>
-                                                <span class="text-muted font-size-xxs">All major national banks</span>
-                                            </div>
-                                        </div>
-                                        <input type="radio" name="payment-method" id="pay-nb" value="NetBanking">
-                                    </div>
-                                </div>
-                                
-                                <button type="button" class="btn btn-hc-primary w-100 py-3 mt-4" id="btn-pay-now" onclick="executeSecurePayment()" disabled>Pay Selected Invoice</button>
                             </div>
                         </div>
                     </div>
@@ -754,6 +661,26 @@
                         <textarea class="form-control" id="feedback-comments" rows="3" placeholder="How went your consultation? Care delivery, waiting times..."></textarea>
                     </div>
                     <button type="button" class="btn btn-hc-primary w-100 py-2" id="btn-submit-feedback" onclick="submitPatientFeedback()">Submit Feedback</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Full Notes Modal -->
+    <div class="modal fade" id="viewNotesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-notes-medical text-primary me-2"></i>Follow-up Notes</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="p-3 bg-light rounded border mb-0 font-size-sm text-secondary" id="notes-modal-content" style="white-space: pre-wrap; line-height: 1.6;">
+                        <!-- Loaded dynamically -->
+                    </div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

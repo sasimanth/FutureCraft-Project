@@ -56,26 +56,32 @@
             <ul class="sidebar-menu">
                 <li class="sidebar-item active">
                     <a href="#" class="sidebar-link" data-panel="panel-dashboard">
-                        <i class="fa-solid fa-square-poll-vertical"></i>
-                        <span>Lab Desk</span>
+                        <i class="fa-solid fa-house-medical"></i>
+                        <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-panel="panel-results-entry">
-                        <i class="fa-solid fa-square-plus"></i>
-                        <span>Results Entry</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-panel="panel-walkin">
-                        <i class="fa-solid fa-file-signature"></i>
-                        <span>Walk-in Requests</span>
+                    <a href="#" class="sidebar-link" id="sidebar-lab-orders" data-panel="panel-results-entry">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Lab Orders</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-completed">
-                        <i class="fa-solid fa-file-medical"></i>
+                        <i class="fa-solid fa-file-invoice"></i>
                         <span>Completed Reports</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-walkin">
+                        <i class="fa-solid fa-circle-plus"></i>
+                        <span>Walk-in Request</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-inventory">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>Reagent Inventory</span>
                     </a>
                 </li>
             </ul>
@@ -118,6 +124,9 @@
             </header>
 
             <!-- MAIN PANELS VIEW AREA (SPA) -->
+            <!-- GLOBAL BROADCAST ALERTS CONTAINER -->
+            <div id="global-broadcast-container" class="px-4 mt-3"></div>
+
             <div class="dashboard-main-view">
                 
                 <!-- PANEL 1: LABORATORY DESK OVERVIEW (LaboraX) -->
@@ -178,63 +187,6 @@
                         </div>
                     </div>
 
-                    <div class="hc-card">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold mb-0"><i class="fa-solid fa-bell-concierge text-primary me-2"></i>Physician Lab Orders Queue</h5>
-                            <span class="badge bg-primary px-3 py-2" id="lab-stat-pending">-- pending requests</span>
-                        </div>
-                        
-                        <!-- Segmented Workflow Tabs -->
-                        <ul class="nav nav-tabs mb-4 border-light-subtle" id="lab-orders-tabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active fw-semibold font-size-sm" id="tab-pending-btn" onclick="filterLabOrders('pending')" type="button">Pending</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-accepted-btn" onclick="filterLabOrders('accepted')" type="button">Accepted</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-sample_collection-btn" onclick="filterLabOrders('sample_collection')" type="button">Sample Draw</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-sample_received-btn" onclick="filterLabOrders('sample_received')" type="button">Received</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-in_progress-btn" onclick="filterLabOrders('in_progress')" type="button">Processing</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-awaiting_verification-btn" onclick="filterLabOrders('awaiting_verification')" type="button">Awaiting Verification</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-completed-btn" onclick="filterLabOrders('completed')" type="button">Completed</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-critical-btn" onclick="filterLabOrders('critical')" type="button"><i class="fa-solid fa-triangle-exclamation text-danger me-1"></i>Critical</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link fw-semibold font-size-sm" id="tab-urgent-btn" onclick="filterLabOrders('urgent')" type="button"><i class="fa-solid fa-circle-exclamation text-warning me-1"></i>Urgent Cases</button>
-                            </li>
-                        </ul>
-
-                        <div class="table-responsive hc-table-container">
-                            <table class="table hc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Request ID</th>
-                                        <th>Patient Details</th>
-                                        <th>Test Name</th>
-                                        <th>Urgency</th>
-                                        <th>Barcode Scan</th>
-                                        <th>Ordered Date</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="lab-pending-requests">
-                                    <!-- Dynamic list of lab requests -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </section>
 
                 <!-- PANEL 2: RESULTS ENTRY WORKSPACE -->
@@ -244,13 +196,24 @@
                         <div class="workspace-left-queue">
                             <div class="hc-card p-3">
                                 <h6 class="fw-bold mb-3 text-secondary d-flex align-items-center justify-content-between">
-                                    <span><i class="fa-solid fa-list-check text-primary me-2"></i>Specimen Queue</span>
+                                    <span><i class="fa-solid fa-list-check text-primary me-2"></i>Lab Orders Queue</span>
                                     <span class="badge bg-primary rounded-pill font-size-xxs" id="active-queue-count">0</span>
                                 </h6>
+                                <!-- Status Filter Dropdown -->
+                                <div class="mb-3">
+                                    <label class="form-label font-size-xxs fw-extrabold text-muted text-uppercase mb-1">Queue Status</label>
+                                    <select class="form-select form-select-sm" id="lab-queue-status-filter" onchange="window.renderSpecimenQueue()">
+                                        <option value="pending" selected>Pending</option>
+                                        <option value="accepted">Accepted / Specimen Drawn</option>
+                                        <option value="processing">Processing</option>
+                                        <option value="urgent">Urgent / STAT</option>
+                                        <option value="completed">Completed / Released</option>
+                                    </select>
+                                </div>
                                 <div class="mb-3">
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-search"></i></span>
-                                        <input type="text" class="form-control border-start-0" id="queue-search-input" placeholder="Search active queue..." oninput="renderSpecimenQueue()">
+                                        <input type="text" class="form-control border-start-0" id="queue-search-input" placeholder="Search orders..." oninput="window.renderSpecimenQueue()">
                                     </div>
                                 </div>
                                 <div class="d-flex flex-column gap-2" id="specimen-queue-container" style="max-height: 520px; overflow-y: auto; padding-right: 4px;">
@@ -269,10 +232,19 @@
                                 </div>
                             </div>
 
-                            <div class="hc-card d-none" id="results-editor-workspace">
+                             <div class="hc-card d-none" id="results-editor-workspace">
                                 <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
                                     <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-vial-circle-check text-primary me-2"></i>Specimen Analysis Worksheet</h5>
                                     <div class="token-badge" id="entry-token-display">TKN-000</div>
+                                </div>
+                                <div class="p-3 bg-light rounded border mb-4 d-flex justify-content-between align-items-center" id="entry-status-action-card">
+                                    <div>
+                                        <span class="text-muted d-block font-size-xxs fw-bold text-uppercase mb-1">Current Status</span>
+                                        <span class="badge bg-secondary font-size-xxs" id="entry-status-badge">PENDING</span>
+                                    </div>
+                                    <div id="entry-action-btn-placeholder">
+                                        <!-- Dynamic advance button -->
+                                    </div>
                                 </div>
 
                                 <form id="lab-entry-form">
@@ -491,6 +463,78 @@
                                     </table>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PANEL 5: REAGENT INVENTORY -->
+                <section class="dashboard-panel" id="panel-inventory">
+                    <div class="hc-card">
+                        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                            <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-boxes-stacked text-primary me-2"></i>Laboratory Reagent & Stock Inventory</h5>
+                            <button class="btn btn-hc-primary btn-sm" onclick="Toast.success('Inventory audit log generated! Ready for CSV export.')"><i class="fa-solid fa-file-export me-1"></i>Export Stock List</button>
+                        </div>
+                        <div class="table-responsive hc-table-container">
+                            <table class="table hc-table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Reagent / Item Name</th>
+                                        <th>Category</th>
+                                        <th>Stock Level</th>
+                                        <th>Threshold</th>
+                                        <th>Expiry Date</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>CBC Lyse Reagent (10L)</strong></td>
+                                        <td>Hematology</td>
+                                        <td>150 Kits</td>
+                                        <td>20 Kits</td>
+                                        <td>2027-02-15</td>
+                                        <td><span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxs">In Stock</span></td>
+                                        <td><button class="btn btn-xxs btn-outline-primary" onclick="Toast.success('Restock request sent for CBC Lyse Reagent.')">Restock</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Glucose Strips (Accu-Chek)</strong></td>
+                                        <td>Biochemistry</td>
+                                        <td>450 Units</td>
+                                        <td>100 Units</td>
+                                        <td>2027-06-10</td>
+                                        <td><span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxs">In Stock</span></td>
+                                        <td><button class="btn btn-xxs btn-outline-primary" onclick="Toast.success('Restock request sent for Glucose Strips.')">Restock</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Lipid Cassettes</strong></td>
+                                        <td>Lipid Panel</td>
+                                        <td>18 Kits</td>
+                                        <td>15 Kits</td>
+                                        <td>2026-11-30</td>
+                                        <td><span class="badge bg-warning-subtle text-warning border border-warning-subtle font-size-xxs">Low Stock</span></td>
+                                        <td><button class="btn btn-xxs btn-outline-primary" onclick="Toast.success('Restock request sent for Lipid Cassettes.')">Restock</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>TSH Antibody Reagent</strong></td>
+                                        <td>Biochemistry</td>
+                                        <td>35 Kits</td>
+                                        <td>10 Kits</td>
+                                        <td>2027-01-20</td>
+                                        <td><span class="badge bg-success-subtle text-success border border-success-subtle font-size-xxs">In Stock</span></td>
+                                        <td><button class="btn btn-xxs btn-outline-primary" onclick="Toast.success('Restock request sent for TSH Antibody Reagent.')">Restock</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>LFT Reagent Kit (100 Tests)</strong></td>
+                                        <td>Biochemistry</td>
+                                        <td>4 Kits</td>
+                                        <td>5 Kits</td>
+                                        <td>2026-09-18</td>
+                                        <td><span class="badge bg-danger-subtle text-danger border border-danger-subtle font-size-xxs">Critical Stock</span></td>
+                                        <td><button class="btn btn-xxs btn-outline-danger" onclick="Toast.success('Critical restock request sent for LFT Reagent Kit.')">Restock</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>

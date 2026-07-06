@@ -46,10 +46,18 @@ class DoctorLeaveRequestSerializer(serializers.ModelSerializer):
     startDate = serializers.DateField(source='start_date')
     endDate = serializers.DateField(source='end_date')
     leaveType = serializers.CharField(source='leave_type')
+    appliedDate = serializers.SerializerMethodField()
+    approvedBy = serializers.SerializerMethodField()
 
     class Meta:
         model = DoctorLeaveRequest
-        fields = ('id', 'doctorId', 'doctorName', 'startDate', 'endDate', 'leaveType', 'reason', 'status')
+        fields = ('id', 'doctorId', 'doctorName', 'startDate', 'endDate', 'leaveType', 'reason', 'status', 'remarks', 'appliedDate', 'approvedBy')
+
+    def get_appliedDate(self, obj):
+        return obj.created_at.strftime('%Y-%m-%d') if obj.created_at else ""
+
+    def get_approvedBy(self, obj):
+        return "System Admin" if obj.status in ['Approved', 'Rejected'] else "--"
 
 class DoctorReviewSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)

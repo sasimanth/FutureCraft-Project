@@ -61,6 +61,7 @@ class DoctorLeaveRequestViewSet(viewsets.ModelViewSet):
         
         leave = self.get_object()
         leave.status = 'Approved'
+        leave.remarks = request.data.get('remarks', '')
         leave.save()
 
         # Cancel overlapping appointments
@@ -86,7 +87,7 @@ class DoctorLeaveRequestViewSet(viewsets.ModelViewSet):
         AuditLog.objects.create(
             module='doctors',
             initiator=request.user.email,
-            action=f"Approved leave request for doctor {leave.doctor.doctor_id} ({leave.start_date} to {leave.end_date})",
+            action=f"Approved leave request for doctor {leave.doctor.doctor_id} ({leave.start_date} to {leave.end_date}). Remarks: {leave.remarks}",
             flag='SECURE'
         )
         return Response(DoctorLeaveRequestSerializer(leave).data, status=status.HTTP_200_OK)
@@ -98,12 +99,13 @@ class DoctorLeaveRequestViewSet(viewsets.ModelViewSet):
         
         leave = self.get_object()
         leave.status = 'Rejected'
+        leave.remarks = request.data.get('remarks', '')
         leave.save()
 
         AuditLog.objects.create(
             module='doctors',
             initiator=request.user.email,
-            action=f"Rejected leave request for doctor {leave.doctor.doctor_id} ({leave.start_date} to {leave.end_date})",
+            action=f"Rejected leave request for doctor {leave.doctor.doctor_id} ({leave.start_date} to {leave.end_date}). Remarks: {leave.remarks}",
             flag='SECURE'
         )
         return Response(DoctorLeaveRequestSerializer(leave).data, status=status.HTTP_200_OK)
