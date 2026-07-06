@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, AuditLog
+from .models import CustomUser, AuditLog, ContactMessage
 
 class UserSerializer(serializers.ModelSerializer):
     patientId = serializers.SerializerMethodField(required=False)
@@ -154,3 +154,8 @@ class RegisterSerializer(serializers.Serializer):
 def timezone_now_date():
     from django.utils import timezone
     return timezone.now().date()
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = '__all__'

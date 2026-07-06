@@ -31,6 +31,7 @@ class DoctorLeaveRequest(models.Model):
     leave_type = models.CharField(max_length=50)
     reason = models.TextField(blank=True, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    remarks = models.TextField(blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

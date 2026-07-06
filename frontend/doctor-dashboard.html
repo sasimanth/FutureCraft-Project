@@ -61,39 +61,39 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-panel="panel-consultation">
-                        <i class="fa-solid fa-stethoscope"></i>
-                        <span>New Consultation</span>
+                    <a href="#" class="sidebar-link" data-panel="panel-schedule">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>Appointments</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-patients">
                         <i class="fa-solid fa-hospital-user"></i>
-                        <span>Patient Directory</span>
+                        <span>Patients</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-panel="panel-schedule">
-                        <i class="fa-solid fa-calendar-days"></i>
-                        <span>Schedules & Calendars</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-panel="panel-reviews">
-                        <i class="fa-solid fa-star"></i>
-                        <span>Patient Reviews</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" data-panel="panel-leave">
-                        <i class="fa-solid fa-umbrella-beach"></i>
-                        <span>Leave & Vacation</span>
+                    <a href="#" class="sidebar-link" data-panel="panel-consultation">
+                        <i class="fa-solid fa-stethoscope"></i>
+                        <span>Consultations</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link" data-panel="panel-doctor-reports">
                         <i class="fa-solid fa-chart-line"></i>
-                        <span>Reports & Analytics</span>
+                        <span>Reports</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-leave">
+                        <i class="fa-solid fa-umbrella-beach"></i>
+                        <span>Leave Requests</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" data-panel="panel-reviews">
+                        <i class="fa-solid fa-star"></i>
+                        <span>Profile</span>
                     </a>
                 </li>
             </ul>
@@ -136,6 +136,9 @@
             </header>
 
             <!-- MAIN PANELS VIEW AREA (SPA) -->
+            <!-- GLOBAL BROADCAST ALERTS CONTAINER -->
+            <div id="global-broadcast-container" class="px-4 mt-3"></div>
+
             <div class="dashboard-main-view">
                 
                 <!-- PANEL 1: CLINICAL DASHBOARD -->
@@ -482,74 +485,29 @@
                     </div>
                 </section>
 
-                <!-- PANEL 4: SCHEDULE & CALENDAR (IMPROVED CALENDAR STYLING & DRAG-AND-DROP) -->
+                <!-- PANEL 4: SCHEDULE & CALENDAR (UPCOMING CONSULTATION QUEUE) -->
                 <section class="dashboard-panel" id="panel-schedule">
-                    <div class="row g-4">
-                        <div class="col-lg-8">
-                            <div class="hc-card">
-                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
-                                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-calendar-days text-primary me-2"></i>Appointments Calendar Workspace</h5>
-                                    <div class="btn-group" id="calendar-view-selector">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary active" data-view="month">Month</button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-view="week">Week</button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" data-view="day">Day</button>
-                                    </div>
+                    <div class="hc-card border-gradient">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 border-bottom pb-3">
+                            <div>
+                                <h5 class="fw-bold text-dark mb-1"><i class="fa-solid fa-user-nurse text-primary me-2"></i>Upcoming Consultation Queue</h5>
+                                <p class="text-muted mb-0 font-size-xs">Manage active appointments, search patient consults, and launch diagnostics.</p>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <div class="dashboard-search-bar p-0 border border-light-subtle rounded-3 bg-white" style="position: relative; width: 220px;">
+                                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; color: #64748b;"></i>
+                                    <input type="text" class="form-control ps-5 py-1.5 font-size-xs" id="queue-search-input" placeholder="Search patient or reason..." oninput="window.renderDoctorQueue()">
                                 </div>
-                                
-                                <div class="calendar-wrapper">
-                                    <div class="calendar-header-actions mb-3">
-                                        <h4 class="fw-bold text-dark mb-0" id="doctor-calendar-month">June 2026</h4>
-                                        <div class="d-flex gap-2">
-                                            <button type="button" class="btn btn-sm btn-outline-primary" id="prev-month-btn"><i class="fa-solid fa-chevron-left"></i></button>
-                                            <button type="button" class="btn btn-sm btn-outline-primary" id="next-month-btn"><i class="fa-solid fa-chevron-right"></i></button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="calendar-grid mb-2" id="doctor-calendar-labels">
-                                        <div class="calendar-day-label">Mon</div>
-                                        <div class="calendar-day-label">Tue</div>
-                                        <div class="calendar-day-label">Wed</div>
-                                        <div class="calendar-day-label">Thu</div>
-                                        <div class="calendar-day-label">Fri</div>
-                                        <div class="calendar-day-label">Sat</div>
-                                        <div class="calendar-day-label">Sun</div>
-                                    </div>
-                                    <div class="calendar-grid" id="doctor-calendar-grid" style="min-height: 400px;">
-                                        <!-- Populated dynamically by JS -->
-                                    </div>
+                                <div class="btn-group btn-group-sm" id="queue-time-filter">
+                                    <button type="button" class="btn btn-outline-primary active" id="filter-today-btn" onclick="window.filterDoctorQueue('today')">Today</button>
+                                    <button type="button" class="btn btn-outline-primary" id="filter-upcoming-btn" onclick="window.filterDoctorQueue('upcoming')">Upcoming</button>
+                                    <button type="button" class="btn btn-outline-primary" id="filter-completed-btn" onclick="window.filterDoctorQueue('completed')">Completed</button>
+                                    <button type="button" class="btn btn-outline-primary" id="filter-all-btn" onclick="window.filterDoctorQueue('all')">All</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4">
-                            <!-- Upcoming Appointments list widget -->
-                            <div class="hc-card mb-4">
-                                <h5 class="fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left text-success me-2"></i>Upcoming Consultations</h5>
-                                <div class="d-flex flex-column gap-2" id="upcoming-appts-sidebar" style="max-height: 250px; overflow-y: auto;">
-                                    <!-- Populated dynamically -->
-                                </div>
-                            </div>
-                            <!-- Legend Widget -->
-                            <div class="hc-card">
-                                <h5 class="fw-bold mb-3"><i class="fa-solid fa-circle-info text-info me-2"></i>Calendar Information</h5>
-                                <div class="font-size-xs d-flex flex-column gap-2 text-muted">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="status-step-dot active"></span>
-                                        <span>Green dot indicates active doctor availability</span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge event-checkup font-size-xxs px-2 py-1">Doctor Checkup</span>
-                                        <span>Blue tag - standard patient consultation</span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge event-lab font-size-xxs px-2 py-1">Lab Test</span>
-                                        <span>Green tag - laboratory diagnostics request</span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="badge event-emergency font-size-xxs px-2 py-1">Emergency</span>
-                                        <span>Red tag - critical emergency case</span>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="d-flex flex-column gap-3 overflow-y-auto pr-2" id="doctor-consult-queue-container" style="max-height: 600px; padding-bottom: 20px;">
+                            <!-- Dynamically populated vertical cards -->
                         </div>
                     </div>
                 </section>
@@ -805,10 +763,13 @@
                                         <thead>
                                             <tr>
                                                 <th>Type</th>
+                                                <th>Applied Date</th>
                                                 <th>Start Date</th>
                                                 <th>End Date</th>
                                                 <th>Reason</th>
                                                 <th>Status</th>
+                                                <th>Approved By</th>
+                                                <th>Remarks</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>

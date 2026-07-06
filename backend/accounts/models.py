@@ -67,3 +67,16 @@ class AdminProfile(models.Model):
 
     def __str__(self):
         return f"{self.employee_id} - {self.user.name}"
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    subject = models.CharField(max_length=255)
+    message = models.TextField()
+    timestamp = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.name} - {self.subject}"

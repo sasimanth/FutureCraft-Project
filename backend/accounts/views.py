@@ -2,8 +2,8 @@ from rest_framework import views, status, viewsets, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .models import CustomUser, AuditLog
-from .serializers import UserSerializer, AuditLogSerializer, RegisterSerializer
+from .models import CustomUser, AuditLog, ContactMessage
+from .serializers import UserSerializer, AuditLogSerializer, RegisterSerializer, ContactMessageSerializer
 from .permissions import IsAdminUser, IsOwnerOrStaff
 
 class RegisterView(views.APIView):
@@ -146,4 +146,15 @@ class UserViewSet(viewsets.ModelViewSet):
             flag='SECURE'
         )
         return response
+
+class ContactMessageViewSet(viewsets.ModelViewSet):
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
