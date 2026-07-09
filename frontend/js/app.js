@@ -464,6 +464,25 @@ function setDB(key, data) {
 
 // Initialize on script load
 initializeDatabase();
+function loadMedicalHistory(patientId) {
+    const list = document.getElementById("medical-history-list");
+    if (!list) return;
+
+    const patients = getDB("patients");
+    const patient = patients.find(p => p.id === patientId);
+    if (!patient) return;
+
+    list.innerHTML = "";
+
+    patient.medicalHistory.forEach(item => {
+        const li = document.createElement("li");
+        li.className = "list-group-item";
+        li.innerHTML = `
+            <strong>${item.date}</strong> — ${item.condition} → ${item.status}
+        `;
+        list.appendChild(li);
+    });
+}
 
 
 // ==========================================
@@ -1331,6 +1350,7 @@ function setupDashboardNavigation() {
             }
         });
     });
+<<<<<<< Updated upstream
 <<<<<<< HEAD
     function setupDashboardNavigation() {
 
@@ -1382,24 +1402,50 @@ function setupDashboardNavigation() {
         });
     }
 >>>>>>> bcfb268ecd6ecec3d1f2c6000fd3c652434cb871
+=======
+>>>>>>> Stashed changes
 }
+function renderPatientMedicalHistory(patient) {
+    const container = document.getElementById('patient-history-timeline');
+    if (!container) return;
 
+    if (!patient.medicalHistory || patient.medicalHistory.length === 0) {
+        container.innerHTML = `<p class="text-muted">No recorded medical conditions.</p>`;
+        return;
+    }
 
-// ==========================================
+    container.innerHTML = patient.medicalHistory.map(h => `
+        <div class="timeline-event">
+            <div class="timeline-date">${h.date}</div>
+            <div class="timeline-card">
+                <h5>${h.condition}</h5>
+                <p>
+                    Diagnosed by: <b>${h.diagnosedBy}</b> |
+                    <span class="badge ${h.status === 'Managed' ? 'bg-info' : 'bg-success'}">
+                        ${h.status}
+                    </span>
+                </p>
+            </div>
+        </div>
+    `).join('');
+}
 // 4. PORTAL SPECIFIC LOGIC
 // ==========================================
 
 // --- PATIENT DASHBOARD WORKFLOWS ---
 function initPatientPortal(patientUser) {
     const patientId = patientUser.patientId;
+
     const patients = getDB('patients');
     const patient = patients.find(p => p.id === patientId);
+
     if (!patient) return;
 
 <<<<<<< HEAD
     // Header updates
     document.getElementById('user-display-name').innerText = patient.name;
-    document.getElementById('avatar-letters').innerText = patient.name.split(' ').map(n=>n[0]).join('');
+    document.getElementById('avatar-letters').innerText =
+        patient.name.split(' ').map(n => n[0]).join('');
 
     // Load Overview Panels
 =======
@@ -1421,12 +1467,16 @@ function initPatientPortal(patientUser) {
 >>>>>>> bcfb268ecd6ecec3d1f2c6000fd3c652434cb871
     renderPatientOverview(patient);
     renderPatientVitalsCharts(patient);
-    renderPatientMedicalHistory(patient);
+    renderPatientMedicalHistory(patient);   // ✅ ONLY THIS (correct)
     renderPatientPrescriptions(patient);
     renderPatientLabReports(patient);
     renderPatientAppointments(patient);
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 
+=======
+}
+>>>>>>> Stashed changes
     // Book Appointment Form Handler
     const apptForm = document.getElementById('book-appointment-form');
     if (apptForm) {
@@ -1813,12 +1863,11 @@ function renderPatientMedicalHistory(patient) {
         return;
     }
 
-    let html = '';
-    patient.medicalHistory.forEach(h => {
-        html += `
+    container.innerHTML = patient.medicalHistory.map(h => `
         <div class="timeline-event">
             <div class="timeline-date">${h.date}</div>
             <div class="timeline-card">
+<<<<<<< Updated upstream
                 <h5 class="timeline-title">${h.condition}</h5>
 <<<<<<< HEAD
                 <p class="text-muted mb-0">Diagnosed by: <strong>${h.diagnosedBy}</strong> | Status: <span class="badge ${h.status === 'Managed' ? 'bg-info' : 'bg-success'}">${h.status}</span></p>
@@ -1833,8 +1882,19 @@ function renderPatientMedicalHistory(patient) {
 >>>>>>> bcfb268ecd6ecec3d1f2c6000fd3c652434cb871
     });
     container.innerHTML = html;
+=======
+                <h5>${h.condition}</h5>
+                <p>
+                    Diagnosed by: <b>${h.diagnosedBy}</b> |
+                    <span class="badge ${h.status === 'Managed' ? 'bg-info' : 'bg-success'}">
+                        ${h.status}
+                    </span>
+                </p>
+            </div>
+        </div>
+    `).join('');
+>>>>>>> Stashed changes
 }
-
 function renderPatientPrescriptions(patient) {
     const rxList = document.getElementById('patient-prescriptions-list');
     if (!rxList) return;
