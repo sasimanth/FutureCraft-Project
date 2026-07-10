@@ -203,6 +203,42 @@ def test_api_suite():
         return False
     print("[OK] Lab technician analytics synchronization successful.")
 
+    # 8. TEST SMART WATCH INTEGRATION & AI ASSISTANT
+    print("\n[+] Testing Smart Watch Integration & AI Assistant Endpoints...")
+    
+    # Connect device
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {patient_token}')
+    res = client.post('/api/patients/pat-1/smartwatch-connect/', {'deviceType': 'Fitbit'}, format='json')
+    if res.status_code != 200 or res.data['deviceType'] != 'Fitbit':
+        print(f"[-] FAILED: Smartwatch connection endpoint failed. Status: {res.status_code}")
+        return False
+    print("[OK] Smartwatch connect endpoint verified.")
+
+    # Sync device metrics
+    sync_data = {
+        'batteryLevel': 90,
+        'heartRate': 85,
+        'bpSystolic': 122,
+        'bpDiastolic': 81,
+        'spo2': 98,
+        'steps': 6500,
+        'calories': 320,
+        'sleepDuration': 7.5,
+        'distance': 5.2
+    }
+    res = client.post('/api/patients/pat-1/smartwatch-sync/', sync_data, format='json')
+    if res.status_code != 200 or 'smartwatchDevice' not in res.data:
+        print(f"[-] FAILED: Smartwatch synchronization endpoint failed. Status: {res.status_code}")
+        return False
+    print("[OK] Smartwatch data sync endpoint verified.")
+
+    # Ask AI Assistant
+    res = client.post('/api/ai/chat/', {'message': 'Explain my prescription'}, format='json')
+    if res.status_code != 200 or 'response' not in res.data:
+        print(f"[-] FAILED: AI Chat Assistant endpoint failed. Status: {res.status_code}")
+        return False
+    print("[OK] AI Assistant chat endpoint verified.")
+
     print("\n==================================================")
     print("   SUCCESS: ALL API ENDPOINTS VERIFIED & STABLE!")
     print("==================================================")

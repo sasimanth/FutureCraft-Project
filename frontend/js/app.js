@@ -206,7 +206,9 @@ const DEFAULT_USERS = [
     { email: 'emma.watson@ehrmail.com', password: 'password123', name: 'Emma Watson', role: 'patient', patientId: 'pat-2', dateJoined: '2026-04-12T15:30:00Z', emailVerified: false, phoneVerified: false, status: 'Active' },
     { email: 'robert.downey@ehrmail.com', password: 'password123', name: 'Robert Downey', role: 'patient', patientId: 'pat-3', dateJoined: '2026-04-15T16:45:00Z', emailVerified: true, phoneVerified: true, status: 'Active' },
     { email: 'clara.oswald@ehrmail.com', password: 'password123', name: 'Clara Oswald', role: 'patient', patientId: 'pat-4', dateJoined: '2026-04-20T10:15:00Z', emailVerified: false, phoneVerified: true, status: 'Active' },
-    { email: 'bruce.banner@ehrmail.com', password: 'password123', name: 'Bruce Banner', role: 'patient', patientId: 'pat-5', dateJoined: '2026-04-25T11:30:00Z', emailVerified: true, phoneVerified: true, status: 'Active' }
+    { email: 'bruce.banner@ehrmail.com', password: 'password123', name: 'Bruce Banner', role: 'patient', patientId: 'pat-5', dateJoined: '2026-04-25T11:30:00Z', emailVerified: true, phoneVerified: true, status: 'Active' },
+    { email: 'pending.doctor@ehrmail.com', password: 'password123', name: 'Dr. John Watson', role: 'doctor', dateJoined: '2026-07-08T10:00:00Z', emailVerified: false, phoneVerified: false, status: 'Pending', is_active: false, department: 'Cardiology' },
+    { email: 'pending.tech@ehrmail.com', password: 'password123', name: 'James Moriarty', role: 'labtech', dateJoined: '2026-07-09T08:30:00Z', emailVerified: false, phoneVerified: false, status: 'Pending', is_active: false }
 ];
 
 const DEFAULT_APPOINTMENTS = [
@@ -936,7 +938,6 @@ const ApiService = {
                 requests[idx] = res;
                 setDB('lab_requests', requests);
             }
-            await this.syncDataFromServer();
             return res;
         }
     },
@@ -1104,6 +1105,142 @@ const ApiService = {
         }
     },
 
+    // Connect smartwatch
+    connectSmartwatch: async function (patientId, deviceType) {
+        if (this.useMock) {
+            const device = {
+                deviceName: `${AuthService.getCurrentUser()?.name || 'Patient'}'s ${deviceType}`,
+                deviceType: deviceType,
+                isConnected: true,
+                batteryLevel: 100,
+                lastSync: new Date().toISOString()
+            };
+            const patients = getDB('patients');
+            const idx = patients.findIndex(p => p.id === patientId);
+            if (idx !== -1) {
+                patients[idx].smartwatchDevice = device;
+                setDB('patients', patients);
+            }
+            return device;
+        } else {
+            return this._request(`/patients/${patientId}/smartwatch-connect/`, {
+                method: 'POST',
+                body: JSON.stringify({ deviceType: deviceType })
+            });
+        }
+    },
+
+    // Disconnect smartwatch
+    disconnectSmartwatch: async function (patientId) {
+        if (this.useMock) {
+            const patients = getDB('patients');
+            const idx = patients.findIndex(p => p.id === patientId);
+            if (idx !== -1) {
+                patients[idx].smartwatchDevice = null;
+                setDB('patients', patients);
+            }
+            return { success: true };
+        } else {
+            return this._request(`/patients/${patientId}/smartwatch-connect/`, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'disconnect' })
+            });
+        }
+    },
+
+    // Sync smartwatch data
+    syncSmartwatch: async function (patientId, data) {
+        if (this.useMock) {
+            const patients = getDB('patients');
+            const idx = patients.findIndex(p => p.id === patientId);
+            if (idx !== -1) {
+                const patient = patients[idx];
+                
+                if (patient.smartwatchDevice) {
+                    patient.smartwatchDevice.batteryLevel = data.batteryLevel;
+                    patient.smartwatchDevice.lastSync = new Date().toISOString();
+                }
+
+                if (!patient.smartwatchDataHistory) {
+                    patient.smartwatchDataHistory = [];
+                }
+                
+                const existIdx = patient.smartwatchDataHistory.findIndex(h => h.date === data.date);
+                if (existIdx !== -1) {
+                    patient.smartwatchDataHistory[existIdx] = data;
+                } else {
+                    patient.smartwatchDataHistory.unshift(data);
+                }
+                
+                setDB('patients', patients);
+            }
+            return getDB('patients').find(p => p.id === patientId);
+        } else {
+            return this._request(`/patients/${patientId}/smartwatch-sync/`, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+        }
+    },
+
+    // AI Chat Assistant
+    askAIAssistant: async function (message) {
+        if (this.useMock) {
+            await new Promise(resolve => setTimeout(resolve, 800));
+            const currentUser = AuthService.getCurrentUser();
+            if (!currentUser) throw new Error("Not logged in");
+            
+            const role = currentUser.role;
+            const patientId = currentUser.patientId;
+            let patient = null;
+            let prescriptions = [];
+            let appointments = [];
+            
+            if (role === 'patient') {
+                patient = getDB('patients').find(p => p.id === patientId);
+                prescriptions = getDB('prescriptions').filter(pr => pr.patientId === patientId);
+                appointments = getDB('appointments').filter(ap => ap.patientId === patientId);
+            }
+            
+            const context = {
+                username: currentUser.name,
+                role: role,
+                patient_id: patientId,
+                blood_group: patient ? patient.bloodGroup : '',
+                allergies: patient ? patient.allergies : '',
+                prescriptions: prescriptions.map(p => ({
+                    date: p.date,
+                    diagnosis: p.diagnosis,
+                    doctor: p.doctorName,
+                    medicines: [{name: 'Sample Med', dosage: '1 tab', frequency: 'daily', duration: '30 days', instructions: 'Take with food'}]
+                })),
+                appointments: appointments.map(a => ({
+                    doctor: a.doctorName,
+                    date: a.date,
+                    slot: a.timeSlot,
+                    status: a.status,
+                    type: a.type || 'Checkup',
+                    symptoms: a.symptoms
+                })),
+                vitals: patient && patient.vitalsHistory ? patient.vitalsHistory.map(v => ({
+                    date: v.date, bp: `${v.bpSystolic}/${v.bpDiastolic}`, hr: v.heartRate, temp: v.temp, weight: v.weight
+                })) : [],
+                smartwatch_device: patient ? patient.smartwatchDevice : null,
+                smartwatch_history: patient && patient.smartwatchDataHistory ? patient.smartwatchDataHistory : []
+            };
+            
+            return {
+                response: window.mockAILocalResponder(message, context),
+                role: role
+            };
+        } else {
+            return this._request('/ai/chat/', {
+                method: 'POST',
+                body: JSON.stringify({ message: message })
+            });
+        }
+    },
+
     // Audit logger utility
     addAuditLog: function (module, initiator, action, flag = 'SECURE') {
         const audits = getDB('audits');
@@ -1251,6 +1388,11 @@ function initPatientPortal(patientUser) {
     renderPatientAppointments(patient);
     renderPatientVisits(patient);
     renderPatientFiles(patient);
+    
+    // Initialize Smart Watch dashboard logic
+    if (window.SmartwatchService) {
+        window.SmartwatchService.init(patient);
+    }
 
     // Setup Patient File Upload
     setupPatientFileUploader(patient);
@@ -1556,25 +1698,49 @@ function renderPatientAppointments(patient) {
     const cardsContainer = document.getElementById('patient-appts-cards');
     if (!cardsContainer) return;
 
-    const appts = getDB('appointments').filter(ap => ap.patientId === patient.id);
+    let appts = getDB('appointments').filter(ap => ap.patientId === patient.id);
+    
+    // Apply status filter
+    const activeFilter = window.currentPatientApptFilter || 'all';
+    if (activeFilter !== 'all') {
+        appts = appts.filter(ap => {
+            const status = ap.status.toLowerCase();
+            if (activeFilter === 'completed') {
+                return status.startsWith('completed');
+            }
+            return status === activeFilter;
+        });
+    }
+
     if (appts.length === 0) {
-        cardsContainer.innerHTML = `<div class="col-12 text-center text-muted p-5 bg-white rounded border shadow-sm"><i class="fa-solid fa-calendar-times fs-2 mb-3 text-muted"></i><p class="mb-0 font-size-sm">No consultations scheduled.</p></div>`;
+        cardsContainer.innerHTML = `<div class="col-12 text-center text-muted p-5 bg-white rounded border shadow-sm"><i class="fa-solid fa-calendar-times fs-2 mb-3 text-muted"></i><p class="mb-0 font-size-sm">No consultations scheduled for this filter.</p></div>`;
         return;
     }
 
     const invoices = getDB('patient_invoices') || [];
-
     let html = '';
+
     appts.forEach(ap => {
-        let badgeClass = 'badge-active';
-        let displayStatus = ap.status;
-        if (ap.status === 'pending') badgeClass = 'badge-pending';
-        if (ap.status === 'confirmed') badgeClass = 'badge-completed';
-        if (ap.status === 'cancelled') badgeClass = 'badge-cancelled';
-        if (ap.status === 'completed') badgeClass = 'badge-completed';
-        if (ap.status === 'completed_with_rating') {
-            badgeClass = 'badge-completed bg-success-subtle text-success border border-success-subtle';
-            displayStatus = 'Completed with Rating';
+        let badgeClass = 'bg-secondary-subtle text-secondary border border-secondary-subtle';
+        let displayStatus = ap.status.toUpperCase();
+        let borderLeftColor = '#3b82f6'; // default blue
+
+        if (ap.status === 'pending') {
+            badgeClass = 'bg-warning-subtle text-warning border border-warning';
+            borderLeftColor = '#f59e0b';
+        } else if (ap.status === 'confirmed') {
+            badgeClass = 'bg-primary-subtle text-primary border border-primary';
+            borderLeftColor = '#3b82f6';
+        } else if (ap.status === 'cancelled') {
+            badgeClass = 'bg-danger-subtle text-danger border border-danger';
+            borderLeftColor = '#ef4444';
+        } else if (ap.status === 'completed') {
+            badgeClass = 'bg-success-subtle text-success border border-success';
+            borderLeftColor = '#10b981';
+        } else if (ap.status === 'completed_with_rating') {
+            badgeClass = 'bg-success-subtle text-success border border-success';
+            displayStatus = 'COMPLETED WITH RATING';
+            borderLeftColor = '#10b981';
         }
 
         // Est wait time calculation
@@ -1590,7 +1756,7 @@ function renderPatientAppointments(patient) {
 
         html += `
         <div class="col-12 col-md-12 col-lg-12 mb-3">
-            <div class="card border-0 shadow-sm rounded-4 p-4 position-relative overflow-hidden" style="background: #ffffff; border-left: 5px solid ${ap.status === 'cancelled' ? '#ef4444' : '#3b82f6'} !important; transition: transform 0.2s ease;">
+            <div class="card border-0 shadow-sm rounded-4 p-4 position-relative overflow-hidden" style="background: #ffffff; border-left: 5px solid ${borderLeftColor} !important; transition: transform 0.2s ease;">
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3">
                     <div class="d-flex align-items-center gap-3">
                         <div class="avatar-mock text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 54px; height: 54px; font-size: 1.1rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);">
@@ -1602,7 +1768,7 @@ function renderPatientAppointments(patient) {
                         </div>
                     </div>
                     <div class="text-sm-end">
-                        <span class="hc-badge-status ${badgeClass} px-3 py-1.5 font-size-xxs fw-bold text-uppercase rounded-3">${displayStatus}</span>
+                        <span class="badge ${badgeClass} px-3 py-1.5 font-size-xxs fw-bold text-uppercase rounded-3">${displayStatus}</span>
                         <span class="badge ${paymentBadgeClass} px-3 py-1.5 font-size-xxs fw-bold text-uppercase rounded-3 ms-2">${paymentStatus}</span>
                     </div>
                 </div>
@@ -1643,6 +1809,26 @@ function renderPatientAppointments(patient) {
     });
     cardsContainer.innerHTML = html;
 }
+
+window.filterPatientAppointments = function(filter) {
+    window.currentPatientApptFilter = filter;
+    
+    // Update active class on filter buttons
+    const filterGroup = document.getElementById('patient-appts-filter-group');
+    if (filterGroup) {
+        filterGroup.querySelectorAll('button').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.innerText.toLowerCase() === filter.toLowerCase()) {
+                btn.classList.add('active');
+            }
+        });
+    }
+
+    const patient = AuthService.getCurrentUser();
+    if (patient) {
+        renderPatientAppointments(patient);
+    }
+};
 
 function renderPatientVisits(patient) {
     const visitsList = document.getElementById('patient-visits-list');
@@ -1876,18 +2062,20 @@ function initDoctorPortal(doctorUser) {
     renderDoctorCalendarWorkspace(doctor);
     setupDoctorCalendarEvents(doctor);
 
-    renderDoctorAnalytics(doctor, 'daily');
+    renderDoctorAnalytics(doctor, window.currentDoctorAnalyticsTimeframe || 'daily');
     renderDoctorReviews(doctor);
 
     // Reports Time Frame Filter Selector
     const reportsFilter = document.getElementById('reports-time-filter');
-    if (reportsFilter) {
+    if (reportsFilter && !reportsFilter.dataset.listenersBound) {
+        reportsFilter.dataset.listenersBound = "true";
         const filterBtns = reportsFilter.querySelectorAll('button');
         filterBtns.forEach(btn => {
             btn.addEventListener('click', function () {
                 filterBtns.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 const timeframe = this.getAttribute('data-filter');
+                window.currentDoctorAnalyticsTimeframe = timeframe;
                 renderDoctorAnalytics(doctor, timeframe);
             });
         });
@@ -2178,13 +2366,31 @@ function addPrescriptionRowToConsult() {
 }
 
 async function submitDoctorConsultation(doctor) {
-    try {
-        const patientId = document.getElementById('consult-patient-select').value;
-        if (!patientId) {
-            Toast.warning('Please choose a patient.');
-            return;
-        }
+    if (window.isConsultationSubmitting) return;
 
+    const patientId = document.getElementById('consult-patient-select').value;
+    if (!patientId) {
+        Toast.warning('Please choose a patient.');
+        return;
+    }
+
+    const diagnosis = document.getElementById('consult-diagnosis').value;
+    if (!diagnosis || !diagnosis.trim()) {
+        Toast.warning("Please enter a Diagnosis details.");
+        return;
+    }
+
+    // Lock submission and show spinner
+    window.isConsultationSubmitting = true;
+    const saveBtn = document.getElementById('consult-save-btn');
+    let originalHTML = '';
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        originalHTML = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Saving...';
+    }
+
+    try {
         const bpSystolicVal = document.getElementById('consult-sys').value;
         const bpDiastolicVal = document.getElementById('consult-dia').value;
         const heartRateVal = document.getElementById('consult-hr').value;
@@ -2195,7 +2401,6 @@ async function submitDoctorConsultation(doctor) {
         const temp = parseFloat(document.getElementById('consult-temp').value) || 98.6;
         const weight = parseFloat(document.getElementById('consult-weight').value) || 70;
 
-        const diagnosis = document.getElementById('consult-diagnosis').value;
         const clinicalNotes = document.getElementById('consult-notes').value;
         const symptomsNotes = document.getElementById('consult-symptoms').value;
 
@@ -2206,11 +2411,6 @@ async function submitDoctorConsultation(doctor) {
         const followupCheck = document.getElementById('consult-followup-check').checked;
         const followupDate = document.getElementById('consult-followup-date').value;
         const followupTime = document.getElementById('consult-followup-time').value;
-
-        if (!diagnosis || !diagnosis.trim()) {
-            Toast.warning("Please enter a Diagnosis details.");
-            return;
-        }
 
         const patient = getDB('patients').find(p => p.id === patientId);
         if (!patient) {
@@ -2341,6 +2541,12 @@ async function submitDoctorConsultation(doctor) {
     } catch (err) {
         console.error("Critical error in submitDoctorConsultation:", err);
         alert("Failed to submit consultation:\n\n" + err.stack);
+    } finally {
+        window.isConsultationSubmitting = false;
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalHTML;
+        }
     }
 }
 window.setupDoctorPatientDirectoryFilters = function () {
@@ -2764,7 +2970,7 @@ window.renderDoctorQueue = function(doctor) {
         }
         
         html += `
-            <div class="card border-0 shadow-sm rounded-3 p-3 position-relative overflow-hidden mb-3" style="background: var(--hc-bg-card-solid); border-left: 5px solid ${cardBorderLeftColor} !important; transition: transform 0.2s ease;">
+            <div class="card border-0 shadow-sm rounded-3 p-3 position-relative overflow-hidden flex-shrink-0" style="background: var(--hc-bg-card-solid); border-left: 5px solid ${cardBorderLeftColor} !important; transition: transform 0.2s ease;">
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
                     <div class="d-flex align-items-center gap-3">
                         <div class="avatar-mock text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 48px; height: 48px; font-size: 1rem; background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);">
@@ -2819,7 +3025,26 @@ window.handleDoctorQueueStatus = async function (apptId, newStatus) {
     }
 };
 
-async function renderDoctorAnalytics(doctor, timeframe = 'daily') {
+async function renderDoctorAnalytics(doctor, timeframe = null) {
+    if (timeframe) {
+        window.currentDoctorAnalyticsTimeframe = timeframe;
+    } else if (!window.currentDoctorAnalyticsTimeframe) {
+        window.currentDoctorAnalyticsTimeframe = 'daily';
+    }
+    timeframe = window.currentDoctorAnalyticsTimeframe;
+
+    // Sync button active classes in the UI
+    const reportsFilter = document.getElementById('reports-time-filter');
+    if (reportsFilter) {
+        reportsFilter.querySelectorAll('button').forEach(btn => {
+            if (btn.getAttribute('data-filter') === timeframe) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
     const appts = getDB('appointments') || [];
     const docAppts = appts.filter(a => a.doctorName.toLowerCase().includes(doctor.name.toLowerCase()));
     const prescriptions = getDB('prescriptions') || [];
@@ -2863,7 +3088,14 @@ async function renderDoctorAnalytics(doctor, timeframe = 'daily') {
 
     if (!ApiService.useMock) {
         try {
-            const data = await ApiService.getDoctorAnalytics();
+            if (!window.doctorAnalyticsCache) {
+                window.doctorAnalyticsCache = {};
+            }
+            let data = window.doctorAnalyticsCache[doctor.id];
+            if (!data) {
+                data = await ApiService.getDoctorAnalytics();
+                window.doctorAnalyticsCache[doctor.id] = data;
+            }
             if (timeframe === 'daily' && data.dailyLoad) {
                 chartData = data.dailyLoad;
             } else if (timeframe === 'weekly' && data.weeklyLoad) {
@@ -2905,28 +3137,41 @@ async function renderDoctorAnalytics(doctor, timeframe = 'daily') {
     // 1. Consultations Volume Chart
     const canvas = document.getElementById('doctorConsultsChart');
     if (canvas) {
-        if (doctorConsultsChartInstance) doctorConsultsChartInstance.destroy();
-        doctorConsultsChartInstance = new Chart(canvas, {
-            type: timeframe === 'monthly' ? 'line' : 'bar',
-            data: {
-                labels: chartLabels,
-                datasets: [{
-                    label: 'Consultation Load',
-                    data: chartData,
-                    backgroundColor: timeframe === 'monthly' ? 'rgba(59, 130, 246, 0.2)' : '#3b82f6',
-                    borderColor: '#3b82f6',
-                    borderWidth: 2.5,
-                    fill: true,
-                    borderRadius: timeframe === 'monthly' ? 0 : 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
-            }
-        });
+        const chartType = timeframe === 'monthly' ? 'line' : 'bar';
+        const chartBgColor = timeframe === 'monthly' ? 'rgba(59, 130, 246, 0.2)' : '#3b82f6';
+        const chartBorderRadius = timeframe === 'monthly' ? 0 : 6;
+
+        if (doctorConsultsChartInstance) {
+            // Update existing instance directly for smooth animation and instant load (<300ms)
+            doctorConsultsChartInstance.config.type = chartType;
+            doctorConsultsChartInstance.data.labels = chartLabels;
+            doctorConsultsChartInstance.data.datasets[0].data = chartData;
+            doctorConsultsChartInstance.data.datasets[0].backgroundColor = chartBgColor;
+            doctorConsultsChartInstance.data.datasets[0].borderRadius = chartBorderRadius;
+            doctorConsultsChartInstance.update();
+        } else {
+            doctorConsultsChartInstance = new Chart(canvas, {
+                type: chartType,
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Consultation Load',
+                        data: chartData,
+                        backgroundColor: chartBgColor,
+                        borderColor: '#3b82f6',
+                        borderWidth: 2.5,
+                        fill: true,
+                        borderRadius: chartBorderRadius
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true }, x: { grid: { display: false } } }
+                }
+            });
+        }
     }
 
     // 2. Patient Demographics Doughnut Chart
@@ -3583,15 +3828,15 @@ window.selectSpecimenForEntry = function(requestId) {
 
             if (req.status === 'pending') {
                 statusClass = 'bg-warning text-dark';
-                actionBtnHtml = `<button type="button" class="btn btn-sm btn-primary text-white" onclick="window.advanceLabStatusFromWorksheet('${req.id}', 'registered')"><i class="fa-solid fa-check me-1"></i>Accept Specimen</button>`;
+                actionBtnHtml = `<button type="button" class="btn btn-sm btn-primary text-white" onclick="window.advanceLabStatusFromWorksheet(this, '${req.id}', 'registered')"><i class="fa-solid fa-check me-1"></i>Accept Specimen</button>`;
             } else if (req.status === 'registered' || req.status === 'accepted') {
                 statusText = 'ACCEPTED';
                 statusClass = 'bg-info text-white';
-                actionBtnHtml = `<button type="button" class="btn btn-sm btn-success text-white" onclick="window.advanceLabStatusFromWorksheet('${req.id}', 'sample_collected')"><i class="fa-solid fa-vial me-1"></i>Collect Sample</button>`;
+                actionBtnHtml = `<button type="button" class="btn btn-sm btn-success text-white" onclick="window.advanceLabStatusFromWorksheet(this, '${req.id}', 'sample_collected')"><i class="fa-solid fa-vial me-1"></i>Collect Sample</button>`;
             } else if (req.status === 'sample_collected') {
                 statusText = 'SAMPLE DRAWN';
                 statusClass = 'bg-primary text-white';
-                actionBtnHtml = `<button type="button" class="btn btn-sm btn-warning text-dark" onclick="window.advanceLabStatusFromWorksheet('${req.id}', 'processing')"><i class="fa-solid fa-gear me-1"></i>Start Processing</button>`;
+                actionBtnHtml = `<button type="button" class="btn btn-sm btn-warning text-dark" onclick="window.advanceLabStatusFromWorksheet(this, '${req.id}', 'processing')"><i class="fa-solid fa-gear me-1"></i>Start Processing</button>`;
             } else if (req.status === 'processing') {
                 statusClass = 'bg-purple text-white';
                 actionBtnHtml = `<span class="text-muted font-size-xs"><i class="fa-solid fa-keyboard me-1"></i>Enter parameter results below</span>`;
@@ -3621,26 +3866,60 @@ window.selectSpecimenForEntry = function(requestId) {
         container.innerHTML = '';
         const params = getParametersForTest(req.testName);
 
-        // Retrieve draft if saved
+        const isCompleted = req.status === 'completed';
+
+        // Retrieve draft or completed results
         const draftStr = localStorage.getItem('draft_' + req.id);
         const draft = draftStr ? JSON.parse(draftStr) : null;
-        if (draft && draft.comments) {
+        if (isCompleted) {
+            document.getElementById('entry-tech-comments').value = req.techComments || '';
+        } else if (draft && draft.comments) {
             document.getElementById('entry-tech-comments').value = draft.comments;
         } else {
             document.getElementById('entry-tech-comments').value = req.techComments || '';
         }
 
+        // Disable textarea & dropzone if completed
+        const commentsArea = document.getElementById('entry-tech-comments');
+        if (commentsArea) commentsArea.disabled = isCompleted;
+
+        const fileInput = document.getElementById('lab-file-input');
+        if (fileInput) fileInput.disabled = isCompleted;
+
+        const uploadDropzone = document.getElementById('lab-upload-dropzone');
+        if (uploadDropzone) {
+            if (isCompleted) {
+                uploadDropzone.style.pointerEvents = 'none';
+                uploadDropzone.style.opacity = '0.5';
+            } else {
+                uploadDropzone.style.pointerEvents = 'auto';
+                uploadDropzone.style.opacity = '1';
+            }
+        }
+
+        // Disable Save Draft and Compile & Release buttons if completed
+        const formButtons = document.querySelectorAll('#lab-entry-form button');
+        formButtons.forEach(btn => {
+            if (btn.innerText.includes('Save Draft') || btn.innerText.includes('Compile & Release')) {
+                btn.disabled = isCompleted;
+            }
+        });
+
         params.forEach((p, idx) => {
             let val = '';
-            if (draft && draft.results && draft.results[idx]) {
+            if (isCompleted && req.results && req.results[idx]) {
+                val = req.results[idx].value;
+            } else if (draft && draft.results && draft.results[idx]) {
                 val = draft.results[idx].value;
+            } else if (req.results && req.results[idx]) {
+                val = req.results[idx].value;
             }
             
             container.innerHTML += `
             <tr class="dynamic-param-row">
                 <td><span class="fw-semibold font-size-xs param-name">${p.name}</span></td>
                 <td>
-                    <input type="number" step="0.01" class="form-control form-control-sm param-value" placeholder="Result Value" value="${val}" oninput="window.interpretParamValue(this, '${p.range}')" required>
+                    <input type="number" step="0.01" class="form-control form-control-sm param-value" placeholder="Result Value" value="${val}" oninput="window.interpretParamValue(this, '${p.range}')" required ${isCompleted ? 'disabled' : ''}>
                 </td>
                 <td><span class="text-muted font-size-xs param-unit">${p.unit}</span></td>
                 <td><span class="text-secondary font-size-xs param-range">${p.range}</span></td>
@@ -3648,7 +3927,7 @@ window.selectSpecimenForEntry = function(requestId) {
             </tr>`;
         });
 
-        // Trigger interpretation if value is restored from draft
+        // Trigger interpretation if value is restored
         document.querySelectorAll('#dynamic-param-rows .param-value').forEach(input => {
             if (input.value) {
                 input.dispatchEvent(new Event('input'));
@@ -4091,32 +4370,7 @@ function renderAdminDashboard() {
         }
     }
 
-    // Populate dashboard audit logs
-    const auditsTable = document.getElementById('admin-dashboard-audits-list');
-    if (auditsTable) {
-        const audits = getDB('audits') || [];
-        if (audits.length === 0) {
-            auditsTable.innerHTML = `<tr><td colspan="5" class="text-center text-muted font-size-xxs py-3">No system audits found.</td></tr>`;
-        } else {
-            let html = '';
-            audits.slice(0, 8).forEach(log => {
-                let badgeClass = 'bg-secondary';
-                if (log.flag === 'SECURE' || log.flag === 'SUCCESS') badgeClass = 'bg-success';
-                if (log.flag === 'WARNING') badgeClass = 'bg-warning text-dark';
-                if (log.flag === 'DANGER' || log.flag === 'CRITICAL') badgeClass = 'bg-danger';
 
-                html += `
-                <tr>
-                    <td><code class="font-size-xxxxs">${log.timestamp || '--'}</code></td>
-                    <td><span class="badge ${badgeClass} font-size-xxxxs py-0.5 px-1.5 rounded-pill">${log.flag || 'INFO'}</span></td>
-                    <td><span class="badge bg-secondary-subtle text-secondary font-size-xxxxs">${log.module || 'SYSTEM'}</span></td>
-                    <td class="text-truncate font-size-xxs" style="max-width: 220px;" title="${log.action}"><strong>${log.action}</strong></td>
-                    <td><code class="font-size-xxxxs">${log.initiator}</code></td>
-                </tr>`;
-            });
-            auditsTable.innerHTML = html;
-        }
-    }
 
     // Load dynamic dashboard analytics console charts
     if (typeof window.renderAdminDashboardCharts === 'function') {
@@ -4125,7 +4379,7 @@ function renderAdminDashboard() {
 }
 
 window.renderAdminDashboardCharts = function() {
-    // 1. Patient Volume
+    // 1. Patient Growth (M-o-M)
     const ctxVol = document.getElementById('chartPatientVolumeAdmin');
     if (ctxVol) {
         if (window.chartPatientVolumeAdminInst) window.chartPatientVolumeAdminInst.destroy();
@@ -4137,20 +4391,34 @@ window.renderAdminDashboardCharts = function() {
                     label: 'Registrations',
                     data: [15, 20, 25, 30, 28, 35, 40, 38, 42, 48, 45, 55],
                     borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                    backgroundColor: 'rgba(16, 185, 129, 0.04)',
                     fill: true,
-                    tension: 0.3
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart'
+                },
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(0, 0, 0, 0.04)' }, beginAtZero: true },
+                    x: { grid: { display: false } }
+                }
             }
         });
     }
 
-    // 2. Consultations
+    // 2. Appointment Statistics
     const ctxCons = document.getElementById('chartConsultationsAdmin');
     if (ctxCons) {
         if (window.chartConsultationsAdminInst) window.chartConsultationsAdminInst.destroy();
@@ -4162,13 +4430,22 @@ window.renderAdminDashboardCharts = function() {
                     label: 'Consultations',
                     data: [120, 150, 180, 220, 200, 250, 280, 240, 260, 310, 290, 350],
                     backgroundColor: '#3b82f6',
-                    borderRadius: 4
+                    borderRadius: 5,
+                    hoverBackgroundColor: '#2563eb'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart'
+                },
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(0, 0, 0, 0.04)' }, beginAtZero: true },
+                    x: { grid: { display: false } }
+                }
             }
         });
     }
@@ -4192,6 +4469,10 @@ window.renderAdminDashboardCharts = function() {
                 indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart'
+                },
                 plugins: { legend: { display: false } }
             }
         });
@@ -4210,6 +4491,7 @@ window.renderAdminDashboardCharts = function() {
                         label: 'Total Revenue ($)',
                         data: [4200, 4800, 5100, 5800, 5400, 6200, 6800, 6500, 7100, 7800, 7400, 8500],
                         borderColor: '#10b981',
+                        borderWidth: 3,
                         fill: false,
                         tension: 0.3
                     },
@@ -4217,6 +4499,7 @@ window.renderAdminDashboardCharts = function() {
                         label: 'Lab Services ($)',
                         data: [1500, 1700, 1900, 2100, 2000, 2200, 2500, 2400, 2600, 2800, 2700, 3100],
                         borderColor: '#f59e0b',
+                        borderWidth: 2.5,
                         fill: false,
                         tension: 0.3
                     }
@@ -4225,6 +4508,10 @@ window.renderAdminDashboardCharts = function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart'
+                },
                 plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } }
             }
         });
@@ -4246,6 +4533,10 @@ window.renderAdminDashboardCharts = function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart'
+                },
                 plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } }
             }
         });
@@ -4260,9 +4551,33 @@ function renderAdminUserTable() {
     let html = '';
     users.forEach(u => {
         const deptText = u.department || 'None / General';
-        const statusBadge = u.status === 'Suspended' 
+        let statusBadge = u.status === 'Suspended' 
             ? `<span class="badge bg-danger px-2 py-1">Suspended</span>` 
             : `<span class="badge bg-success px-2 py-1">Active</span>`;
+
+        if (u.role === 'doctor') {
+            const doctors = getDB('doctors') || [];
+            const docProfile = doctors.find(d => d.email === u.email || (d.user && d.user.email === u.email));
+            if (docProfile) {
+                const leaves = getDB('leaves') || [];
+                const todayStr = new Date().toISOString().split('T')[0];
+                const isOnLeave = leaves.some(l => {
+                    const isDocMatch = l.doctorId === docProfile.id || l.staffName === docProfile.name || (l.doctorName && l.doctorName.toLowerCase().includes(docProfile.name.toLowerCase()));
+                    const statusApproved = l.status && l.status.toLowerCase() === 'approved';
+                    let start = l.startDate;
+                    let end = l.endDate;
+                    if (l.dates && l.dates.includes(' to ')) {
+                        const parts = l.dates.split(' to ');
+                        start = parts[0];
+                        end = parts[1];
+                    }
+                    return isDocMatch && statusApproved && todayStr >= start && todayStr <= end;
+                });
+                if (isOnLeave) {
+                    statusBadge = `<span class="badge bg-warning text-dark px-2 py-1">On Leave</span>`;
+                }
+            }
+        }
 
         html += `
         <tr>
@@ -4450,7 +4765,8 @@ async function renderAdminAnalyticsCharts() {
         completedConsultations: 154,
         pendingConsultations: 6,
         avgWaitingTime: "18 mins",
-        monthlyRevenue: "$2,450.00"
+        monthlyRevenue: "$2,450.00",
+        totalLabTests: getDB('lab_requests').length || 18
     };
     let consultationsByMonth = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -4516,14 +4832,14 @@ async function renderAdminAnalyticsCharts() {
     const cardCompleted = document.getElementById('report-card-completed-consults');
     const cardPending = document.getElementById('report-card-pending-consults');
     const cardWait = document.getElementById('report-card-wait-time');
-    const cardRevenue = document.getElementById('report-card-monthly-revenue');
+    const cardLabs = document.getElementById('report-card-total-labs');
 
     if (cardToday) cardToday.innerText = stats.todayConsultations;
     if (cardPatients) cardPatients.innerText = stats.totalPatients;
     if (cardCompleted) cardCompleted.innerText = stats.completedConsultations;
     if (cardPending) cardPending.innerText = stats.pendingConsultations;
     if (cardWait) cardWait.innerText = stats.avgWaitingTime;
-    if (cardRevenue) cardRevenue.innerText = stats.monthlyRevenue;
+    if (cardLabs) cardLabs.innerText = stats.totalLabTests !== undefined ? stats.totalLabTests : (getDB('lab_requests').length || 18);
 
     // 1. Consultations by Month
     const ctxMonthly = document.getElementById('chartConsultationsByMonth');
@@ -5873,6 +6189,25 @@ window.advanceLabStatus = async function (reqId, newStatus) {
     if (req) {
         req.status = newStatus;
         setDB('lab_requests', requests);
+
+        // Switch the dropdown filter and decide if we rebuild or update the row card directly
+        const filterSelect = document.getElementById('lab-queue-status-filter');
+        let filterChanged = false;
+        if (filterSelect) {
+            const oldFilter = filterSelect.value;
+            let targetFilter = 'pending';
+            if (['registered', 'accepted', 'sample_collected', 'sample_received'].includes(newStatus)) {
+                targetFilter = 'accepted';
+            } else if (['processing', 'results_ready'].includes(newStatus)) {
+                targetFilter = 'processing';
+            } else if (newStatus === 'completed') {
+                targetFilter = 'completed';
+            }
+            if (oldFilter !== targetFilter) {
+                filterSelect.value = targetFilter;
+                filterChanged = true;
+            }
+        }
         
         if (!ApiService.useMock) {
             try {
@@ -5892,13 +6227,52 @@ window.advanceLabStatus = async function (reqId, newStatus) {
         renderLabRequests();
         renderLabDashboardCharts();
         updateLabTechStats();
-        if (window.renderSpecimenQueue) window.renderSpecimenQueue();
+
+        if (filterChanged) {
+            if (window.renderSpecimenQueue) window.renderSpecimenQueue();
+        } else {
+            // Update the single row card DOM directly
+            const card = document.getElementById(`specimen-card-${reqId}`);
+            if (card) {
+                let statusText = 'Pending';
+                let statusClass = 'bg-secondary';
+                if (newStatus === 'sample_collected') { statusText = 'Sample Drawn'; statusClass = 'bg-warning text-dark'; }
+                if (newStatus === 'sample_received') { statusText = 'Received'; statusClass = 'bg-info text-dark'; }
+                if (newStatus === 'processing') { statusText = 'Processing'; statusClass = 'bg-primary'; }
+                if (newStatus === 'results_ready') { statusText = 'Awaiting Verify'; statusClass = 'bg-success'; }
+                if (newStatus === 'registered' || newStatus === 'accepted') { statusText = 'Accepted'; statusClass = 'bg-info text-white'; }
+
+                const badge = card.querySelector('.mt-1 .badge') || card.querySelector('span:last-child');
+                if (badge) {
+                    badge.className = `badge ${statusClass} font-size-xxs py-0.5 px-1.5`;
+                    badge.innerText = statusText;
+                }
+            }
+        }
     }
 };
 
-window.advanceLabStatusFromWorksheet = async function (reqId, newStatus) {
-    await window.advanceLabStatus(reqId, newStatus);
-    if (window.selectSpecimenForEntry) window.selectSpecimenForEntry(reqId);
+window.advanceLabStatusFromWorksheet = async function (btn, reqId, newStatus) {
+    if (btn && btn.disabled) return;
+    if (btn) {
+        btn.disabled = true;
+        btn.dataset.originalHtml = btn.innerHTML;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1.5"></i>Processing...`;
+    }
+
+    try {
+        await window.advanceLabStatus(reqId, newStatus);
+        if (window.selectSpecimenForEntry) window.selectSpecimenForEntry(reqId);
+    } catch (err) {
+        console.error("Workflow transition failed:", err);
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            if (btn.dataset.originalHtml) {
+                btn.innerHTML = btn.dataset.originalHtml;
+            }
+        }
+    }
 };
 
 // --- DOMContentLoaded Routing and Listeners ---
@@ -5936,6 +6310,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Initial broadcast notification check
         window.checkBroadcastNotifications();
+        
+        // Initialize Global Floating AI Assistant widget
+        if (window.AIAssistantService) {
+            window.AIAssistantService.init();
+        }
 
         // Helper function to trigger updates when storage or sync event occurs
         window.triggerDashboardSyncUpdate = function () {
@@ -5969,6 +6348,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderPatientAppointments(patient);
                     renderPatientVisits(patient);
                     renderPatientFiles(patient);
+                    if (window.SmartwatchService) {
+                        window.SmartwatchService.init(patient);
+                    }
                 }
             } else if (currentPageRole === 'admin') {
                 renderAdminDashboard();
@@ -7378,7 +7760,7 @@ window.renderAdminApprovals = function() {
     if (!container) return;
 
     const users = getDB('users') || [];
-    const pendings = users.filter(u => u.status === 'Pending' || u.status === 'pending');
+    const pendings = users.filter(u => u.status === 'Pending' || u.status === 'pending' || u.is_active === false);
 
     if (badge) badge.innerText = pendings.length;
 
@@ -7517,13 +7899,13 @@ window.toggleVerification = function(email, type) {
     }
 };
 
-window.renderAdminLeaves = function() {
+window.renderAdminLeaves = async function() {
     const container = document.getElementById('admin-leaves-list');
     if (!container) return;
 
-    // Seed mock leaves if empty
+    // Seed mock leaves if empty and using mock
     let leaves = getDB('leaves') || [];
-    if (leaves.length === 0) {
+    if (leaves.length === 0 && ApiService.useMock) {
         leaves = [
             { id: 'LV-3921', staffName: 'Dr. Sarah Connor', role: 'doctor', dates: '2026-07-02 to 2026-07-05', reason: 'Medical Conference Attendance', status: 'pending' },
             { id: 'LV-3922', staffName: 'Alex Mercer', role: 'labtech', dates: '2026-07-10 to 2026-07-11', reason: 'Personal Family Leave', status: 'pending' },
@@ -7533,28 +7915,56 @@ window.renderAdminLeaves = function() {
         setDB('leaves', leaves);
     }
 
-    // Update leaves stats widgets
-    const totalCount = leaves.length;
-    const pendingCount = leaves.filter(l => l.status === 'pending' || l.status === 'Pending').length;
-    const approvedCount = leaves.filter(l => l.status.toLowerCase() === 'approved').length;
-    const rejectedCount = leaves.filter(l => l.status.toLowerCase() === 'rejected').length;
-
-    const elTotal = document.getElementById('leaves-stat-total');
-    const elPending = document.getElementById('leaves-stat-pending');
-    const elApproved = document.getElementById('leaves-stat-approved');
-    const elRejected = document.getElementById('leaves-stat-rejected');
-
-    if (elTotal) elTotal.innerText = totalCount;
-    if (elPending) elPending.innerText = pendingCount;
-    if (elApproved) elApproved.innerText = approvedCount;
-    if (elRejected) elRejected.innerText = rejectedCount;
-
-    // Determine current filter status
     const filter = window.adminLeavesFilter || 'pending';
-    
-    let filteredLeaves = leaves;
-    if (filter !== 'all') {
-        filteredLeaves = leaves.filter(l => l.status.toLowerCase() === filter);
+    let filteredLeaves = [];
+
+    if (!ApiService.useMock) {
+        try {
+            // 1. Fetch all leaves to calculate precise statistics counters
+            const allLeaves = await ApiService._request('/leaves/');
+            setDB('leaves', allLeaves);
+
+            const totalCount = allLeaves.length;
+            const pendingCount = allLeaves.filter(l => l.status.toLowerCase() === 'pending').length;
+            const approvedCount = allLeaves.filter(l => l.status.toLowerCase() === 'approved').length;
+            const rejectedCount = allLeaves.filter(l => l.status.toLowerCase() === 'rejected').length;
+
+            const elTotal = document.getElementById('leaves-stat-total');
+            const elPending = document.getElementById('leaves-stat-pending');
+            const elApproved = document.getElementById('leaves-stat-approved');
+            const elRejected = document.getElementById('leaves-stat-rejected');
+
+            if (elTotal) elTotal.innerText = totalCount;
+            if (elPending) elPending.innerText = pendingCount;
+            if (elApproved) elApproved.innerText = approvedCount;
+            if (elRejected) elRejected.innerText = rejectedCount;
+
+            // 2. Fetch filtered leaves from the backend using query parameter
+            const url = filter === 'all' ? '/leaves/' : `/leaves/?status=${filter}`;
+            filteredLeaves = await ApiService._request(url);
+        } catch (err) {
+            console.error("Failed to fetch leaves from backend:", err);
+            const localLeaves = getDB('leaves') || [];
+            filteredLeaves = filter === 'all' ? localLeaves : localLeaves.filter(l => l.status.toLowerCase() === filter);
+        }
+    } else {
+        const localLeaves = getDB('leaves') || [];
+        const totalCount = localLeaves.length;
+        const pendingCount = localLeaves.filter(l => l.status.toLowerCase() === 'pending').length;
+        const approvedCount = localLeaves.filter(l => l.status.toLowerCase() === 'approved').length;
+        const rejectedCount = localLeaves.filter(l => l.status.toLowerCase() === 'rejected').length;
+
+        const elTotal = document.getElementById('leaves-stat-total');
+        const elPending = document.getElementById('leaves-stat-pending');
+        const elApproved = document.getElementById('leaves-stat-approved');
+        const elRejected = document.getElementById('leaves-stat-rejected');
+
+        if (elTotal) elTotal.innerText = totalCount;
+        if (elPending) elPending.innerText = pendingCount;
+        if (elApproved) elApproved.innerText = approvedCount;
+        if (elRejected) elRejected.innerText = rejectedCount;
+
+        filteredLeaves = filter === 'all' ? localLeaves : localLeaves.filter(l => l.status.toLowerCase() === filter);
     }
 
     container.innerHTML = '';
@@ -7567,14 +7977,22 @@ window.renderAdminLeaves = function() {
         const statusClass = l.status === 'pending' || l.status === 'Pending' ? 'bg-warning-subtle text-warning border border-warning-subtle' : (l.status.toLowerCase() === 'approved' ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-danger-subtle text-danger border border-danger-subtle');
         const statusLabel = l.status.charAt(0).toUpperCase() + l.status.slice(1);
         
+        // Extract dates/staff info cleanly
+        const staffName = l.staffName || l.doctorName || 'Staff Member';
+        const role = l.role || 'doctor';
+        let datesText = l.dates;
+        if (!datesText && l.startDate && l.endDate) {
+            datesText = `${l.startDate} to ${l.endDate}`;
+        }
+        
         container.innerHTML += `
         <tr>
             <td>
-                <div class="fw-bold text-dark">${l.staffName}</div>
-                <div class="text-muted font-size-xxs">${l.role.toUpperCase()}</div>
+                <div class="fw-bold text-dark">${staffName}</div>
+                <div class="text-muted font-size-xxs">${role.toUpperCase()}</div>
             </td>
-            <td><code>${l.dates}</code></td>
-            <td class="font-size-xs text-secondary">${l.reason}</td>
+            <td><code>${datesText || 'N/A'}</code></td>
+            <td class="font-size-xs text-secondary">${l.reason || 'No reason provided'}</td>
             <td><span class="badge ${statusClass} font-size-xxs">${statusLabel}</span></td>
             <td>
                 ${l.status === 'pending' || l.status === 'Pending' ? `
@@ -8133,3 +8551,869 @@ window.checkBroadcastNotifications = function () {
         </div>`;
     }).join('');
 };
+
+// ==========================================
+// 9. SMART WATCH & HEALTH DEVICE SERVICE
+// ==========================================
+
+window.SmartwatchService = {
+    activeDevice: null,
+    historyData: [],
+    trendInterval: 'daily',
+    chartInstance: null,
+    activePatient: null,
+
+    init: function (patient) {
+        this.activePatient = patient;
+        
+        if (!ApiService.useMock && patient.smartwatchDevice) {
+            this.activeDevice = patient.smartwatchDevice;
+            this.historyData = patient.smartwatchDataHistory || [];
+        } else {
+            const localDevice = JSON.parse(localStorage.getItem('sw_device_' + patient.id));
+            const localHistory = JSON.parse(localStorage.getItem('sw_history_' + patient.id)) || [];
+            
+            if (localDevice) {
+                this.activeDevice = localDevice;
+                this.historyData = localHistory;
+            } else {
+                this.activeDevice = null;
+                this.historyData = [];
+            }
+        }
+
+        const bellBtn = document.querySelector('.header-notification-btn');
+        if (bellBtn) {
+            const newBellBtn = bellBtn.cloneNode(true);
+            bellBtn.parentNode.replaceChild(newBellBtn, bellBtn);
+            newBellBtn.addEventListener('click', () => {
+                this.showNotificationAlerts();
+            });
+        }
+
+        this.renderDashboard();
+        this.updateNotificationBadge();
+    },
+
+    connectDevice: async function (deviceType) {
+        if (!this.activePatient) return;
+        
+        try {
+            const device = await ApiService.connectSmartwatch(this.activePatient.id, deviceType);
+            this.activeDevice = device;
+            
+            if (ApiService.useMock) {
+                localStorage.setItem('sw_device_' + this.activePatient.id, JSON.stringify(device));
+            }
+            
+            Toast.success(`Connected to ${deviceType} successfully!`);
+            
+            this.generateMockHistory();
+            this.syncDeviceData();
+        } catch (err) {
+            Toast.error("Failed to connect wearable: " + err.message);
+        }
+    },
+
+    disconnectDevice: async function () {
+        if (!this.activePatient) return;
+        
+        if (confirm("Are you sure you want to disconnect your smartwatch?")) {
+            try {
+                await ApiService.disconnectSmartwatch(this.activePatient.id);
+                this.activeDevice = null;
+                this.historyData = [];
+                
+                if (ApiService.useMock) {
+                    localStorage.removeItem('sw_device_' + this.activePatient.id);
+                    localStorage.removeItem('sw_history_' + this.activePatient.id);
+                }
+                
+                Toast.success("Smartwatch disconnected.");
+                this.renderDashboard();
+                this.updateNotificationBadge();
+            } catch (err) {
+                Toast.error("Failed to disconnect: " + err.message);
+            }
+        }
+    },
+
+    generateMockHistory: function () {
+        const history = [];
+        const today = new Date();
+        
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(today.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            
+            const hr = Math.floor(Math.random() * 25) + 65;
+            const sys = Math.floor(Math.random() * 20) + 115;
+            const dia = Math.floor(Math.random() * 12) + 75;
+            const spo2 = Math.floor(Math.random() * 4) + 96;
+            const steps = Math.floor(Math.random() * 8000) + 3000;
+            const calories = Math.floor(steps * 0.045);
+            const sleep = parseFloat((Math.random() * 3 + 5.5).toFixed(1));
+            const dist = parseFloat((steps * 0.00075).toFixed(2));
+            
+            history.push({
+                date: dateStr,
+                heartRate: hr,
+                bpSystolic: sys,
+                bpDiastolic: dia,
+                spo2: spo2,
+                steps: steps,
+                calories: calories,
+                sleepDuration: sleep,
+                distance: dist
+            });
+        }
+        this.historyData = history;
+        if (ApiService.useMock) {
+            localStorage.setItem('sw_history_' + this.activePatient.id, JSON.stringify(history));
+        }
+    },
+
+    syncDeviceData: async function () {
+        if (!this.activePatient || !this.activeDevice) return;
+        
+        const syncBtn = document.getElementById('btn-sw-sync');
+        if (syncBtn) {
+            const icon = syncBtn.querySelector('i');
+            if (icon) icon.classList.add('fa-spin');
+            syncBtn.disabled = true;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 1200));
+
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        const isWarning = Math.random() < 0.35;
+        let hr = 74, sys = 120, dia = 80, spo2 = 98, steps = 8420, sleep = 7.2;
+        
+        if (isWarning) {
+            const type = Math.floor(Math.random() * 4);
+            if (type === 0) {
+                hr = Math.floor(Math.random() * 15) + 102;
+                Toast.warning("Alert: High heart rate detected!");
+            } else if (type === 1) {
+                spo2 = Math.floor(Math.random() * 3) + 91;
+                Toast.warning("Alert: Low SpO2 level detected!");
+            } else if (type === 2) {
+                sys = Math.floor(Math.random() * 12) + 138;
+                dia = Math.floor(Math.random() * 6) + 91;
+                Toast.warning("Alert: Elevated blood pressure detected!");
+            } else {
+                sleep = parseFloat((Math.random() * 1.5 + 4).toFixed(1));
+                Toast.warning("Alert: Poor sleep quality recorded.");
+            }
+        } else {
+            hr = Math.floor(Math.random() * 15) + 68;
+            sys = Math.floor(Math.random() * 10) + 116;
+            dia = Math.floor(Math.random() * 6) + 76;
+            spo2 = Math.floor(Math.random() * 2) + 98;
+            steps = Math.floor(Math.random() * 4000) + 7500;
+            sleep = parseFloat((Math.random() * 1.5 + 7).toFixed(1));
+        }
+
+        const calories = Math.floor(steps * 0.046);
+        const dist = parseFloat((steps * 0.0008).toFixed(2));
+        const battery = Math.max(15, this.activeDevice.batteryLevel - Math.floor(Math.random() * 8));
+
+        const syncPayload = {
+            date: todayStr,
+            heartRate: hr,
+            bpSystolic: sys,
+            bpDiastolic: dia,
+            spo2: spo2,
+            steps: steps,
+            calories: calories,
+            sleepDuration: sleep,
+            distance: dist,
+            batteryLevel: battery
+        };
+
+        try {
+            const updatedPatient = await ApiService.syncSmartwatch(this.activePatient.id, syncPayload);
+            
+            if (!ApiService.useMock) {
+                this.activeDevice = updatedPatient.smartwatchDevice;
+                this.historyData = updatedPatient.smartwatchDataHistory || [];
+            } else {
+                this.activeDevice.batteryLevel = battery;
+                this.activeDevice.lastSync = new Date().toISOString();
+                localStorage.setItem('sw_device_' + this.activePatient.id, JSON.stringify(this.activeDevice));
+                
+                const todayIdx = this.historyData.findIndex(h => h.date === todayStr);
+                if (todayIdx !== -1) {
+                    this.historyData[todayIdx] = syncPayload;
+                } else {
+                    this.historyData.unshift(syncPayload);
+                }
+                localStorage.setItem('sw_history_' + this.activePatient.id, JSON.stringify(this.historyData));
+                
+                const patients = getDB('patients');
+                const pIdx = patients.findIndex(p => p.id === this.activePatient.id);
+                if (pIdx !== -1) {
+                    patients[pIdx].smartwatchDevice = this.activeDevice;
+                    patients[pIdx].smartwatchDataHistory = this.historyData;
+                    setDB('patients', patients);
+                }
+            }
+
+            Toast.success("Wearable synchronization complete!");
+            
+            ApiService.addAuditLog(
+                'patients',
+                this.activePatient.email,
+                `Smartwatch synchronized successfully. Battery: ${battery}%. Steps: ${steps.toLocaleString()}`
+            );
+            
+            this.renderDashboard();
+            this.updateNotificationBadge();
+        } catch (err) {
+            Toast.error("Synchronization failed: " + err.message);
+        } finally {
+            if (syncBtn) {
+                const icon = syncBtn.querySelector('i');
+                if (icon) icon.classList.remove('fa-spin');
+                syncBtn.disabled = false;
+            }
+        }
+    },
+
+    changeTrendInterval: function (interval) {
+        this.trendInterval = interval;
+        document.querySelectorAll('#panel-smartwatch .btn-group button').forEach(b => b.classList.remove('active'));
+        document.getElementById(`sw-trend-${interval}`).classList.add('active');
+        this.renderCharts();
+    },
+
+    renderDashboard: function () {
+        const dev = this.activeDevice;
+        const isConn = dev && dev.isConnected;
+
+        const deviceNameEl = document.getElementById('sw-device-name');
+        const connBadgeEl = document.getElementById('sw-connection-status');
+        const batteryWrapper = document.getElementById('sw-battery-wrapper');
+        const batteryLvlEl = document.getElementById('sw-battery-level');
+        const lastSyncWrapper = document.getElementById('sw-last-sync-wrapper');
+
+        const btnDisconnect = document.getElementById('btn-sw-disconnect');
+        const btnSync = document.getElementById('btn-sw-sync');
+        const dropConnect = document.getElementById('dropdown-sw-connect');
+
+        if (!deviceNameEl) return;
+
+        if (isConn) {
+            deviceNameEl.innerText = dev.deviceName;
+            connBadgeEl.innerText = "Connected";
+            connBadgeEl.className = "badge bg-success";
+            
+            batteryWrapper.style.display = "";
+            batteryLvlEl.innerText = dev.batteryLevel;
+            
+            const lastSyncDate = new Date(dev.lastSync);
+            lastSyncWrapper.innerHTML = `<i class="fa-solid fa-clock text-primary me-1"></i>Synced: ${lastSyncDate.toLocaleTimeString()}`;
+
+            btnDisconnect.style.display = "";
+            btnSync.style.display = "";
+            dropConnect.style.display = "none";
+
+            if (this.historyData.length > 0) {
+                const latest = this.historyData[0];
+                document.getElementById('sw-card-hr').innerHTML = `${latest.heartRate} <span class="font-size-xs text-muted">bpm</span>`;
+                document.getElementById('sw-card-bp').innerHTML = `${latest.bpSystolic}/${latest.bpDiastolic} <span class="font-size-xs text-muted">mmHg</span>`;
+                document.getElementById('sw-card-spo2').innerHTML = `${latest.spo2} <span class="font-size-xs text-muted">%</span>`;
+                document.getElementById('sw-card-steps').innerHTML = `${latest.steps.toLocaleString()} <span class="font-size-xs text-muted">steps</span>`;
+                document.getElementById('sw-card-calories').innerHTML = `${latest.calories} <span class="font-size-xs text-muted">kcal</span>`;
+                document.getElementById('sw-card-sleep').innerHTML = `${latest.sleepDuration} <span class="font-size-xs text-muted">hrs</span>`;
+                document.getElementById('sw-card-distance').innerHTML = `${latest.distance} <span class="font-size-xs text-muted">km</span>`;
+                document.getElementById('sw-card-battery').innerHTML = `${dev.batteryLevel} <span class="font-size-xs text-muted">%</span>`;
+
+                const batIconWrapper = document.getElementById('sw-battery-icon-wrapper');
+                if (batIconWrapper) {
+                    if (dev.batteryLevel > 75) batIconWrapper.innerHTML = '<i class="fa-solid fa-battery-full text-success"></i>';
+                    else if (dev.batteryLevel > 40) batIconWrapper.innerHTML = '<i class="fa-solid fa-battery-three-quarters text-success"></i>';
+                    else if (dev.batteryLevel > 20) batIconWrapper.innerHTML = '<i class="fa-solid fa-battery-quarter text-warning"></i>';
+                    else batIconWrapper.innerHTML = '<i class="fa-solid fa-battery-empty text-danger animate-pulse"></i>';
+                }
+
+                document.getElementById('sw-card-hr-desc').innerText = latest.heartRate > 100 ? "High heart rate warning" : "Normal sinus rhythm";
+                document.getElementById('sw-card-bp-desc').innerText = latest.bpSystolic > 135 ? "Stage 1 Hypertension" : "Normal pressure range";
+                document.getElementById('sw-card-spo2-desc').innerText = latest.spo2 < 95 ? "Mild Hypoxia warning" : "Excellent oxygen levels";
+                document.getElementById('sw-card-steps-desc').innerText = latest.steps >= 10000 ? "Goal of 10,000 steps reached! 🎉" : `${Math.floor(latest.steps/100)}% of step goal`;
+            }
+
+            this.renderAlerts();
+            this.renderTimeline();
+            this.renderCharts();
+        } else {
+            deviceNameEl.innerText = "No Wearable Connected";
+            connBadgeEl.innerText = "Disconnected";
+            connBadgeEl.className = "badge bg-secondary";
+            
+            batteryWrapper.style.display = "none";
+            lastSyncWrapper.innerText = "Sync required";
+
+            btnDisconnect.style.display = "none";
+            btnSync.style.display = "none";
+            dropConnect.style.display = "";
+
+            ['hr', 'bp', 'spo2', 'steps', 'calories', 'sleep', 'distance', 'battery'].forEach(id => {
+                const el = document.getElementById(`sw-card-${id}`);
+                if (el) el.innerHTML = `--`;
+            });
+
+            const alertBox = document.getElementById('sw-alerts-container');
+            if (alertBox) alertBox.innerHTML = '';
+
+            const timelineBox = document.getElementById('sw-sync-timeline');
+            if (timelineBox) timelineBox.innerHTML = '<p class="text-muted font-size-sm">No recent wearable events synced.</p>';
+
+            if (this.chartInstance) {
+                this.chartInstance.destroy();
+                this.chartInstance = null;
+            }
+        }
+    },
+
+    renderAlerts: function () {
+        const container = document.getElementById('sw-alerts-container');
+        if (!container || this.historyData.length === 0) return;
+
+        const latest = this.historyData[0];
+        const alerts = [];
+
+        if (latest.heartRate > 100) {
+            alerts.push({
+                type: 'danger',
+                icon: 'fa-heart-pulse',
+                title: 'High Heart Rate Detected',
+                desc: `Your smartwatch registered a heart rate of **${latest.heartRate} bpm** during rest. Avoid caffeine and strenuous work. Sit down and relax.`
+            });
+        }
+        if (latest.spo2 < 95) {
+            alerts.push({
+                type: 'warning',
+                icon: 'fa-lungs',
+                title: 'Low Oxygen Saturation',
+                desc: `Your SpO2 oxygen level dropped to **${latest.spo2}%** (target is 95-100%). Ensure deep abdominal breathing. If persistent, seek care.`
+            });
+        }
+        if (latest.bpSystolic > 135 || latest.bpDiastolic > 90) {
+            alerts.push({
+                type: 'danger',
+                icon: 'fa-droplet',
+                title: 'Elevated Blood Pressure Alert',
+                desc: `Blood pressure reading is **${latest.bpSystolic}/${latest.bpDiastolic} mmHg** (pre-hypertension). Minimize sodium and avoid stress.`
+            });
+        }
+        if (latest.sleepDuration < 6.0) {
+            alerts.push({
+                type: 'info',
+                icon: 'fa-bed',
+                title: 'Short Sleep Duration',
+                desc: `You slept for **${latest.sleepDuration} hours** last night, which is below the recommended 7-8 hours. Deep sleep cycle was reduced.`
+            });
+        }
+
+        if (alerts.length === 0) {
+            container.innerHTML = `
+            <div class="alert alert-success d-flex align-items-center gap-3 p-3 rounded-3 border-success-subtle shadow-sm mb-0">
+                <i class="fa-solid fa-circle-check fs-4 text-success"></i>
+                <div>
+                    <h6 class="fw-bold text-success mb-1">All Wearable Vitals Normal</h6>
+                    <p class="mb-0 font-size-xs text-secondary">Your linked device is monitoring continuously. Heart rate, blood pressure, oxygen levels, and sleep cycles are within target parameters.</p>
+                </div>
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = alerts.map(a => `
+        <div class="alert alert-${a.type} sw-alert-item d-flex align-items-center gap-3 p-3 rounded-3 border-${a.type}-subtle shadow-sm mb-2">
+            <i class="fa-solid ${a.icon} fs-4 text-${a.type}"></i>
+            <div class="flex-grow-1">
+                <h6 class="fw-bold text-${a.type} mb-1">${a.title}</h6>
+                <p class="mb-0 font-size-xs text-dark">${a.desc}</p>
+            </div>
+        </div>`).join('');
+    },
+
+    renderTimeline: function () {
+        const container = document.getElementById('sw-sync-timeline');
+        if (!container || this.historyData.length === 0) return;
+
+        const latest = this.historyData[0];
+        
+        const events = [
+            { icon: 'fa-heart-pulse', color: 'text-danger', title: 'Heart rate updated', time: 'Latest Sync', detail: `Heart rate recorded at ${latest.heartRate} bpm.` },
+            { icon: 'fa-bed', color: 'text-indigo', title: 'Sleep report synced', time: 'Last night', detail: `Tracked sleep duration of ${latest.sleepDuration} hours.` },
+            { icon: 'fa-droplet', color: 'text-danger', title: 'Blood pressure recorded', time: 'Latest Sync', detail: `Systolic/Diastolic blood pressure: ${latest.bpSystolic}/${latest.bpDiastolic} mmHg.` },
+            { icon: 'fa-shoe-prints', color: 'text-success', title: 'Daily activity synced', time: 'Today', detail: `Completed ${latest.steps.toLocaleString()} steps walking ${latest.distance} km.` }
+        ];
+
+        container.innerHTML = events.map(ev => `
+        <div class="timeline-event" style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9;">
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <i class="fa-solid ${ev.icon} ${ev.color} font-size-xs"></i>
+                <h6 class="fw-extrabold mb-0 font-size-xs text-dark" style="font-size:0.8rem;">${ev.title}</h6>
+                <span class="text-muted font-size-xs ms-auto" style="font-size: 0.7rem;">${ev.time}</span>
+            </div>
+            <p class="mb-0 font-size-xs text-secondary text-start" style="padding-left:16px;">${ev.detail}</p>
+        </div>`).join('');
+    },
+
+    renderCharts: function () {
+        const ctx = document.getElementById('smartwatchTrendsChart');
+        if (!ctx) return;
+
+        if (this.chartInstance) {
+            this.chartInstance.destroy();
+            this.chartInstance = null;
+        }
+
+        if (this.historyData.length === 0) return;
+
+        let displayData = [];
+        if (this.trendInterval === 'daily') {
+            displayData = this.historyData.slice(0, 7).reverse();
+        } else if (this.trendInterval === 'weekly') {
+            displayData = this.historyData.slice(0, 14).reverse();
+        } else {
+            displayData = this.historyData.slice(0, 30).reverse();
+        }
+
+        const labels = displayData.map(h => h.date);
+        const stepData = displayData.map(h => h.steps);
+        const hrData = displayData.map(h => h.heartRate);
+        const sleepData = displayData.map(h => h.sleepDuration);
+
+        this.chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        type: 'bar',
+                        label: 'Steps Count',
+                        data: stepData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        borderColor: '#10b981',
+                        borderWidth: 1.5,
+                        yAxisID: 'ySteps'
+                    },
+                    {
+                        type: 'line',
+                        label: 'Heart Rate (bpm)',
+                        data: hrData,
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.02)',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        yAxisID: 'yVitals'
+                    },
+                    {
+                        type: 'line',
+                        label: 'Sleep (hrs)',
+                        data: sleepData,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.02)',
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        yAxisID: 'yVitals'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 } }
+                    },
+                    yVitals: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'Heart Rate / Sleep Duration', font: { size: 10, weight: 'bold' } },
+                        min: 0,
+                        max: 130,
+                        grid: { color: '#f1f5f9' },
+                        ticks: { font: { size: 9 } }
+                    },
+                    ySteps: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'Daily Steps', font: { size: 10, weight: 'bold' } },
+                        min: 0,
+                        max: 15000,
+                        grid: { display: false },
+                        ticks: { font: { size: 9 } }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 12, font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    },
+
+    updateNotificationBadge: function () {
+        const badge = document.querySelector('.header-notification-badge');
+        if (!badge) return;
+
+        if (!this.activeDevice || this.historyData.length === 0) {
+            badge.style.display = 'none';
+            return;
+        }
+
+        const latest = this.historyData[0];
+        let alertCount = 0;
+        if (latest.heartRate > 100) alertCount++;
+        if (latest.spo2 < 95) alertCount++;
+        if (latest.bpSystolic > 135 || latest.bpDiastolic > 90) alertCount++;
+        if (latest.sleepDuration < 6.0) alertCount++;
+
+        if (alertCount > 0) {
+            badge.style.display = 'flex';
+            badge.innerText = alertCount;
+            badge.classList.add('bg-danger');
+        } else {
+            badge.style.display = 'none';
+        }
+    },
+
+    showNotificationAlerts: function () {
+        if (!this.activeDevice || this.historyData.length === 0) {
+            Toast.info("You have no new notifications.");
+            return;
+        }
+
+        const latest = this.historyData[0];
+        const alertsList = [];
+
+        if (latest.heartRate > 100) alertsList.push(`❤️ High Heart Rate detected: ${latest.heartRate} bpm.`);
+        if (latest.spo2 < 95) alertsList.push(`🫁 Low Blood Oxygen SpO2: ${latest.spo2}%.`);
+        if (latest.bpSystolic > 135 || latest.bpDiastolic > 90) alertsList.push(`🩸 Elevated Blood Pressure: ${latest.bpSystolic}/${latest.bpDiastolic} mmHg.`);
+        if (latest.sleepDuration < 6.0) alertsList.push(`😴 Poor sleep quantity: ${latest.sleepDuration} hours.`);
+
+        if (alertsList.length === 0) {
+            Toast.info("System Notification: All linked vitals normal.");
+            return;
+        }
+
+        const modalHtml = `
+        <div class="modal fade" id="swNotificationModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow border-0" style="border-radius:16px;">
+                    <div class="modal-header bg-danger text-white py-3" style="border-top-left-radius:16px; border-top-right-radius:16px;">
+                        <h5 class="modal-title fw-bold font-size-md"><i class="fa-solid fa-bell me-2"></i>Active Health Warnings</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-secondary font-size-sm mb-3">Your linked smartwatch has captured readings outside standard safety limits:</p>
+                        <ul class="list-group list-group-flush border-0">
+                            ${alertsList.map(a => `<li class="list-group-item border-0 py-2 font-size-xs fw-semibold text-danger" style="background:#fef2f2; margin-bottom:8px; border-radius:8px;"><i class="fa-solid fa-triangle-exclamation me-2"></i> ${a}</li>`).join('')}
+                        </ul>
+                        <p class="font-size-xs text-muted mt-3 mb-0">*This is an automated analysis. Consult your primary physician if warnings persist.</p>
+                    </div>
+                    <div class="modal-footer py-2 border-top-0">
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Acknowledge</button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+
+        let modalEl = document.getElementById('swNotificationModal');
+        if (modalEl) modalEl.remove();
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        const bsModal = new bootstrap.Modal(document.getElementById('swNotificationModal'));
+        bsModal.show();
+    }
+};
+
+// ==========================================
+// 10. GLOBAL FLOATING AI ASSISTANT SERVICE
+// ==========================================
+
+window.AIAssistantService = {
+    chatWindow: null,
+    chatTrigger: null,
+    chatHistory: [],
+
+    init: function () {
+        const currentUser = AuthService.getCurrentUser();
+        if (!currentUser) return;
+
+        this.injectWidgetMarkup();
+        
+        this.chatTrigger = document.getElementById('ai-chat-trigger');
+        this.chatWindow = document.getElementById('ai-chat-window');
+
+        this.chatTrigger.addEventListener('click', () => this.toggleChat());
+        
+        const input = document.getElementById('ai-chat-input');
+        if (input) {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    this.sendMessage();
+                }
+            });
+        }
+
+        this.renderSuggestions(currentUser.role);
+
+        this.chatHistory = [];
+        this.addMessage(`Hi **${currentUser.name || 'User'}**! I am your **CurePoint AI Assistant** tailormade for the **${currentUser.role.toUpperCase()}** portal. How can I help you today?`, 'assistant');
+    },
+
+    injectWidgetMarkup: function () {
+        const exist = document.getElementById('ai-chat-trigger');
+        if (exist) return;
+
+        const widgetHtml = `
+        <div id="ai-chat-trigger">
+            <i class="fa-solid fa-robot fs-4"></i>
+        </div>
+        <div id="ai-chat-window">
+            <div class="ai-chat-header">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-robot"></i>
+                    <span style="font-size:0.95rem;">CurePoint AI Assistant</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm text-white p-0" onclick="AIAssistantService.minimizeChat()" style="font-size: 0.75rem;"><i class="fa-solid fa-minus"></i></button>
+                    <button class="btn btn-sm text-white p-0" onclick="AIAssistantService.toggleChat()" style="font-size: 0.75rem;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div class="ai-chat-body" id="ai-chat-body-messages">
+            </div>
+            <div class="ai-suggestions-container" id="ai-suggestions-list">
+            </div>
+            <div class="ai-chat-input-area">
+                <input type="text" id="ai-chat-input" class="form-control form-control-sm" placeholder="Ask anything about your portal...">
+                <button class="btn btn-sm btn-primary" onclick="AIAssistantService.sendMessage()" style="border-radius:50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-paper-plane" style="font-size:0.8rem;"></i></button>
+            </div>
+        </div>`;
+
+        document.body.insertAdjacentHTML('beforeend', widgetHtml);
+    },
+
+    toggleChat: function () {
+        if (!this.chatWindow) return;
+        this.chatWindow.classList.toggle('show');
+        this.chatWindow.classList.remove('minimized');
+    },
+
+    minimizeChat: function () {
+        if (!this.chatWindow) return;
+        this.chatWindow.classList.toggle('minimized');
+    },
+
+    renderSuggestions: function (role) {
+        const container = document.getElementById('ai-suggestions-list');
+        if (!container) return;
+
+        let suggestions = [];
+        if (role === 'patient') {
+            suggestions = [
+                'Explain my lab report',
+                'Show my appointments',
+                'Give health tips',
+                'Explain my prescription'
+            ];
+        } else if (role === 'doctor') {
+            suggestions = [
+                "Show today's consultations",
+                "Patient summary",
+                "Drug interactions",
+                "Treatment recommendations"
+            ];
+        } else if (role === 'labtech') {
+            suggestions = [
+                "Pending lab orders",
+                "Report generation",
+                "Sample workflow"
+            ];
+        } else if (role === 'admin') {
+            suggestions = [
+                "Revenue overview",
+                "Today's hospital statistics",
+                "Pending leave requests",
+                "User management"
+            ];
+        }
+
+        container.innerHTML = suggestions.map(s => `
+            <button class="ai-suggestion-btn" onclick="AIAssistantService.sendQuickQuery('${s.replace(/'/g, "\\'")}')">${s}</button>
+        `).join('');
+    },
+
+    sendQuickQuery: function (text) {
+        const input = document.getElementById('ai-chat-input');
+        if (input) {
+            input.value = text;
+            this.sendMessage();
+        }
+    },
+
+    sendMessage: async function () {
+        const input = document.getElementById('ai-chat-input');
+        if (!input) return;
+
+        const text = input.value.trim();
+        if (!text) return;
+
+        this.addMessage(text, 'user');
+        input.value = '';
+
+        const body = document.getElementById('ai-chat-body-messages');
+        const typingId = 'ai-typing-indicator';
+        body.insertAdjacentHTML('beforeend', `
+            <div class="ai-chat-message assistant" id="${typingId}">
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        `);
+        body.scrollTop = body.scrollHeight;
+
+        try {
+            const result = await ApiService.askAIAssistant(text);
+            document.getElementById(typingId).remove();
+            
+            const formatted = result.response
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-primary fw-bold">$1</a>');
+            
+            this.addMessage(formatted, 'assistant', true);
+        } catch (err) {
+            if (document.getElementById(typingId)) {
+                document.getElementById(typingId).remove();
+            }
+            this.addMessage("Failed to get a response from CurePoint AI. Error: " + err.message, 'assistant');
+        }
+    },
+
+    addMessage: function (content, sender, isHtml = false) {
+        const body = document.getElementById('ai-chat-body-messages');
+        if (!body) return;
+
+        const msgHtml = `
+            <div class="ai-chat-message ${sender}">
+                ${isHtml ? content : content.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')}
+            </div>
+        `;
+        body.insertAdjacentHTML('beforeend', msgHtml);
+        body.scrollTop = body.scrollHeight;
+    }
+};
+
+window.mockAILocalResponder = function (message, context) {
+    const msg = message.toLowerCase();
+    const role = context.role;
+    const name = context.username;
+
+    if (role === 'patient') {
+        if (msg.includes('prescription') || msg.includes('medication') || msg.includes('meds')) {
+            const rx_list = context.prescriptions || [];
+            if (rx_list.length === 0) {
+                return `Hi ${name}, I couldn't find any active prescriptions in your medical record.`;
+            }
+            let res = `Hi ${name}, here are your recent prescriptions:\n\n`;
+            rx_list.forEach(r => {
+                res += `**Diagnosis**: ${r.diagnosis} (Dated ${r.date}) by ${r.doctor}\n`;
+                r.medicines.forEach(m => {
+                    res += `- 💊 **${m.name}**: ${m.dosage}, ${m.frequency} for ${m.duration}. Instructions: *${m.instructions}*\n`;
+                });
+            });
+            return res;
+        }
+
+        if (msg.includes('lab') || msg.includes('report') || msg.includes('test')) {
+            return `Hi ${name}, you can download your completed lab reports in PDF format from the **Lab Reports** tab in the sidebar. Any scheduled sample collections will also show up under laboratory visits.`;
+        }
+
+        if (msg.includes('appointment') || msg.includes('schedule') || msg.includes('visit')) {
+            const appts = context.appointments || [];
+            if (appts.length === 0) {
+                return `Hi ${name}, you have no upcoming appointments scheduled in our clinics.`;
+            }
+            let res = `Hi ${name}, here are your scheduled appointments:\n\n`;
+            appts.forEach(a => {
+                res += `- 📅 **${a.type}** with ${a.doctor} on ${a.date} @ ${a.slot} | Status: **${a.status.toUpperCase()}**\n`;
+            });
+            return res;
+        }
+
+        if (msg.includes('vital') || msg.includes('blood pressure') || msg.includes('bp') || msg.includes('heart rate')) {
+            const vitals = context.vitals || [];
+            if (vitals.length === 0) {
+                return `Hi ${name}, no clinical vitals are currently recorded in the system.`;
+            }
+            const latest = vitals[0];
+            return `Hi ${name}, your latest vitals recorded from your last clinic visit on **${latest.date}**:\n- 🩸 **Blood Pressure**: ${latest.bp} mmHg\n- ❤️ **Heart Rate**: ${latest.hr} bpm\n- 🌡️ **Temperature**: ${latest.temp} °F\n- ⚖️ **Weight**: ${latest.weight} kg`;
+        }
+
+        if (msg.includes('smartwatch') || msg.includes('steps') || msg.includes('sleep') || msg.includes('device') || msg.includes('spo2')) {
+            const dev = context.smartwatch_device;
+            if (!dev) {
+                return `Hi ${name}, you haven't linked a smartwatch yet. Open the **Smart Watch** dashboard tab to connect your Fitbit, Apple Watch, or Galaxy Watch.`;
+            }
+            const history = context.smartwatch_history || [];
+            let res = `Hi ${name}, here is your **${dev.deviceName}** details:\n- 📶 Connected: **Yes**\n- 🔋 Battery: ${dev.batteryLevel}%\n- ⏰ Last Sync: ${dev.lastSync.substring(0, 16).replace('T', ' ')}\n\n`;
+            if (history.length > 0) {
+                const latest = history[0];
+                res += `**Latest Wearable Sync Metrics (${latest.date})**:\n- 👣 Steps: ${latest.steps.toLocaleString()}\n- ❤️ Heart Rate: ${latest.hr} bpm\n- 🩸 Blood Pressure: ${latest.bp} mmHg\n- 🫁 SpO2: ${latest.spo2}%\n- 😴 Sleep: ${latest.sleepDuration} hours\n- 🔥 Calories: ${latest.calories} kcal\n- 🚶 Distance: ${latest.distance} km`;
+            } else {
+                res += "No activity data points synchronized yet. Please press **Sync Now**.";
+            }
+            return res;
+        }
+
+        if (msg.includes('tip') || msg.includes('diet') || msg.includes('health')) {
+            return `Hi ${name}, here are some wellness recommendations:\n1. 💧 **Hydration**: Drink at least 8 glasses of water daily.\n2. 🚶 **Movement**: Target 7,500-10,000 steps using your smartwatch to keep active.\n3. 🧂 **Salt Reduction**: Maintain sodium under 2,000mg to keep blood pressure healthy.\n4. 🍞 **Sugar & Carbs**: Focus on high-fiber vegetables and slow-release proteins.`;
+        }
+
+        return `Hello ${name}! I'm your CurePoint AI assistant. Try asking me about your **prescriptions**, **appointments**, **vitals**, or **smartwatch** stats.`;
+    }
+
+    if (role === 'doctor') {
+        if (msg.includes('consultation') || msg.includes('appointment') || msg.includes('schedule')) {
+            return `Hello Dr. ${name}. You have active appointments scheduled in your queue today. Select the **Consultations** workspace in your sidebar to view details.`;
+        }
+        if (msg.includes('patient') || msg.includes('summary')) {
+            return `Dr. ${name}, you can view patient case history summaries, vital sign trends, and write clinical prescriptions by selecting a patient from the patient registry.`;
+        }
+        if (msg.includes('interaction') || msg.includes('drug')) {
+            return `🔬 **Drug Interactions Reference**:\n- **ACE Inhibitors + Potassium Supplements**: Risk of hyperkalemia.\n- **Metformin + Contrast Media**: Discontinue Metformin 48 hours post-contrast.\n- **Beta-blockers + Albuterol**: Beta-blockers antagonize beta-agonists. Do not use in asthmatics.`;
+        }
+        return `Hello Dr. ${name}. I can assist with today's consultations, patient list, drug interaction lookup, and clinical guidelines.`;
+    }
+
+    if (role === 'labtech') {
+        if (msg.includes('pending') || msg.includes('order')) {
+            return `Hello Technician ${name}. Check the **Pending Lab Orders** tab in your dashboard to view samples awaiting registration or processing.`;
+        }
+        return `Hello Technician ${name}. I can guide you through sample workflow processes and laboratory SOPs.`;
+    }
+
+    if (role === 'admin') {
+        if (msg.includes('revenue') || msg.includes('overview') || msg.includes('stats')) {
+            return `Welcome Admin. Current hospital capacity: 4 active departments, 8 doctors, and 92% system uptime. Recent security audit logs indicate normal operational status.`;
+        }
+        return `Hello System Administrator. I can provide revenue summaries, leave request statistics, and staff logs.`;
+    }
+
+    return `Hello! How can I help you today?`;
+};
+

@@ -386,35 +386,6 @@
                             </div>
                         </div>
 
-                        <!-- ROW 5: LOGGING & SYSTEM LOGS -->
-                        <div class="grid-row-5">
-                            <div class="hc-card">
-                                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark"><i class="fa-solid fa-timeline text-purple me-2"></i>Recent Activity</h5>
-                                <div class="d-flex flex-column gap-2" id="admin-recent-activities-list" style="max-height: 380px; overflow-y: auto; padding-right: 4px;">
-                                    <!-- Dynamic feed -->
-                                </div>
-                            </div>
-                            
-                            <div class="hc-card">
-                                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark"><i class="fa-solid fa-clipboard-list text-primary me-2"></i>Latest System Audit Logs</h5>
-                                <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
-                                    <table class="table hc-table mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>Timestamp</th>
-                                                <th>Severity</th>
-                                                <th>Module</th>
-                                                <th>Action Detail</th>
-                                                <th>User</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="admin-dashboard-audits-list">
-                                            <!-- Dynamic audits feed populated by app.js -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
 
                         <!-- ROW 6: ADDITIONAL CLINICAL INSIGHTS & ACTIONS -->
                         <div class="grid-row-6">
@@ -644,6 +615,9 @@
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link fw-bold py-3 rounded-3" id="tab-login-activities-btn" data-bs-toggle="pill" data-bs-target="#subpanel-login-activities" type="button" role="tab" aria-controls="subpanel-login-activities" aria-selected="false"><i class="fa-solid fa-user-lock me-2"></i>Recent Login Activities</button>
                             </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold py-3 rounded-3" id="tab-activity-feed-btn" data-bs-toggle="pill" data-bs-target="#subpanel-activity-feed" type="button" role="tab" aria-controls="subpanel-activity-feed" aria-selected="false"><i class="fa-solid fa-rectangle-list me-2"></i>System Activity Feed</button>
+                            </li>
                         </ul>
                     </div>
 
@@ -825,6 +799,28 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Subpanel 6: System Activity Feed -->
+                        <div class="tab-pane fade" id="subpanel-activity-feed" role="tabpanel" aria-labelledby="tab-activity-feed-btn">
+                            <div class="hc-card">
+                                <h5 class="fw-bold mb-3 text-dark font-size-sm"><i class="fa-solid fa-rectangle-list text-warning me-2"></i>Recent Hospital Operations & Activities</h5>
+                                <div class="table-responsive hc-table-container">
+                                    <table class="table hc-table font-size-xs mb-0 align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Time</th>
+                                                <th>Initiator</th>
+                                                <th>Operation Detail</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recent-activities-list">
+                                            <!-- Dynamically populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -920,10 +916,10 @@
                         <div class="col-xl-2 col-md-4 col-6">
                             <div class="stat-widget border-0 shadow-sm" style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);">
                                 <div>
-                                    <p class="stat-title text-pink fw-bold font-size-xxs text-uppercase">Monthly Revenue</p>
-                                    <h4 class="stat-value text-dark fw-extrabold mt-1" id="report-card-monthly-revenue">--</h4>
+                                    <p class="stat-title text-pink fw-bold font-size-xxs text-uppercase">Total Lab Tests</p>
+                                    <h4 class="stat-value text-dark fw-extrabold mt-1" id="report-card-total-labs">--</h4>
                                 </div>
-                                <div class="hc-icon-wrapper bg-pink text-white mb-0" style="width:34px; height:34px;"><i class="fa-solid fa-sack-dollar" style="font-size:0.8rem;"></i></div>
+                                <div class="hc-icon-wrapper bg-pink text-white mb-0" style="width:34px; height:34px;"><i class="fa-solid fa-flask" style="font-size:0.8rem;"></i></div>
                             </div>
                         </div>
                     </div>
@@ -1004,29 +1000,6 @@
                         </div>
                     </div>
 
-                    <div class="row g-4">
-                        <!-- Recent Activities Log -->
-                        <div class="col-12">
-                            <div class="hc-card">
-                                <h5 class="fw-bold mb-3 text-dark font-size-sm"><i class="fa-solid fa-rectangle-list text-warning me-2"></i>Recent Hospital Operations & Activities</h5>
-                                <div class="table-responsive">
-                                    <table class="table hc-table font-size-xs mb-0 align-middle">
-                                        <thead>
-                                            <tr>
-                                                <th>Time</th>
-                                                <th>Initiator</th>
-                                                <th>Operation Detail</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="recent-activities-list">
-                                            <!-- Dynamically populated -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </section>
 
                 <!-- PANEL 6: LEAVES & ALERTS -->

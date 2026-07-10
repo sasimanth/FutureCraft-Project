@@ -29,30 +29,48 @@ class DoctorViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
 class DoctorLeaveRequestViewSet(viewsets.ModelViewSet):
-    queryset = DoctorLeaveRequest.objects.all()
+    queryset = DoctorLeaveRequest.objects.select_related('doctor__user', 'technician__user').all()
     serializer_class = DoctorLeaveRequestSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         qs = super().get_queryset()
+        user = self.request.user
         # If doctor logged in, they see their own leaves
-        if self.request.user.role == 'doctor' and hasattr(self.request.user, 'doctorprofile'):
-            qs = qs.filter(doctor=self.request.user.doctorprofile)
+        if user.role == 'doctor' and hasattr(user, 'doctorprofile'):
+            qs = qs.filter(doctor=user.doctorprofile)
+        # If technician logged in, they see their own leaves
+        elif user.role == 'labtech' and hasattr(user, 'labtech_profile'):
+            qs = qs.filter(technician=user.labtech_profile)
+        
+        # Admin or general status parameter filtering
+        status_param = self.request.query_params.get('status')
+        if status_param:
+            qs = qs.filter(status__iexact=status_param)
         return qs
 
     def perform_create(self, serializer):
-        # Auto-assign doctor if a doctor is logged in
-        if self.request.user.role == 'doctor' and hasattr(self.request.user, 'doctorprofile'):
-            serializer.save(doctor=self.request.user.doctorprofile, status='Pending')
+        user = self.request.user
+        # Auto-assign profile based on role
+        if user.role == 'doctor' and hasattr(user, 'doctorprofile'):
+            serializer.save(doctor=user.doctorprofile, status='Pending')
+        elif user.role == 'labtech' and hasattr(user, 'labtech_profile'):
+            serializer.save(technician=user.labtech_profile, status='Pending')
         else:
-            # Admins or others must specify a doctor in request data
+            # Admins or others must specify doctorId (which can be a doctor_id or employee_id)
             doctor_id = self.request.data.get('doctorId')
-            try:
-                doctor = DoctorProfile.objects.get(doctor_id=doctor_id)
+            from doctors.models import DoctorProfile
+            from laboratory.models import LabTechnicianProfile
+            doctor = DoctorProfile.objects.filter(doctor_id=doctor_id).first()
+            if doctor:
                 serializer.save(doctor=doctor, status='Pending')
-            except DoctorProfile.DoesNotExist:
-                from rest_framework.exceptions import ValidationError
-                raise ValidationError({'doctor': 'Doctor profile not found.'})
+            else:
+                tech = LabTechnicianProfile.objects.filter(employee_id=doctor_id).first()
+                if tech:
+                    serializer.save(technician=tech, status='Pending')
+                else:
+                    from rest_framework.exceptions import ValidationError
+                    raise ValidationError({'doctor': 'Profile not found for specified ID.'})
 
     @action(detail=True, methods=['post'], url_path='approve')
     def approve_leave(self, request, pk=None):

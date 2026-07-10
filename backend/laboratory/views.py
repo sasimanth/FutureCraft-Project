@@ -5,12 +5,16 @@ from .serializers import LabRequestSerializer
 from accounts.models import AuditLog
 
 class LabRequestViewSet(viewsets.ModelViewSet):
-    queryset = LabRequest.objects.all()
+    queryset = LabRequest.objects.prefetch_related('parameters').all()
     serializer_class = LabRequestSerializer
     permission_classes = (permissions.IsAuthenticated,)
     lookup_field = 'lab_id'
 
     def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.status == 'completed':
+            return Response({'error': 'Completed lab reports are read-only and cannot be modified.'}, status=status.HTTP_400_BAD_REQUEST)
+
         # Support file uploads sent alongside JSON fields via multipart/form-data
         # If it's sent as JSON, request.data is a dict. If multipart, convert QueryDict to a standard dict to prevent list-wrapping issues.
         if hasattr(request.data, 'dict'):

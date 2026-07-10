@@ -101,3 +101,34 @@ class PatientBilling(models.Model):
 
     def __str__(self):
         return f"{self.billing_id} - {self.patient.patient_id} - {self.description} ({self.status})"
+
+class PatientSmartWatchDevice(models.Model):
+    patient = models.OneToOneField(PatientProfile, on_delete=models.CASCADE, related_name='smartwatch_device')
+    device_name = models.CharField(max_length=100)
+    device_type = models.CharField(max_length=50) # e.g. Apple Watch, Fitbit, etc.
+    is_connected = models.BooleanField(default=True)
+    battery_level = models.IntegerField(default=100)
+    last_sync = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.device_type} connected to {self.patient.patient_id}"
+
+class PatientSmartWatchData(models.Model):
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='smartwatch_data')
+    date = models.DateField(default=timezone.now)
+    heart_rate = models.IntegerField(default=72)
+    bp_systolic = models.IntegerField(default=120)
+    bp_diastolic = models.IntegerField(default=80)
+    spo2 = models.IntegerField(default=98)
+    steps = models.IntegerField(default=0)
+    calories = models.IntegerField(default=0)
+    sleep_duration = models.FloatField(default=0.0) # hours
+    distance = models.FloatField(default=0.0) # km
+
+    class Meta:
+        ordering = ['-date']
+        unique_together = ('patient', 'date')
+
+    def __str__(self):
+        return f"Smartwatch data for {self.patient.patient_id} on {self.date}"
+

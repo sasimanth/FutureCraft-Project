@@ -44,7 +44,25 @@ class ConsultationSerializer(serializers.ModelSerializer):
         followup_data = validated_data.pop('followup', None)
 
         with transaction.atomic():
-            # 1. Create/Update Consultation
+            # 1. Lock and check appointment status to prevent duplicate completions
+            if appointment_id:
+                appt = Appointment.objects.select_for_update().filter(appt_id=appointment_id).first()
+                if appt and appt.status == 'completed':
+                    raise serializers.ValidationError("This consultation has already been submitted.")
+
+            # 2. General duplicate check: reject if a similar consultation was created in the last 10 seconds
+            from datetime import timedelta
+            recent_threshold = timezone.now() - timedelta(seconds=10)
+            duplicate_exists = Consultation.objects.filter(
+                patient_id=patient_id,
+                doctor_name=doctor_name,
+                diagnosis=diagnosis,
+                created_at__gte=recent_threshold
+            ).exists()
+            if duplicate_exists:
+                raise serializers.ValidationError("A similar consultation has already been submitted recently.")
+
+            # 3. Create/Update Consultation
             consult, created = Consultation.objects.update_or_create(
                 consultation_id=consultation_id,
                 defaults={

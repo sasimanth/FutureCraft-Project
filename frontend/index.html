@@ -29,9 +29,9 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center gap-3 mt-3 mt-lg-0">
                     <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy active" href="#landingPage">Home</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="#services">Services</a></li>
                     <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="#about">About</a></li>
-                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="login.html">Dashboards</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="#showcase">Dashboards</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="#services">Services</a></li>
                     <li class="nav-item"><a class="nav-link text-dark fw-medium nav-link-spy" href="#contact">Contact</a></li>
                     <li class="nav-item ms-lg-2">
                         <a href="login.html" class="btn btn-hc-primary shadow-sm"><i class="fa-solid fa-right-to-bracket me-1"></i> Login</a>
@@ -381,6 +381,137 @@
                             <p class="text-muted font-size-sm mb-0">Patient bookings, calendar integrations, automated doctor dispatch, and status alerts.</p>
                         </div>
                     </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6.5 FAQ SECTION -->
+    <section id="faq" class="py-5 faq-section border-top" style="background: var(--hc-bg-main);">
+        <div class="container py-4">
+            <div class="text-center max-width-600 mx-auto mb-5">
+                <div class="hc-badge hc-badge-primary mb-2">FAQ</div>
+                <h2 class="fw-bold mb-3">Frequently Asked Questions</h2>
+                <p class="text-muted">Common queries regarding the CurePoint Healthcare Management System.</p>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion faq-accordion" id="faqAccordion">
+                        
+                        <!-- FAQ Item 1 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    What is CurePoint?
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    CurePoint is a Smart Healthcare Management System that connects patients, doctors, laboratory technicians, and administrators on one platform.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 2 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Can patients access their medical records online?
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes. Patients can securely view prescriptions, appointments, lab reports, and complete medical history after logging in.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 3 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    How do doctors manage consultations?
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Doctors can view appointments, perform consultations, create digital prescriptions, request lab tests, and submit leave requests.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 4 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    What can Lab Technicians do?
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Lab technicians can accept lab orders, process samples, enter results, generate reports, and update test status.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 5 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFive">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                    What is the role of the Admin Dashboard?
+                                </button>
+                            </h2>
+                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    The administrator manages users, departments, staff leave approvals, hospital analytics, reports, system logs, and hospital settings.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 6 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingSix">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                    Is patient data secure?
+                                </button>
+                            </h2>
+                            <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes. CurePoint follows secure authentication, role-based access control, and encrypted communication to protect sensitive healthcare information.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 7 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingSeven">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                    Can new patients create an account?
+                                </button>
+                            </h2>
+                            <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Yes. New patients can register using the Create Account option and access their healthcare records after successful registration.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FAQ Item 8 -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingEight">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                                    How can users contact CurePoint?
+                                </button>
+                            </h2>
+                            <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    Users can use the Contact section on the homepage to send inquiries or support requests.
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>

@@ -25,7 +25,8 @@ class DoctorLeaveRequest(models.Model):
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     )
-    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='leaves')
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='leaves', null=True, blank=True)
+    technician = models.ForeignKey('laboratory.LabTechnicianProfile', on_delete=models.CASCADE, related_name='leaves', null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
     leave_type = models.CharField(max_length=50)

@@ -1,10 +1,11 @@
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import PatientProfile, PatientVisit, PatientFile, PatientBilling
+from .models import PatientProfile, PatientVisit, PatientFile, PatientBilling, PatientSmartWatchDevice, PatientSmartWatchData
 from .serializers import (
     PatientProfileSerializer, PatientVitalSerializer, PatientMedicalHistorySerializer,
-    PatientVisitSerializer, PatientFileSerializer, PatientBillingSerializer
+    PatientVisitSerializer, PatientFileSerializer, PatientBillingSerializer,
+    PatientSmartWatchDeviceSerializer, PatientSmartWatchDataSerializer
 )
 from accounts.permissions import IsOwnerOrStaff
 from django.utils import timezone
@@ -152,6 +153,93 @@ class PatientProfileViewSet(viewsets.ModelViewSet):
             return Response({'success': True, 'message': 'File document deleted.'})
         except PatientFile.DoesNotExist:
             return Response({'error': 'File not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Connect/Disconnect smart watch device
+    @action(detail=True, methods=['post'], url_path='smartwatch-connect')
+    def connect_smartwatch(self, request, patient_id=None):
+        patient = self.get_object()
+        device_type = request.data.get('deviceType')
+        action_type = request.data.get('action', 'connect')
+        
+        if action_type == 'disconnect':
+            if hasattr(patient, 'smartwatch_device'):
+                device_name = patient.smartwatch_device.device_name
+                patient.smartwatch_device.delete()
+                AuditLog.objects.create(
+                    module='patients',
+                    initiator=request.user.email,
+                    action=f"Disconnected smart watch device ({device_name}) for patient ID: {patient.patient_id}",
+                    flag='SECURE'
+                )
+            return Response({'success': True, 'message': 'Device disconnected successfully.'})
+            
+        if not device_type:
+            return Response({'error': 'deviceType is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        device_name = f"{request.user.name or 'Patient'}'s {device_type}"
+        
+        device, created = PatientSmartWatchDevice.objects.update_or_create(
+            patient=patient,
+            defaults={
+                'device_name': device_name,
+                'device_type': device_type,
+                'is_connected': True,
+                'battery_level': 100,
+                'last_sync': timezone.now()
+            }
+        )
+        
+        AuditLog.objects.create(
+            module='patients',
+            initiator=request.user.email,
+            action=f"Connected smart watch device ({device_name}) for patient ID: {patient.patient_id}",
+            flag='SECURE'
+        )
+        
+        serializer = PatientSmartWatchDeviceSerializer(device)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Sync smart watch metrics
+    @action(detail=True, methods=['post'], url_path='smartwatch-sync')
+    def sync_smartwatch(self, request, patient_id=None):
+        patient = self.get_object()
+        
+        if not hasattr(patient, 'smartwatch_device'):
+            return Response({'error': 'No smartwatch connected.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        data = request.data.copy()
+        
+        device = patient.smartwatch_device
+        device.battery_level = data.get('batteryLevel', device.battery_level)
+        device.last_sync = timezone.now()
+        device.save()
+        
+        date_str = data.get('date', timezone.now().date())
+        
+        metrics, created = PatientSmartWatchData.objects.update_or_create(
+            patient=patient,
+            date=date_str,
+            defaults={
+                'heart_rate': data.get('heartRate', 72),
+                'bp_systolic': data.get('bpSystolic', 120),
+                'bp_diastolic': data.get('bpDiastolic', 80),
+                'spo2': data.get('spo2', 98),
+                'steps': data.get('steps', 0),
+                'calories': data.get('calories', 0),
+                'sleep_duration': data.get('sleepDuration', 0.0),
+                'distance': data.get('distance', 0.0),
+            }
+        )
+        
+        AuditLog.objects.create(
+            module='patients',
+            initiator=request.user.email,
+            action=f"Synchronized smartwatch data (Heart Rate: {metrics.heart_rate}, Steps: {metrics.steps}) for patient ID: {patient.patient_id}",
+            flag='SECURE'
+        )
+        
+        profile_serializer = PatientProfileSerializer(patient)
+        return Response(profile_serializer.data, status=status.HTTP_200_OK)
 
 class PatientBillingViewSet(viewsets.ModelViewSet):
     queryset = PatientBilling.objects.all()
