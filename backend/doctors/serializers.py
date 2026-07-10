@@ -41,8 +41,9 @@ class DoctorProfileSerializer(serializers.ModelSerializer):
 
 class DoctorLeaveRequestSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    doctorId = serializers.CharField(source='doctor.doctor_id', read_only=True)
-    doctorName = serializers.CharField(source='doctor.user.name', read_only=True)
+    doctorId = serializers.SerializerMethodField()
+    doctorName = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
     startDate = serializers.DateField(source='start_date')
     endDate = serializers.DateField(source='end_date')
     leaveType = serializers.CharField(source='leave_type')
@@ -51,7 +52,31 @@ class DoctorLeaveRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DoctorLeaveRequest
-        fields = ('id', 'doctorId', 'doctorName', 'startDate', 'endDate', 'leaveType', 'reason', 'status', 'remarks', 'appliedDate', 'approvedBy')
+        fields = ('id', 'doctorId', 'doctorName', 'role', 'startDate', 'endDate', 'leaveType', 'reason', 'status', 'remarks', 'appliedDate', 'approvedBy')
+
+    def get_doctorId(self, obj):
+        if obj.doctor:
+            return obj.doctor.doctor_id
+        if obj.technician:
+            return obj.technician.employee_id
+        return ""
+
+    def get_doctorName(self, obj):
+        if obj.doctor:
+            name = obj.doctor.user.name
+            if not name.startswith('Dr.'):
+                return f"Dr. {name}"
+            return name
+        if obj.technician:
+            return obj.technician.user.name
+        return "Unknown"
+
+    def get_role(self, obj):
+        if obj.doctor:
+            return "doctor"
+        if obj.technician:
+            return "labtech"
+        return "staff"
 
     def get_appliedDate(self, obj):
         return obj.created_at.strftime('%Y-%m-%d') if obj.created_at else ""

@@ -55,12 +55,18 @@ class Command(BaseCommand):
             { 'email': 'admin@ehrmail.com', 'password': 'password123', 'name': 'Administrator', 'role': 'admin', 'is_staff': True, 'is_superuser': True },
             { 'email': 'sarah.connor@ehrmail.com', 'password': 'password123', 'name': 'Dr. Sarah Connor', 'role': 'doctor' },
             { 'email': 'robert.chen@ehrmail.com', 'password': 'password123', 'name': 'Dr. Robert Chen', 'role': 'doctor' },
+            { 'email': 'alice.vance@ehrmail.com', 'password': 'password123', 'name': 'Dr. Alice Vance', 'role': 'doctor' },
+            { 'email': 'emily.watson@ehrmail.com', 'password': 'password123', 'name': 'Dr. Emily Watson', 'role': 'doctor' },
+            { 'email': 'marcus.aurelius@ehrmail.com', 'password': 'password123', 'name': 'Dr. Marcus Aurelius', 'role': 'doctor' },
+            { 'email': 'gregory.house@ehrmail.com', 'password': 'password123', 'name': 'Dr. Gregory House', 'role': 'doctor' },
             { 'email': 'labtech@ehrmail.com', 'password': 'password123', 'name': 'Alex Mercer', 'role': 'labtech' },
             { 'email': 'john.doe@ehrmail.com', 'password': 'password123', 'name': 'John Doe', 'role': 'patient' },
             { 'email': 'emma.watson@ehrmail.com', 'password': 'password123', 'name': 'Emma Watson', 'role': 'patient' },
             { 'email': 'robert.downey@ehrmail.com', 'password': 'password123', 'name': 'Robert Downey', 'role': 'patient' },
             { 'email': 'clara.oswald@ehrmail.com', 'password': 'password123', 'name': 'Clara Oswald', 'role': 'patient' },
-            { 'email': 'bruce.banner@ehrmail.com', 'password': 'password123', 'name': 'Bruce Banner', 'role': 'patient' }
+            { 'email': 'bruce.banner@ehrmail.com', 'password': 'password123', 'name': 'Bruce Banner', 'role': 'patient' },
+            { 'email': 'pending.doctor@ehrmail.com', 'password': 'password123', 'name': 'Dr. John Watson', 'role': 'doctor', 'is_active': False },
+            { 'email': 'pending.tech@ehrmail.com', 'password': 'password123', 'name': 'James Moriarty', 'role': 'labtech', 'is_active': False }
         ]
 
         users = {}
@@ -88,7 +94,11 @@ class Command(BaseCommand):
         # 3. Seed Doctor Profiles
         doctors_data = [
             { 'email': 'sarah.connor@ehrmail.com', 'doctor_id': 'doc-1', 'dept_id': 'dept-1', 'specialization': 'Family Physician' },
-            { 'email': 'robert.chen@ehrmail.com', 'doctor_id': 'doc-2', 'dept_id': 'dept-2', 'specialization': 'Interventional Cardiologist' }
+            { 'email': 'robert.chen@ehrmail.com', 'doctor_id': 'doc-2', 'dept_id': 'dept-2', 'specialization': 'Interventional Cardiologist' },
+            { 'email': 'alice.vance@ehrmail.com', 'doctor_id': 'doc-3', 'dept_id': 'dept-3', 'specialization': 'Neurologist' },
+            { 'email': 'emily.watson@ehrmail.com', 'doctor_id': 'doc-4', 'dept_id': 'dept-4', 'specialization': 'Pediatric Specialist' },
+            { 'email': 'marcus.aurelius@ehrmail.com', 'doctor_id': 'doc-5', 'dept_id': 'dept-5', 'specialization': 'Radiologist' },
+            { 'email': 'gregory.house@ehrmail.com', 'doctor_id': 'doc-6', 'dept_id': 'dept-6', 'specialization': 'Pathology Chief' }
         ]
         for dd in doctors_data:
             user = users[dd['email']]

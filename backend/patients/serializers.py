@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import PatientProfile, PatientVital, PatientMedicalHistory, PatientVisit, PatientFile, PatientBilling
+from .models import (
+    PatientProfile, PatientVital, PatientMedicalHistory, PatientVisit, PatientFile, PatientBilling,
+    PatientSmartWatchDevice, PatientSmartWatchData
+)
 
 class PatientVitalSerializer(serializers.ModelSerializer):
     bpSystolic = serializers.IntegerField(source='bp_systolic')
@@ -42,6 +45,27 @@ class PatientBillingSerializer(serializers.ModelSerializer):
         model = PatientBilling
         fields = ('id', 'patientId', 'description', 'amount', 'status', 'paidOn', 'method', 'receiptId', 'consultationCharge', 'laboratoryCharge', 'refundStatus')
 
+class PatientSmartWatchDeviceSerializer(serializers.ModelSerializer):
+    deviceName = serializers.CharField(source='device_name')
+    deviceType = serializers.CharField(source='device_type')
+    isConnected = serializers.BooleanField(source='is_connected')
+    batteryLevel = serializers.IntegerField(source='battery_level')
+    lastSync = serializers.DateTimeField(source='last_sync')
+
+    class Meta:
+        model = PatientSmartWatchDevice
+        fields = ('deviceName', 'deviceType', 'isConnected', 'batteryLevel', 'lastSync')
+
+class PatientSmartWatchDataSerializer(serializers.ModelSerializer):
+    bpSystolic = serializers.IntegerField(source='bp_systolic')
+    bpDiastolic = serializers.IntegerField(source='bp_diastolic')
+    heartRate = serializers.IntegerField(source='heart_rate')
+    sleepDuration = serializers.FloatField(source='sleep_duration')
+
+    class Meta:
+        model = PatientSmartWatchData
+        fields = ('date', 'heartRate', 'bpSystolic', 'bpDiastolic', 'spo2', 'steps', 'calories', 'sleepDuration', 'distance')
+
 class PatientProfileSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source='patient_id', read_only=True)
     name = serializers.CharField(source='user.name', read_only=True)
@@ -56,13 +80,16 @@ class PatientProfileSerializer(serializers.ModelSerializer):
     vitalsHistory = PatientVitalSerializer(source='vitals', many=True, read_only=True)
     medicalHistory = PatientMedicalHistorySerializer(source='medical_history', many=True, read_only=True)
     billings = PatientBillingSerializer(many=True, read_only=True)
+    smartwatchDevice = PatientSmartWatchDeviceSerializer(source='smartwatch_device', read_only=True, required=False, allow_null=True)
+    smartwatchDataHistory = PatientSmartWatchDataSerializer(source='smartwatch_data', many=True, read_only=True)
 
     class Meta:
         model = PatientProfile
         fields = (
             'id', 'name', 'email', 'dob', 'gender', 'bloodGroup', 'phone',
             'emergencyName', 'emergencyPhone', 'allergies', 'address', 'nationalId',
-            'insuranceCarrier', 'insurancePolicy', 'avatar', 'vitalsHistory', 'medicalHistory', 'billings'
+            'insuranceCarrier', 'insurancePolicy', 'avatar', 'vitalsHistory', 'medicalHistory', 'billings',
+            'smartwatchDevice', 'smartwatchDataHistory'
         )
 
     def update(self, instance, validated_data):
