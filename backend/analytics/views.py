@@ -19,14 +19,16 @@ class AdminAnalyticsView(APIView):
     def get(self, request):
         from django.utils import timezone
         import datetime
-        from django.db.models import Sum, Count, Q
+        from django.db.models import Sum, Count, Q, Avg
         from django.db.models.functions import ExtractMonth
+        from doctors.models import DoctorReview
+        from accounts.models import AuditLog
         
         today = timezone.now().date()
         current_year = today.year
         current_month = today.month
 
-        # 1. Basic stats for cards
+        # 1. Basic stats for cards (Using aggregates/counts directly)
         today_consultations = Appointment.objects.filter(date=today, status__in=['completed', 'completed_with_rating']).count()
         total_patients = PatientProfile.objects.count()
         completed_consultations = Appointment.objects.filter(status__in=['completed', 'completed_with_rating']).count()
@@ -60,22 +62,29 @@ class AdminAnalyticsView(APIView):
             patients_dict[entry['month']] = entry['total']
         patient_volume = [patients_dict[i] for i in range(1, 13)]
 
-        # 4. Department Wise Consultations
+        # 4. Department Wise Consultations (Optimized using bulk Count)
+        dept_counts_qs = Appointment.objects.filter(
+            status__in=['completed', 'completed_with_rating']
+        ).values('dept_name').annotate(total=Count('id'))
+        dept_counts_map = {entry['dept_name']: entry['total'] for entry in dept_counts_qs}
+
         depts = Department.objects.all()
         dept_labels = [dept.name for dept in depts]
-        dept_consults = []
-        for dept in depts:
-            cnt = Appointment.objects.filter(
-                dept_name=dept.name,
-                status__in=['completed', 'completed_with_rating']
-            ).count()
-            dept_consults.append(cnt)
+        dept_consults = [dept_counts_map.get(dept.name, 0) for dept in depts]
         if not dept_labels:
             dept_labels = ['General Medicine', 'Cardiology', 'Neurology', 'Pediatrics', 'Radiology', 'Pathology']
             dept_consults = [25, 14, 8, 12, 18, 30]
 
-        # 5. Doctor Performance (Consultations count and Average Rating)
-        docs = DoctorProfile.objects.all()
+        # 5. Doctor Performance (Optimized using bulk Count & Avg)
+        doc_counts_qs = Appointment.objects.filter(
+            status__in=['completed', 'completed_with_rating']
+        ).values('doctor_id').annotate(total=Count('id'))
+        doc_counts_map = {entry['doctor_id']: entry['total'] for entry in doc_counts_qs}
+
+        doc_ratings_qs = DoctorReview.objects.values('doctor_id').annotate(avg_rating=Avg('rating'))
+        doc_ratings_map = {entry['doctor_id']: round(float(entry['avg_rating']), 1) for entry in doc_ratings_qs if entry['avg_rating'] is not None}
+
+        docs = DoctorProfile.objects.select_related('user').all()
         doc_labels = []
         doc_consult_counts = []
         doc_avg_ratings = []
@@ -84,32 +93,28 @@ class AdminAnalyticsView(APIView):
             if not name.startswith('Dr. '):
                 name = f"Dr. {name}"
             doc_labels.append(name)
-            
-            # Consult count
-            ccnt = Appointment.objects.filter(doctor_id=doc.doctor_id, status__in=['completed', 'completed_with_rating']).count()
-            doc_consult_counts.append(ccnt)
-            
-            # Avg Rating
-            from doctors.models import DoctorReview
-            avg_r = DoctorReview.objects.filter(doctor=doc).aggregate(avg=Sum('rating'))['avg']
-            count_r = DoctorReview.objects.filter(doctor=doc).count()
-            avg_val = round(float(avg_r) / count_r, 1) if (avg_r and count_r) else 5.0
-            doc_avg_ratings.append(avg_val)
+            doc_consult_counts.append(doc_counts_map.get(doc.doctor_id, 0))
+            doc_avg_ratings.append(doc_ratings_map.get(doc.pk, 5.0))
             
         if not doc_labels:
             doc_labels = ['Dr. Sarah Connor', 'Dr. Robert Chen', 'Dr. Alice Vance']
             doc_consult_counts = [48, 32, 24]
             doc_avg_ratings = [4.9, 4.8, 4.7]
 
-        # 6. Appointment Trends (Last 7 Days)
+        # 6. Appointment Trends (Optimized using bulk Count in range)
+        start_date = today - datetime.timedelta(days=6)
+        daily_counts_qs = Appointment.objects.filter(
+            date__gte=start_date,
+            date__lte=today
+        ).values('date').annotate(total=Count('id'))
+        daily_counts_map = {entry['date']: entry['total'] for entry in daily_counts_qs}
+
         trend_labels = []
         trend_data = []
         for i in range(6, -1, -1):
             day = today - datetime.timedelta(days=i)
-            day_name = day.strftime('%a')
-            trend_labels.append(day_name)
-            cnt = Appointment.objects.filter(date=day).count()
-            trend_data.append(cnt)
+            trend_labels.append(day.strftime('%a'))
+            trend_data.append(daily_counts_map.get(day, 0))
 
         # 7. Top Diseases (from consultations diagnosis)
         top_diseases_qs = Consultation.objects.values('diagnosis').annotate(count=Count('id')).order_by('-count')[:5]
@@ -126,7 +131,6 @@ class AdminAnalyticsView(APIView):
             disease_counts = [15, 8, 7, 4, 3]
 
         # 8. Recent Activities
-        from accounts.models import AuditLog
         recent_audits = AuditLog.objects.all().order_by('-timestamp')[:8]
         recent_activities = []
         for log in recent_audits:
@@ -142,9 +146,13 @@ class AdminAnalyticsView(APIView):
                 {'time': str(today) + ' 10:45:00', 'action': 'Lab report released for test CBC', 'initiator': 'labtech@ehrmail.com', 'flag': 'SECURE'}
             ]
 
-        # For backward compatibility with existing components
-        total_opd = float(PatientBilling.objects.filter(status='paid').aggregate(total=Sum('consultation_charge'))['total'] or 0)
-        total_pathology = float(PatientBilling.objects.filter(status='paid').aggregate(total=Sum('laboratory_charge'))['total'] or 0)
+        # Bulk query for financial aggregate
+        billing_totals = PatientBilling.objects.filter(status='paid').aggregate(
+            opd=Sum('consultation_charge'),
+            pathology=Sum('laboratory_charge')
+        )
+        total_opd = float(billing_totals['opd'] or 0)
+        total_pathology = float(billing_totals['pathology'] or 0)
         total_pharmacy = float(PrescriptionMedicine.objects.count() * 15.0)
         total_ipd = float(Appointment.objects.filter(type='Emergency Patient').count() * 200.0)
         total_radiology = float(LabRequest.objects.filter(test_category__icontains='radiology').count() * 120.0)
@@ -152,7 +160,7 @@ class AdminAnalyticsView(APIView):
         income_labels = ['OPD', 'IPD', 'Pharmacy', 'Pathology', 'Radiology']
         income_data = [total_opd, total_ipd, total_pharmacy, total_pathology, total_radiology]
 
-        # Yearly revenue
+        # Yearly revenue (Optimized using bulk Sum & month extract)
         monthly_billings = PatientBilling.objects.filter(
             status='paid',
             paid_on__year=current_year
@@ -173,7 +181,6 @@ class AdminAnalyticsView(APIView):
                 'pendingConsultations': pending_consultations,
                 'avgWaitingTime': f"{avg_waiting_time} mins",
                 'monthlyRevenue': f"${monthly_revenue:,.2f}",
-                # Backwards compatible basic stats
                 'totalDoctors': DoctorProfile.objects.count(),
                 'totalAppointments': Appointment.objects.count(),
                 'totalLabTests': LabRequest.objects.count()
@@ -192,7 +199,6 @@ class AdminAnalyticsView(APIView):
                 'labels': income_labels,
                 'data': income_data
             },
-            # New specific charts
             'consultationsByMonth': {
                 'labels': month_names,
                 'data': consults_by_month

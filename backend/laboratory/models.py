@@ -58,6 +58,8 @@ class LabTechnicianProfile(models.Model):
     employee_id = models.CharField(max_length=50, unique=True)
     qualification = models.CharField(max_length=255, blank=True)
     shift = models.CharField(max_length=50, default='Day')
+    phone = models.CharField(max_length=50, blank=True, default='')
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
 
     def __str__(self):
         return f"{self.employee_id} - {self.user.name}"
