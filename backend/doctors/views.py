@@ -84,30 +84,38 @@ class DoctorLeaveRequestViewSet(viewsets.ModelViewSet):
 
         # Cancel overlapping appointments
         from appointments.models import Appointment
-        overlapping_appts = Appointment.objects.filter(
-            doctor_id=leave.doctor.doctor_id,
-            date__range=[leave.start_date, leave.end_date]
-        ).exclude(status__in=['cancelled', 'completed'])
-        
-        cancelled_count = overlapping_appts.count()
-        if cancelled_count > 0:
-            # We can log each cancelled appt ID in the action description
-            appt_ids = list(overlapping_appts.values_list('appt_id', flat=True))
-            overlapping_appts.update(status='cancelled')
+        if leave.doctor:
+            overlapping_appts = Appointment.objects.filter(
+                doctor_id=leave.doctor.doctor_id,
+                date__range=[leave.start_date, leave.end_date]
+            ).exclude(status__in=['cancelled', 'completed'])
             
+            cancelled_count = overlapping_appts.count()
+            if cancelled_count > 0:
+                # We can log each cancelled appt ID in the action description
+                appt_ids = list(overlapping_appts.values_list('appt_id', flat=True))
+                overlapping_appts.update(status='cancelled')
+                
+                AuditLog.objects.create(
+                    module='doctors',
+                    initiator=request.user.email,
+                    action=f"Cancelled conflicting appointments {appt_ids} due to approved leave for doctor {leave.doctor.doctor_id}",
+                    flag='SECURE'
+                )
+
             AuditLog.objects.create(
                 module='doctors',
                 initiator=request.user.email,
-                action=f"Cancelled conflicting appointments {appt_ids} due to approved leave for doctor {leave.doctor.doctor_id}",
+                action=f"Approved leave request for doctor {leave.doctor.doctor_id} ({leave.start_date} to {leave.end_date}). Remarks: {leave.remarks}",
                 flag='SECURE'
             )
-
-        AuditLog.objects.create(
-            module='doctors',
-            initiator=request.user.email,
-            action=f"Approved leave request for doctor {leave.doctor.doctor_id} ({leave.start_date} to {leave.end_date}). Remarks: {leave.remarks}",
-            flag='SECURE'
-        )
+        elif leave.technician:
+            AuditLog.objects.create(
+                module='doctors',
+                initiator=request.user.email,
+                action=f"Approved leave request for technician {leave.technician.employee_id} ({leave.start_date} to {leave.end_date}). Remarks: {leave.remarks}",
+                flag='SECURE'
+            )
         return Response(DoctorLeaveRequestSerializer(leave).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'], url_path='reject')
@@ -120,12 +128,20 @@ class DoctorLeaveRequestViewSet(viewsets.ModelViewSet):
         leave.remarks = request.data.get('remarks', '')
         leave.save()
 
-        AuditLog.objects.create(
-            module='doctors',
-            initiator=request.user.email,
-            action=f"Rejected leave request for doctor {leave.doctor.doctor_id} ({leave.start_date} to {leave.end_date}). Remarks: {leave.remarks}",
-            flag='SECURE'
-        )
+        if leave.doctor:
+            AuditLog.objects.create(
+                module='doctors',
+                initiator=request.user.email,
+                action=f"Rejected leave request for doctor {leave.doctor.doctor_id} ({leave.start_date} to {leave.end_date}). Remarks: {leave.remarks}",
+                flag='SECURE'
+            )
+        elif leave.technician:
+            AuditLog.objects.create(
+                module='doctors',
+                initiator=request.user.email,
+                action=f"Rejected leave request for technician {leave.technician.employee_id} ({leave.start_date} to {leave.end_date}). Remarks: {leave.remarks}",
+                flag='SECURE'
+            )
         return Response(DoctorLeaveRequestSerializer(leave).data, status=status.HTTP_200_OK)
 
 class DoctorReviewViewSet(viewsets.ModelViewSet):
