@@ -41,7 +41,8 @@ class DoctorLeaveRequest(models.Model):
         ordering = ['-start_date']
 
     def __str__(self):
-        return f"{self.doctor.doctor_id} - {self.start_date} to {self.end_date} ({self.status})"
+        identifier = self.doctor.doctor_id if self.doctor else (self.technician.employee_id if self.technician else "Unknown")
+        return f"{identifier} - {self.start_date} to {self.end_date} ({self.status})"
 
 class DoctorReview(models.Model):
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='reviews')
