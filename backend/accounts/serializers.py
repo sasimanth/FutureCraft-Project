@@ -7,10 +7,17 @@ class UserSerializer(serializers.ModelSerializer):
     dateJoined = serializers.DateTimeField(source='date_joined', read_only=True)
     emailVerified = serializers.BooleanField(source='email_verified', required=False)
     phoneVerified = serializers.BooleanField(source='phone_verified', required=False)
+    
+    phone = serializers.SerializerMethodField(required=False)
+    avatar = serializers.SerializerMethodField(required=False)
+    specialization = serializers.SerializerMethodField(required=False)
+    qualification = serializers.SerializerMethodField(required=False)
+    shift = serializers.SerializerMethodField(required=False)
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'email', 'name', 'role', 'is_active', 'patientId', 'doctorId', 'dateJoined', 'emailVerified', 'phoneVerified')
+        fields = ('id', 'email', 'name', 'role', 'is_active', 'patientId', 'doctorId', 'dateJoined', 'emailVerified', 'phoneVerified',
+                  'phone', 'avatar', 'specialization', 'qualification', 'shift')
 
     def get_patientId(self, obj):
         if obj.role == 'patient' and hasattr(obj, 'patientprofile'):
@@ -21,6 +28,46 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.role == 'doctor' and hasattr(obj, 'doctorprofile'):
             return obj.doctorprofile.doctor_id
         return None
+
+    def get_phone(self, obj):
+        if obj.role == 'patient' and hasattr(obj, 'patientprofile'):
+            return obj.patientprofile.phone
+        elif obj.role == 'doctor' and hasattr(obj, 'doctorprofile'):
+            return getattr(obj.doctorprofile, 'phone', '')
+        elif obj.role == 'labtech' and hasattr(obj, 'labtech_profile'):
+            return getattr(obj.labtech_profile, 'phone', '')
+        return ''
+
+    def get_avatar(self, obj):
+        request = self.context.get('request')
+        avatar_file = None
+        if obj.role == 'patient' and hasattr(obj, 'patientprofile'):
+            avatar_file = obj.patientprofile.avatar
+        elif obj.role == 'doctor' and hasattr(obj, 'doctorprofile'):
+            avatar_file = getattr(obj.doctorprofile, 'avatar', None)
+        elif obj.role == 'labtech' and hasattr(obj, 'labtech_profile'):
+            avatar_file = getattr(obj.labtech_profile, 'avatar', None)
+            
+        if avatar_file:
+            if request:
+                return request.build_absolute_uri(avatar_file.url)
+            return avatar_file.url
+        return None
+
+    def get_specialization(self, obj):
+        if obj.role == 'doctor' and hasattr(obj, 'doctorprofile'):
+            return obj.doctorprofile.specialization
+        return ''
+
+    def get_qualification(self, obj):
+        if obj.role == 'labtech' and hasattr(obj, 'labtech_profile'):
+            return obj.labtech_profile.qualification
+        return ''
+
+    def get_shift(self, obj):
+        if obj.role == 'labtech' and hasattr(obj, 'labtech_profile'):
+            return obj.labtech_profile.shift
+        return ''
 
 class AuditLogSerializer(serializers.ModelSerializer):
     class Meta:
