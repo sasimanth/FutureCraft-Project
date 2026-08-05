@@ -116,11 +116,28 @@ class UserViewSet(viewsets.ModelViewSet):
             user.set_password(data['password'])
         user.save()
 
-        # Update profiles name
+        # Update profile specific fields
         if user.role == 'patient' and hasattr(user, 'patientprofile'):
-            user.patientprofile.save()
+            profile = user.patientprofile
+            profile.phone = data.get('phone', profile.phone)
+            if 'avatar' in request.FILES:
+                profile.avatar = request.FILES['avatar']
+            profile.save()
         elif user.role == 'doctor' and hasattr(user, 'doctorprofile'):
-            user.doctorprofile.save()
+            profile = user.doctorprofile
+            profile.specialization = data.get('specialization', profile.specialization)
+            profile.phone = data.get('phone', profile.phone)
+            if 'avatar' in request.FILES:
+                profile.avatar = request.FILES['avatar']
+            profile.save()
+        elif user.role == 'labtech' and hasattr(user, 'labtech_profile'):
+            profile = user.labtech_profile
+            profile.qualification = data.get('qualification', profile.qualification)
+            profile.shift = data.get('shift', profile.shift)
+            profile.phone = data.get('phone', profile.phone)
+            if 'avatar' in request.FILES:
+                profile.avatar = request.FILES['avatar']
+            profile.save()
 
         # Log audit
         AuditLog.objects.create(
