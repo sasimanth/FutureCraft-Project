@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <h2>Hospital System</h2>
+    <div class="nav-links">
+      <a href="appointment.html">Appointment</a>
+      <a href="appointment-history.html">History</a>
+      <a href="reports.html">Reports</a>
+      <a href="analytics.html">Analytics</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Reports Dashboard</h1>
+
+    <!-- Summary Cards -->
+    <div class="report-cards">
+      <div class="card">
+        <h2>Total Appointments</h2>
+        <p id="totalAppointments">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Completed</h2>
+        <p id="completedAppointments">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Upcoming</h2>
+        <p id="upcomingAppointments">0</p>
+      </div>
+
+      <div class="card">
+        <h2>Cancelled</h2>
+        <p id="cancelledAppointments">0</p>
+      </div>
+    </div>
+
+    <!-- Reports Table -->
+    <h2 class="section-title">Recent Appointment Reports</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Patient Name</th>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="reportBody">
+          <!-- Data from script.js will come here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

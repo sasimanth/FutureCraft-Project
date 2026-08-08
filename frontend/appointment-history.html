@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appointment History</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="navbar">
+    <h2>Hospital System</h2>
+    <div class="nav-links">
+      <a href="appointment.html">Appointment</a>
+      <a href="appointment-history.html">History</a>
+      <a href="reports.html">Reports</a>
+      <a href="analytics.html">Analytics</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Appointment History</h1>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Patient Name</th>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Cancel</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
