@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CurePoint</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='cg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%230d9488'/%3E%3C/linearGradient%3E%3ClinearGradient id='cg2' x1='0%25' y1='100%25' x2='100%25' y2='0%25'%3E%3Cstop offset='0%25' stop-color='%2306b6d4'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='url(%23cg)' stroke-width='2'/%3E%3Cpath d='M 12 6 L 12 18 M 6 12 L 18 12' stroke='url(%23cg)' stroke-width='2.5' stroke-linecap='round'/%3E%3Cpath d='M 8 12 L 10 12 L 11 9 L 13 15 L 14 12 L 16 12' stroke='url(%23cg2)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .role-visual-panel {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        .role-visual-panel.d-none {
+            display: none !important;
+            opacity: 0;
+            transform: translateY(15px) scale(0.97);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--hc-radius);
+            padding: var(--spacing-lg);
+            box-shadow: var(--hc-shadow-lux);
+            margin-bottom: var(--spacing-md);
+        }
+        .glow-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #10b981, 0 0 20px #10b981;
+        }
+        .glow-dot-warning {
+            width: 8px;
+            height: 8px;
+            background-color: var(--hc-accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px var(--hc-accent);
+        }
+        .pulse-heart {
+            animation: pulse-icon 1.2s infinite alternate ease-in-out;
+            color: #ef4444;
+        }
+        @keyframes pulse-icon {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.25); }
+        }
+        .sparkline-mock {
+            height: 30px;
+            display: flex;
+            align-items: flex-end;
+            gap: 3px;
+        }
+        .sparkline-bar {
+            width: 6px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 3px 3px 0 0;
+            height: 20%;
+            transition: all 0.3s ease;
+        }
+        .sparkline-bar.active {
+            background: var(--hc-primary-light);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Theme Toggle -->
+    <div style="position: absolute; top: 20px; right: 20px; z-index: 1050;">
+        <button type="button" class="theme-toggle-btn btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center p-2 rounded-circle" onclick="toggleTheme()" style="width: 38px; height: 38px;">
+            <i class="fa-solid fa-moon fs-6"></i>
+        </button>
+    </div>
+
+    <div class="auth-wrapper">
+        <!-- LEFT PANEL: Dynamic Role-Based Brand Sidebar -->
+        <div class="auth-sidebar theme-patient d-none d-lg-flex flex-column justify-content-between">
+            <div class="auth-sidebar-header">
+                <a href="index.html" class="text-white text-decoration-none fw-bold fs-3 d-flex align-items-center gap-2">
+                    <svg class="curepoint-logo" viewBox="0 0 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                    <defs>
+                        <linearGradient id="medicore-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0a3d62"></stop>
+                            <stop offset="100%" stop-color="#1e3a8a"></stop>
+                        </linearGradient>
+                        <linearGradient id="medicore-teal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0d9488"></stop>
+                            <stop offset="100%" stop-color="#14b8a6"></stop>
+                        </linearGradient>
+                        <linearGradient id="medicore-red-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ef4444"></stop>
+                            <stop offset="100%" stop-color="#dc2626"></stop>
+                        </linearGradient>
+                    </defs>
+                    <path d="M 32 12 A 40 40 0 1 1 76 76" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="4.5" stroke-linecap="round" />
+                    <path d="M 22 50 C 22 68, 38 82, 56 80 C 62 79, 68 76, 72 71" fill="none" stroke="url(#medicore-teal-grad)" stroke-width="4" stroke-linecap="round" />
+                    <path d="M 24 46 C 26 54, 32 64, 42 66 C 46 67, 50 65, 52 62" fill="none" stroke="url(#medicore-teal-grad)" stroke-width="3" stroke-linecap="round" />
+                    <rect x="38" y="22" width="24" height="32" rx="3" fill="#ffffff" stroke="url(#medicore-blue-grad)" stroke-width="2.5" />
+                    <rect x="44" y="19" width="12" height="4" rx="1.5" fill="url(#medicore-blue-grad)" />
+                    <path d="M 50 26 V 32 M 47 29 H 53" stroke="url(#medicore-teal-grad)" stroke-width="2" stroke-linecap="round" />
+                    <line x1="43" y1="36" x2="57" y2="36" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
+                    <line x1="43" y1="40" x2="57" y2="40" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" />
+                    <path d="M 43 46 L 46 46 L 48 43 L 50 49 L 52 45 L 54 47 L 57 47" fill="none" stroke="url(#medicore-teal-grad)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 50 63 C 45 58, 41 54, 41 49 C 41 45.5, 43.5 43, 47 43 C 48.8 43, 49.6 44, 50 44.5 C 50.4 44, 51.2 43, 53 43 C 56.5 43, 59 45.5, 59 49 C 59 54, 55 58, 50 63 Z" fill="url(#medicore-red-grad)" />
+                    <path d="M 44 49 L 46 49 L 47 46 L 49 52 L 51 47 L 53 50 L 56 50" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M 67 22 C 67 22, 65 17, 69 15 C 72 13.5, 75 18, 74 21" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 77 23 C 77 23, 75 18, 79 16 C 82 14.5, 85 19, 84 22" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="69" cy="15" r="1" fill="url(#medicore-blue-grad)" />
+                    <circle cx="79" cy="16" r="1" fill="url(#medicore-blue-grad)" />
+                    <path d="M 70 21 C 71 27, 81 28, 82 22" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="2" stroke-linecap="round" />
+                    <path d="M 76 25 C 76 25, 77 34, 73 38 C 69 42, 69 50, 74 53 C 79 56, 79 62, 75 64" fill="none" stroke="url(#medicore-blue-grad)" stroke-width="2" stroke-linecap="round" />
+                    <circle cx="74" cy="67" r="4" fill="#ffffff" stroke="url(#medicore-blue-grad)" stroke-width="2" />
+                    <circle cx="74" cy="67" r="1.5" fill="url(#medicore-teal-grad)" />
+                </svg>
+                    <span class="brand-text text-white">Cure<span class="brand-highlight" style="color: rgba(255,255,255,0.7);">Point</span></span>
+                </a>
+            </div>
+            
+            <div class="auth-sidebar-panels w-100 my-auto">
+                <!-- PANEL: PATIENT -->
+                <div id="panel-patient" class="role-visual-panel animate-slide-up">
+                    <h1 class="fw-extrabold mb-3 text-white">Your Health. In Your Control.</h1>
+                    <p class="text-white-50 fs-6 mb-4">
+                        Access your complete medical records history, e-prescriptions, and laboratory reports on demand. HIPAA-compliant and AES-256 encrypted security.
+                    </p>
+                    
+                    <div class="glass-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-white font-size-sm fw-bold"><i class="fa-solid fa-heart-pulse pulse-heart me-1"></i> Vitals Telemetry Flow</span>
+                            <span class="badge bg-success-subtle text-success font-size-xxs py-1 px-2">Connected Live</span>
+                        </div>
+                        <div class="mb-3">
+                            <svg class="ecg-line-svg" viewBox="0 0 300 60" width="100%" height="45">
+                                <path class="ecg-path" d="M 0 30 L 60 30 L 70 20 L 80 45 L 90 5 L 100 38 L 110 30 L 170 30 L 180 20 L 190 45 L 200 5 L 210 38 L 220 30 L 300 30"></path>
+                            </svg>
+                        </div>
+                        <div class="row g-2 text-white">
+                            <div class="col-4">
+                                <div class="p-2 rounded bg-white-5 text-center">
+                                    <span class="text-white-50 font-size-xxs d-block">SYS/DIA</span>
+                                    <span class="fw-bold font-size-xs">120/80</span>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 rounded bg-white-5 text-center">
+                                    <span class="text-white-50 font-size-xxs d-block">Pulse Rate</span>
+                                    <span class="fw-bold font-size-xs">72 bpm</span>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2 rounded bg-white-5 text-center">
+                                    <span class="text-white-50 font-size-xxs d-block">SpO2</span>
+                                    <span class="fw-bold font-size-xs">98%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded bg-white-5 font-size-xs mt-3 text-white">
+                            <div class="d-flex justify-content-between mb-1 text-white-50">
+                                <span>Latest Diagnostic Lab Report</span>
+                                <span class="text-success fw-bold">Released</span>
+                            </div>
+                            <div class="fw-bold">Complete Blood Count (CBC) - 14.8 g/dL</div>
+                            <div class="d-flex justify-content-between mt-2 pt-2 border-top border-white-10 text-white-50">
+                                <span>Active Prescription</span>
+                                <span class="text-info fw-bold">Active</span>
+                            </div>
+                            <div class="fw-bold">Lisinopril 10mg - 1 tablet daily</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL: DOCTOR -->
+                <div id="panel-doctor" class="role-visual-panel d-none animate-slide-up">
+                    <h1 class="fw-extrabold mb-3 text-white">Precision Clinical Operations.</h1>
+                    <p class="text-white-50 fs-6 mb-4">
+                        Streamline patient consultation queueing, diagnostics tracking, and e-prescription building in a single unified workbench workspace.
+                    </p>
+                    
+                    <div class="glass-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-white font-size-sm fw-bold"><i class="fa-solid fa-stethoscope me-1"></i> Clinician Workspace Queue</span>
+                            <span class="badge bg-primary-subtle text-white font-size-xxs py-1 px-2">Active Duty</span>
+                        </div>
+                        <div class="text-white font-size-sm d-flex flex-column gap-3 mb-3">
+                            <div class="d-flex align-items-center justify-content-between timeline-dot-pulse">
+                                <div>
+                                    <strong class="d-block font-size-xs">09:30 AM - John Doe</strong>
+                                    <span class="text-white-50 font-size-xxs">General Physical Consultation</span>
+                                </div>
+                                <span class="badge bg-success font-size-xxs text-white">Confirmed</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between timeline-dot-pulse">
+                                <div>
+                                    <strong class="d-block font-size-xs">10:30 AM - Sarah Connor</strong>
+                                    <span class="text-white-50 font-size-xxs">Renew Prescription (Active)</span>
+                                </div>
+                                <span class="badge bg-warning font-size-xxs text-dark">Pending</span>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded bg-white-5 font-size-xs text-white">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-white-50 font-size-xxs"><i class="fa-solid fa-desktop me-1"></i> Live Patient Vitals Monitor</span>
+                                <span class="badge bg-danger font-size-xxs py-0.5 px-1.5 animate-pulse">Alert</span>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span>Room 104 - John Doe</span>
+                                <span class="fw-bold text-danger"><i class="fa-solid fa-heart-crack me-1"></i> BP 142/95</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL: LAB TECH -->
+                <div id="panel-labtech" class="role-visual-panel d-none animate-slide-up">
+                    <h1 class="fw-extrabold mb-3 text-white">World-Class Diagnostic Speed.</h1>
+                    <p class="text-white-50 fs-6 mb-4">
+                        Process lab orders, manage specimen test parameters, upload raw reports, and optimize average Turnaround Time (TAT) metrics.
+                    </p>
+                    
+                    <div class="glass-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-white font-size-sm fw-bold"><i class="fa-solid fa-flask-vial me-1"></i> Diagnostics Analyzer Queue</span>
+                            <span class="badge bg-warning-subtle text-warning font-size-xxs py-1 px-2">Lab Desk 3</span>
+                        </div>
+                        <div class="mb-3 scanner-container d-flex align-items-center justify-content-center">
+                            <div class="scanner-laser"></div>
+                            <span class="text-white-50 font-size-xxs"><i class="fa-solid fa-barcode me-1 animate-pulse"></i> Scanning Specimen Sp.488CBC...</span>
+                        </div>
+                        <div class="text-white font-size-xs mb-3">
+                            <div class="d-flex justify-content-between border-bottom border-white-10 pb-2 mb-2">
+                                <span>Complete Blood Count</span>
+                                <span class="fw-bold text-success">Parameters Set</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Average TAT: <strong class="text-warning">1.8 hrs</strong></span>
+                                <span>Active Queue: <strong>2 pending</strong></span>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded bg-white-5 font-size-xs text-white">
+                            <span class="text-white-50 font-size-xxs d-block mb-1">Analyzer Workflow Sequence</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success font-size-xxs">Centrifuge</span>
+                                <i class="fa-solid fa-chevron-right font-size-xxs text-white-30"></i>
+                                <span class="badge bg-warning font-size-xxs text-dark">Allo-Testing</span>
+                                <i class="fa-solid fa-chevron-right font-size-xxs text-white-30"></i>
+                                <span class="badge bg-secondary font-size-xxs">Validation</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PANEL: ADMIN -->
+                <div id="panel-admin" class="role-visual-panel d-none animate-slide-up">
+                    <h1 class="fw-extrabold mb-3 text-white">Enterprise Health Control.</h1>
+                    <p class="text-white-50 fs-6 mb-4">
+                        Oversee clinician schedules, audit data logs, manage system security access roles, and monitor live system databases.
+                    </p>
+                    
+                    <div class="glass-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-white font-size-sm fw-bold"><i class="fa-solid fa-chart-line me-1"></i> Executive Analytics Dashboard</span>
+                            <span class="badge bg-info-subtle text-info font-size-xxs py-1 px-2">Real-Time Metrics</span>
+                        </div>
+                        <div class="row g-2 text-white text-center mb-3">
+                            <div class="col-6">
+                                <div class="p-2 rounded bg-white-5">
+                                    <span class="text-white-50 font-size-xxs d-block">Active Clinicians</span>
+                                    <span class="fw-bold font-size-sm text-info">12 Online</span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-2 rounded bg-white-5">
+                                    <span class="text-white-50 font-size-xxs d-block">Patient Volume</span>
+                                    <span class="fw-bold font-size-sm text-success">310 Today</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-white font-size-xs">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-white-50">System Security Audit:</span>
+                                <strong class="text-success"><i class="fa-solid fa-shield-halved me-1"></i> 100% Compliant</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-white-50">Average Wait Time:</span>
+                                <strong>12.4 Mins (Optimal)</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-sidebar-footer">
+                <span class="text-white-50 font-size-sm">&copy; 2026 CurePoint. Smart Healthcare. Connected Care.</span>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Login Form -->
+        <div class="auth-content animate-fade-in">
+            <div class="auth-form-container">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold mb-2">Welcome Back</h2>
+                    <p class="text-muted">Please select your portal and enter your credentials.</p>
+                </div>
+
+                <!-- PORTAL ROLE SELECTOR -->
+                <div class="row g-2 mb-4">
+                    <div class="col-6 col-sm-3">
+                        <div class="auth-role-card active" data-role="patient">
+                            <i class="fa-solid fa-user-injured fs-4 d-block mb-2 text-primary"></i>
+                            <span class="font-size-sm">Patient</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="auth-role-card" data-role="doctor">
+                            <i class="fa-solid fa-user-doctor fs-4 d-block mb-2 text-success"></i>
+                            <span class="font-size-sm">Doctor</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="auth-role-card" data-role="labtech">
+                            <i class="fa-solid fa-vials fs-4 d-block mb-2 text-warning"></i>
+                            <span class="font-size-sm">Lab Tech</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="auth-role-card" data-role="admin">
+                            <i class="fa-solid fa-user-gear fs-4 d-block mb-2 text-danger"></i>
+                            <span class="font-size-sm">Admin</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-danger d-none" id="login-error-msg" role="alert"></div>
+
+                <form id="loginForm">
+                    <!-- Hidden field to keep selected role state -->
+                    <input type="hidden" id="login-role" value="patient">
+
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="login-email" placeholder="name@example.com" required>
+                        <label for="login-email">Email Address</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="login-password" placeholder="Password" required>
+                        <label for="login-password">Password</label>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe">
+                            <label class="form-check-label text-muted font-size-sm" for="rememberMe">
+                                Remember Me
+                            </label>
+                        </div>
+                        <a href="#" class="text-primary text-decoration-none font-size-sm fw-medium" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-hc-primary btn-lg w-100 py-3 mb-4">Log In</button>
+                </form>
+
+                <div class="text-center" id="register-container">
+                    <p class="text-muted font-size-sm">New patient? <a href="register.html" class="text-primary text-decoration-none fw-semibold">Create Patient Account</a></p>
+                    <p class="mt-3"><a href="#" class="text-secondary text-decoration-none font-size-xs fw-medium" id="reset-db-btn"><i class="fa-solid fa-arrows-rotate me-1"></i>Reset Demo Database</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORGOT PASSWORD MODAL -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="forgotPasswordModalLabel">Reset Password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4">
+                    <p class="text-muted mb-4">Enter your registered email address below and we will email you password recovery instructions.</p>
+                    <div class="form-floating mb-3">
+                        <input type="email" class="form-control" id="reset-email" placeholder="name@example.com" required>
+                        <label for="reset-email">Email Address</label>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="alert('Password reset link sent to your email!'); bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();">Send Recovery Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS Controller -->
+    <script src="js/app.js?v=1.4"></script>
+</body>
+</html>
